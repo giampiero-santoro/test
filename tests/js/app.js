@@ -5192,6 +5192,43 @@
     e.returnValue = '';
   });
 
+  // ---------- Ricerca globale della nuova dashboard ----------
+  const globalSearchInput = document.getElementById('global-search-input');
+  if(globalSearchInput){
+    globalSearchInput.addEventListener('input', ()=>{
+      const searchInput = document.getElementById('search');
+      if(searchInput){
+        searchInput.value = globalSearchInput.value;
+        searchInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+    });
+    globalSearchInput.addEventListener('focus', ()=>{
+      if(document.getElementById('recipes-view')?.style.display !== 'none') return;
+    });
+    globalSearchInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && globalSearchInput.value.trim()){
+        switchView('recipes');
+        const searchInput = document.getElementById('search');
+        if(searchInput){
+          searchInput.value = globalSearchInput.value;
+          searchInput.dispatchEvent(new Event('input', {bubbles:true}));
+          searchInput.focus();
+        }
+      }
+    });
+  }
+
+  const sidebarThemeBtn = document.getElementById('sidebar-theme-btn');
+  if(sidebarThemeBtn){
+    sidebarThemeBtn.addEventListener('click', ()=>{
+      const root = document.documentElement;
+      const current = root.getAttribute('data-dashboard-theme') || 'light';
+      const next = current === 'light' ? 'soft' : 'light';
+      root.setAttribute('data-dashboard-theme', next);
+      sidebarThemeBtn.querySelector('span:nth-child(2)').textContent = next === 'light' ? 'Tema chiaro' : 'Tema morbido';
+    });
+  }
+
   // ---------- Init ----------
   (async function avviaApp(){
     await inizializzaStorageFileAllAvvio();
@@ -5201,7 +5238,7 @@
     migrateWeekPlan();
     planServingsInput.value = planServings;
     updatePantryPanelSub();
-    switchView('recipes');
+    switchView('today');
     aggiornaControlliMenuStorage();
     mostraSceltaStorageSeNecessario();
   })();
