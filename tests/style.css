@@ -1,0 +1,904 @@
+:root{
+    color-scheme: light;
+    --wood-dark:#241610;
+    --wood:#3a2718;
+    --wood-deep:#160d07;
+    --parchment:#f3e8cd;
+    --parchment-light:#fbf4e1;
+    --ink:#2b1f13;
+    --ink-soft:#6b5942;
+    --gold:#b8892c;
+    --gold-bright:#e2b45a;
+    --gold-deep:#8c6a2f;
+    --brass:#8c6a2f;
+    --line:#d3c298;
+    --shadow: rgba(18,10,4,0.45);
+    --green:#4f8a3d;
+    --orange:#cf7a2c;
+    --red:#9c3434;
+
+    /* Variabili tema aggiuntive: font, sfondo pagina, testata/navigazione,
+       texture della "pergamena". Il tema predefinito (nessun data-tema,
+       o data-tema="osteria") riprende esattamente l'aspetto originale. */
+    --font-titoli:'Cormorant Garamond', serif;
+    --font-testo:'Crimson Pro', serif;
+    --font-script:'Great Vibes', cursive;
+    --page-bg:
+      radial-gradient(1100px 520px at 50% -8%, rgba(226,180,90,0.16), transparent 60%),
+      radial-gradient(ellipse at top, #523923 0%, var(--wood-dark) 55%, var(--wood-deep) 100%);
+    --masthead-text:var(--parchment-light);
+    --masthead-eyebrow:var(--gold-bright);
+    --sub-color:#e8d3a3;
+    --h1-grad-1:#f9ecc8; --h1-grad-2:#e9c06a; --h1-grad-3:#b8892c;
+    --h1-shadow: rgba(0,0,0,.4);
+    --nav-bg: rgba(250,243,224,0.07);
+    --nav-border: rgba(226,180,90,0.35);
+    --nav-text:#e8d6ae;
+    --nav-hover-bg: rgba(250,243,224,0.16);
+    --nav-active-text:#2c1d0d;
+    --nav-active-shadow: rgba(184,137,44,0.45);
+    --shadow-2: rgba(18,10,4,0.30);
+    --paper-glow: rgba(160,120,60,0.12);
+    --paper-line: rgba(160,120,60,0.035);
+
+    /* Dimensioni dei testi piccoli (etichette, note, righe di dettaglio).
+       Definite qui in un punto solo così da poterle ingrandire tutte
+       insieme sugli schermi piccoli — vedi la media query in fondo. */
+    --fs-xxs: 10px;
+    --fs-xs: 11.5px;
+    --fs-sm: 12.5px;
+    --fs-md: 13px;
+  }
+
+  /* ============ TEMI ALTERNATIVI ============
+     Stesse variabili di :root, valori diversi: tutto il resto del CSS
+     (già scritto con var(--...) ovunque) si aggiorna da solo. */
+
+  :root[data-tema="mediterranea"]{
+    --wood-dark:#F5E9D8; --wood:#8B3A1F; --wood-deep:#F5E9D8;
+    --parchment:#FAF3E8; --parchment-light:#FFFBF3;
+    --ink:#3A2E26; --ink-soft:#7A6A5C;
+    --gold:#D9713C; --gold-bright:#E68A54; --gold-deep:#B85A2C; --brass:#B85A2C;
+    --line:#EEDFC5; --shadow: rgba(120,80,40,0.18);
+    --font-titoli:'Fraunces', serif; --font-testo:'Karla', sans-serif; --font-script:'Fraunces', serif;
+    --page-bg: radial-gradient(1200px 600px at 50% -10%, rgba(217,113,60,0.07), transparent 60%), #FAF3E8;
+    --masthead-text:#3A2E26; --masthead-eyebrow:#C1651F; --sub-color:#8B5E3C;
+    --h1-grad-1:#B85A2C; --h1-grad-2:#D9713C; --h1-grad-3:#8B3A1F; --h1-shadow: rgba(139,58,31,0.15);
+    --nav-bg:#FFFFFF; --nav-border:#E3D5BF; --nav-text:#3A2E26; --nav-hover-bg:#FFF6EA;
+    --nav-active-text:#FFFFFF; --nav-active-shadow: rgba(217,113,60,0.35);
+    --shadow-2: rgba(139,58,31,0.12); --paper-glow: rgba(217,113,60,0.08); --paper-line: rgba(217,113,60,0.03);
+  }
+
+  :root[data-tema="bosco"]{
+    --wood-dark:#2A3D2C; --wood:#1F3320; --wood-deep:#0D160E;
+    --parchment:#F3E9D2; --parchment-light:#FAF3E0;
+    --ink:#2B2418; --ink-soft:#6B6350;
+    --gold:#C1571B; --gold-bright:#D9713C; --gold-deep:#9C4515; --brass:#9C4515;
+    --line:#E3D5B0; --shadow: rgba(20,30,15,0.35);
+    --font-titoli:'Bitter', serif; --font-testo:'Mulish', sans-serif; --font-script:'Bitter', serif;
+    --page-bg: radial-gradient(1100px 520px at 50% -8%, rgba(217,164,65,0.10), transparent 60%), radial-gradient(ellipse at top, #2A3D2C 0%, #1B2A1C 55%, #0D160E 100%);
+    --masthead-text:#F3E9D2; --masthead-eyebrow:#D9A441; --sub-color:#D9C9A0;
+    --h1-grad-1:#F3E0B0; --h1-grad-2:#D9A441; --h1-grad-3:#9C4515; --h1-shadow: rgba(0,0,0,.4);
+    --nav-bg: rgba(243,233,210,0.07); --nav-border: rgba(217,164,65,0.35); --nav-text:#E3D9C0; --nav-hover-bg: rgba(243,233,210,0.14);
+    --nav-active-text:#2B1A08; --nav-active-shadow: rgba(193,87,27,0.45);
+    --shadow-2: rgba(13,22,14,0.25); --paper-glow: rgba(217,164,65,0.10); --paper-line: rgba(43,74,46,0.04);
+  }
+
+  :root[data-tema="trattoria"]{
+    --wood-dark:#F7F5F0; --wood:#2B2B2B; --wood-deep:#F7F5F0;
+    --parchment:#F7F5F0; --parchment-light:#FFFFFF;
+    --ink:#2B2B2B; --ink-soft:#767268;
+    --gold:#C1432A; --gold-bright:#D65C3F; --gold-deep:#9C351F; --brass:#9C351F;
+    --line:#EAE6DD; --shadow: rgba(40,35,25,0.10);
+    --font-titoli:'DM Serif Display', serif; --font-testo:'DM Sans', sans-serif; --font-script:'DM Serif Display', serif;
+    --page-bg: #F7F5F0;
+    --masthead-text:#2B2B2B; --masthead-eyebrow:#C1432A; --sub-color:#767268;
+    --h1-grad-1:#3A3530; --h1-grad-2:#2B2B2B; --h1-grad-3:#C1432A; --h1-shadow: rgba(0,0,0,0.08);
+    --nav-bg:#FFFFFF; --nav-border:#E3DFD5; --nav-text:#2B2B2B; --nav-hover-bg:#FAF8F3;
+    --nav-active-text:#FFFFFF; --nav-active-shadow: rgba(193,67,42,0.3);
+    --shadow-2: rgba(40,35,25,0.06); --paper-glow: rgba(193,67,42,0.04); --paper-line: rgba(40,35,25,0.02);
+  }
+
+  :root[data-tema="cantina"]{
+    --wood-dark:#4A1B2C; --wood:#6B1E2C; --wood-deep:#12070C;
+    --parchment:#F0E4CE; --parchment-light:#F8F0DE;
+    --ink:#2A1220; --ink-soft:#6B4A56;
+    --gold:#C9A24B; --gold-bright:#E2B45A; --gold-deep:#8C6A2F; --brass:#8C6A2F;
+    --line:#D9C9A8; --shadow: rgba(20,5,12,0.45);
+    --font-titoli:'Cormorant Garamond', serif; --font-testo:'Crimson Pro', serif; --font-script:'Great Vibes', cursive;
+    --page-bg: radial-gradient(1100px 520px at 50% -8%, rgba(226,180,90,0.14), transparent 60%), radial-gradient(ellipse at top, #4A1B2C 0%, #2A1220 55%, #12070C 100%);
+    --masthead-text:#F0E4CE; --masthead-eyebrow:#E2B45A; --sub-color:#E0C9A0;
+    --h1-grad-1:#F9ECC8; --h1-grad-2:#E2B45A; --h1-grad-3:#8C6A2F; --h1-shadow: rgba(0,0,0,.4);
+    --nav-bg: rgba(240,228,206,0.07); --nav-border: rgba(226,180,90,0.35); --nav-text:#E8D6C8; --nav-hover-bg: rgba(240,228,206,0.14);
+    --nav-active-text:#2A1220; --nav-active-shadow: rgba(201,162,75,0.45);
+    --shadow-2: rgba(18,5,12,0.30); --paper-glow: rgba(226,180,90,0.10); --paper-line: rgba(122,35,51,0.04);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    position:relative;
+    min-height:100vh;
+    font-family:var(--font-testo);
+    color:var(--ink);
+    padding:36px 16px 90px;
+  }
+  /* Sfondo su pseudo-elemento fisso invece che background-attachment:fixed
+     sul body: su Safari iOS, background-attachment:fixed può bloccare o
+     rendere instabile lo scroll di pagine lunghe (es. molti risultati in
+     "CREA Alimenti"). Stesso effetto visivo, scroll sempre libero. */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background: var(--page-bg);
+  }
+  h1,h2,h3,.display{font-family:var(--font-titoli);}
+
+  ::selection{background:var(--gold-bright); color:#2c1d0d;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));border-radius:8px;border:2px solid var(--parchment);}
+
+  /* ---------- Intestazione ---------- */
+  .masthead{max-width:960px;margin:0 auto 22px;text-align:center;color:var(--masthead-text);}
+  .masthead .eyebrow{letter-spacing:.42em;text-transform:uppercase;font-size:var(--fs-xs);color:var(--masthead-eyebrow);margin-bottom:8px;text-shadow:0 1px 4px var(--h1-shadow);}
+  .masthead h1{
+    font-family:var(--font-titoli);
+    font-size:56px;font-weight:700;margin:0 0 6px;letter-spacing:.04em;line-height:1;
+    background:linear-gradient(180deg,var(--h1-grad-1) 0%,var(--h1-grad-2) 55%,var(--h1-grad-3) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 3px 8px var(--h1-shadow));
+  }
+  .masthead-ornament{display:flex;align-items:center;justify-content:center;gap:14px;color:var(--masthead-eyebrow);font-size:var(--fs-md);margin:4px 0 8px;text-shadow:0 0 10px var(--paper-glow);}
+  .masthead-ornament span{display:block;height:1px;width:100px;}
+  .masthead-ornament span:first-child{background:linear-gradient(90deg,transparent,var(--masthead-eyebrow));}
+  .masthead-ornament span:last-child{background:linear-gradient(90deg,var(--masthead-eyebrow),transparent);}
+  .masthead .sub{font-family:var(--font-script);font-style:italic;font-size:27px;color:var(--sub-color);text-shadow:0 2px 6px var(--h1-shadow);}
+
+  /* ---------- Navigazione viste ---------- */
+  /* Barra con il pulsante "hamburger": nascosta di default, compare solo sotto i 760px
+     (vedi media query più sotto), dove sostituisce la fila di pulsanti con un menu a tendina. */
+  .mobile-nav-bar{display:none;}
+  .mobile-nav-bar button{
+    width:100%; text-align:left; font-family:var(--font-testo); font-weight:600; font-size:16px;
+    background:var(--nav-bg); border:1px solid var(--nav-border); color:var(--nav-text);
+    border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:8px;
+  }
+  .view-nav{display:flex;gap:10px;justify-content:center;max-width:960px;margin:0 auto 26px;flex-wrap:wrap;}
+  .view-nav-btn{
+    font-family:var(--font-testo);
+    background:var(--nav-bg);
+    border:1px solid var(--nav-border);
+    color:var(--nav-text);
+    border-radius:24px; padding:9px 22px; font-size:14px; font-weight:600;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition:background .18s ease, transform .18s ease, box-shadow .18s ease, color .18s ease;
+  }
+  .view-nav-btn:hover{background:var(--nav-hover-bg); transform:translateY(-1px);}
+  .view-nav-btn.active{
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold) 60%,var(--gold-deep));
+    color:var(--nav-active-text); border-color:transparent;
+    box-shadow:0 6px 18px var(--nav-active-shadow), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  /* Sotto i 760px: la fila di 7 pulsanti (uno molto lungo) occuperebbe troppo spazio in
+     verticale e sarebbe scomoda da scorrere col pollice. Si passa a un pulsante "☰" che apre
+     un menu a tendina a tutta larghezza, con lo stesso elenco di destinazioni ma impilate e
+     con un'area di tocco più generosa. */
+  @media (max-width:760px){
+    .mobile-nav-bar{display:block; max-width:960px; margin:0 auto 14px;}
+    /* In flusso normale, subito sotto il pulsante ☰ (di cui è "fratello" nel markup):
+       niente overlay/posizionamento assoluto, resta semplice e non copre altro contenuto. */
+    .view-nav{
+      display:none; flex-direction:column; gap:8px; justify-content:flex-start;
+      max-width:960px; background:var(--parchment); border:1px solid var(--line);
+      border-radius:12px; padding:10px; box-shadow:0 8px 20px rgba(0,0,0,0.12); margin:0 auto 20px;
+    }
+    .view-nav.open{display:flex;}
+    .view-nav-btn{width:100%; text-align:left; border-radius:8px; padding:13px 16px; font-size:16px;}
+  }
+
+  /* ---------- Libro / pergamena ---------- */
+  .book{
+    max-width:960px;margin:0 auto;background:var(--parchment);
+    border:1px solid var(--line);border-radius:14px;
+    box-shadow:
+      0 40px 80px var(--shadow),
+      0 10px 26px var(--shadow-2),
+      inset 0 0 0 6px var(--parchment-light),
+      inset 0 0 70px var(--paper-glow);
+    padding:30px;
+    background-image:repeating-linear-gradient(0deg, var(--paper-line) 0px, var(--paper-line) 1px, transparent 1px, transparent 26px);
+  }
+
+  /* ---------- Pannelli ---------- */
+  .panel{
+    background:linear-gradient(180deg, rgba(226,180,90,0.15), rgba(226,180,90,0.05));
+    border:1px solid rgba(184,137,44,0.45);
+    border-left:4px solid var(--gold);
+    border-radius:8px;
+    padding:16px 18px;
+    margin-bottom:18px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.45), 0 2px 8px rgba(44,29,13,0.06);
+  }
+  .panel-header{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+  .panel-icon{font-size:22px;line-height:1;filter:drop-shadow(0 2px 3px rgba(44,29,13,.2));}
+  .panel-header h3{margin:0 0 2px;font-size:21px;color:var(--ink);}
+  .panel-sub{font-size:var(--fs-md);color:var(--ink-soft);font-style:italic;}
+  .panel-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .panel-row input[type="text"]{flex:1;min-width:220px;}
+  #info-view .panel p{line-height:1.6;margin:0 0 10px;}
+  #info-view .panel p:last-child{margin-bottom:0;}
+  #info-view .panel a{color:var(--gold-deep);text-decoration:underline;}
+  .panel-row select{min-width:0;max-width:100%;}
+
+  /* ---------- Dashboard Oggi ---------- */
+  .today-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 18px;}
+  .today-heading h2{margin:0;color:var(--ink);font-size:30px;}
+  .today-heading p{margin:3px 0 0;color:var(--ink-soft);font-size:var(--fs-md);}
+  .today-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+  .today-card{background:rgba(255,255,255,.24);border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:10px;padding:14px;min-width:0;}
+  .today-card h3{margin:0 0 10px;color:var(--ink);font-size:20px;}
+  .today-list{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;list-style:none;}
+  .today-list li{padding:7px 0;border-bottom:1px dashed var(--line);font-size:var(--fs-md);}
+  .today-list li:last-child{border-bottom:0;}
+  .today-time{color:var(--brass);font-weight:700;display:inline-block;min-width:43px;}
+  .today-meal{color:var(--ink-soft);font-size:var(--fs-sm);}
+  .today-empty{color:var(--ink-soft);font-style:italic;font-size:var(--fs-md);margin:0 0 12px;}
+  .today-expiry-soon{color:#a5641f;font-weight:600;}
+  .today-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  @media (max-width:760px){.today-grid{grid-template-columns:1fr;}.today-heading h2{font-size:27px;}}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    border-bottom:1px solid transparent;
+    background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent) bottom / 100% 2px no-repeat;
+    padding-bottom:16px;margin-bottom:20px;
+  }
+  .toolbar-group{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .search-wrap{flex:1;min-width:200px;position:relative;}
+
+  /* ---------- Menu a tendina ---------- */
+  .menu-wrap{position:relative;display:inline-block;}
+  .menu-dropdown{
+    display:none;flex-direction:column;gap:2px;position:absolute;top:100%;left:0;margin-top:8px;
+    background:linear-gradient(180deg,var(--parchment-light),#f4ead0);
+    border:1px solid var(--brass);border-radius:10px;
+    box-shadow:0 14px 34px rgba(44,29,13,0.30);min-width:210px;z-index:60;padding:6px;
+    animation:modalIn .18s ease;
+  }
+  .menu-dropdown.open{display:flex;}
+  .menu-dropdown button{
+    background:transparent;border:none;text-align:left;padding:9px 10px;border-radius:6px;
+    font-family:var(--font-testo);font-size:14.5px;color:var(--wood);cursor:pointer;width:100%;
+    transition:background .12s ease;
+  }
+  .menu-dropdown button:hover{background:rgba(140,106,47,0.14);}
+  .menu-divider{height:1px;background:var(--line);margin:5px 2px;}
+  .menu-info{font-size:var(--fs-xs);color:var(--ink-soft);padding:4px 10px 8px;border-bottom:1px solid var(--line);margin-bottom:4px;}
+  .menu-info.warning{color:#a33322;font-weight:600;}
+  .schedule-dropdown{min-width:230px;padding:12px;}
+  .schedule-field{display:flex;flex-direction:column;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:9px;}
+  .schedule-field select, .schedule-field input{margin-top:3px;padding:6px 8px;font-size:14px;width:100%;}
+  .schedule-status{font-size:var(--fs-sm);color:var(--brass);font-weight:600;margin-top:8px;text-align:center;}
+  #advanced-filters-toggle.active{background:var(--brass);color:#fff;border-color:var(--brass);}
+  @media (max-width:600px){
+    .menu-dropdown{left:0;right:0;min-width:0;}
+  }
+
+  /* ---------- Campi ---------- */
+  input[type="text"], select, textarea, input[type="number"], input[type="date"]{
+    font-family:var(--font-testo);background:#fffdf4;
+    border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:15px;color:var(--ink);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input[type="time"]{
+    font-family:var(--font-testo);background:#fffdf4;
+    border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:15px;color:var(--ink);
+    -webkit-appearance:none;appearance:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none;border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(226,180,90,0.28);
+  }
+  #search{width:100%;}
+  #category-filter{min-width:170px;}
+
+  /* ---------- Bottoni ---------- */
+  button{
+    font-family:var(--font-testo);cursor:pointer;border:none;border-radius:6px;padding:10px 18px;font-size:14px;letter-spacing:.03em;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .15s ease, filter .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+  }
+  .btn-gold{
+    background:linear-gradient(180deg,#eec573, var(--gold) 60%, var(--gold-deep));
+    color:#2c1d0d;font-weight:600;
+    box-shadow:0 3px 0 var(--gold-deep), 0 8px 18px rgba(184,137,44,0.35), inset 0 1px 0 rgba(255,255,255,0.45);
+  }
+  .btn-gold:hover{transform:translateY(-1px); filter:brightness(1.06);}
+  .btn-gold:active{transform:translateY(1px); box-shadow:0 1px 0 var(--gold-deep), 0 4px 10px rgba(184,137,44,0.30);}
+  .btn-ghost{background:transparent;border:1px solid var(--ink-soft);color:var(--ink-soft);}
+  .btn-ghost:hover{background:rgba(0,0,0,0.05); transform:translateY(-1px);}
+  .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);}
+  .btn-danger:hover{background:rgba(156,52,52,0.10);}
+  .btn-small{padding:5px 10px;font-size:var(--fs-sm);}
+  button:disabled{opacity:.45;cursor:not-allowed; transform:none !important;}
+
+  /* ---------- Lista ricette / card ---------- */
+  #recipe-list{display:grid;grid-template-columns:repeat(auto-fill, minmax(235px,1fr));gap:18px;}
+  .card{
+    background:linear-gradient(180deg,#fdf8ea, var(--parchment-light));
+    border:1px solid var(--line);
+    border-left:5px solid var(--cat-color, var(--brass));border-radius:10px;
+    padding:16px;position:relative;cursor:pointer;
+    box-shadow:0 1px 2px rgba(44,29,13,.08), 0 6px 14px rgba(44,29,13,.06);
+    transition:transform .18s ease, box-shadow .18s ease;
+    animation:cardIn .35s ease both;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 16px 30px rgba(44,29,13,.20);}
+  .card .thumb{
+    width:100%;height:110px;object-fit:cover;border-radius:6px;margin-bottom:8px;border:1px solid var(--line);
+    box-shadow:0 3px 8px rgba(44,29,13,.10);
+  }
+  .card .cat-tag, .crea-menu-dettaglio .cat-tag{
+    display:inline-block;font-size:var(--fs-xxs);letter-spacing:.12em;text-transform:uppercase;color:#fff;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--cat-color, var(--brass)) 88%, white), var(--cat-color, var(--brass)));
+    border-radius:20px;padding:3px 10px;margin-bottom:8px;font-weight:600;
+    box-shadow:0 2px 5px rgba(44,29,13,.18);
+  }
+  .card .pressure-badge, .card .robot-badge, .card .traditional-badge{
+    display:inline-block;font-size:14px;margin-left:6px;margin-bottom:8px;vertical-align:middle;
+  }
+  .dispensa-qty{font-size:var(--fs-md);color:var(--ink-soft);}
+  .dispensa-expiry{
+    display:inline-block;font-size:var(--fs-sm);margin-top:6px;color:var(--ink-soft);
+    background:rgba(90,74,55,.08);border-radius:12px;padding:2px 10px;
+  }
+  .dispensa-expiry.soon{background:rgba(207,122,44,.15);color:#a5641f;font-weight:600;}
+  .dispensa-expiry.expired{background:rgba(156,52,52,.13);color:var(--red);font-weight:600;}
+  .dispensa-low-stock{background:rgba(207,122,44,.15);color:#a5641f;font-weight:600;border-radius:5px;padding:5px 8px;margin-top:6px;font-size:var(--fs-sm);}
+  .dispensa-notes{font-size:var(--fs-sm);color:var(--ink-soft);font-style:italic;margin-top:6px;}
+  .card .star{
+    position:absolute;top:12px;right:12px;font-size:18px;background:none;border:none;padding:2px;
+    color:var(--line); transition:transform .15s ease, color .15s ease;
+  }
+  .card .star:hover{transform:scale(1.25);}
+  .card .star.active{color:var(--gold-bright); text-shadow:0 0 10px rgba(226,180,90,.65);}
+  /* Selezione multipla: la casella prende il posto della stellina */
+  .card .card-select-box{position:absolute;top:10px;right:12px;font-size:20px;line-height:1;}
+  .card.selezionata{box-shadow:0 0 0 2px var(--gold), 0 8px 20px var(--shadow-2);}
+  #select-mode-btn.active{background:var(--brass);color:#fff;}
+  #selection-delete-btn:disabled{opacity:.5;}
+  .card h3{margin:0 0 6px;font-size:22px;color:var(--ink);line-height:1.15;}
+  .card .meta{font-size:var(--fs-sm);color:var(--ink-soft);display:flex;gap:10px;flex-wrap:wrap;}
+  .card .last-made{
+    display:inline-block;font-size:var(--fs-xs);color:var(--brass);margin-top:8px;font-style:italic;
+    background:rgba(184,137,44,0.10); border:1px solid rgba(184,137,44,0.25);
+    border-radius:12px; padding:2px 10px;
+  }
+  .empty-state{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--ink-soft);font-style:italic;font-size:16px;}
+  .recipe-picker-list{max-height:55vh;overflow-y:auto;margin-top:6px;border-top:1px solid var(--line);}
+  .recipe-picker-item{
+    display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer;
+    border-radius:4px; transition:background .12s ease;
+  }
+  .recipe-picker-item:hover{background:rgba(140,106,47,0.12);}
+  .recipe-picker-item .cat-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;box-shadow:0 1px 3px rgba(44,29,13,.3);}
+  .recipe-picker-item .name{flex:1;font-family:var(--font-titoli);font-size:17px;color:var(--ink);}
+  .recipe-picker-item .meta{font-size:var(--fs-sm);color:var(--ink-soft);white-space:nowrap;}
+  .recipe-picker-empty{padding:24px 4px;text-align:center;color:var(--ink-soft);font-style:italic;}
+
+  .card .match-badge{
+    display:inline-block;font-size:var(--fs-xs);font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:6px;
+    box-shadow:0 2px 5px rgba(44,29,13,.15);
+  }
+  .match-badge.ready{background:linear-gradient(180deg,#63a04e,var(--green));color:#fff;}
+  .match-badge.missing{background:linear-gradient(180deg,#dd8a3d,var(--orange));color:#fff;}
+  .match-badge.scarso{background:linear-gradient(180deg,#e0b755,var(--gold-deep));color:#fff;}
+  .card .missing-list{font-size:var(--fs-sm);color:var(--red);margin-top:6px;}
+  .card .missing-list.scarso{color:var(--gold-deep);}
+  .card .missing-list b{color:var(--red);}
+  .pantry-caveat{font-size:var(--fs-xxs);font-style:italic;color:var(--ink-soft);margin:-2px 0 6px;}
+  #freezable-suggestion{align-items:center;flex-wrap:wrap;gap:6px;}
+  #freezable-suggestion .btn-small{font-style:normal;}
+  .link-btn{background:none;border:none;padding:0;margin:0;color:var(--gold-deep);text-decoration:underline;font:inherit;font-weight:600;cursor:pointer;}
+  .link-btn:hover{color:var(--brass);}
+
+  /* ---------- Overlay e modali ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(18,10,4,0.62);
+    backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+    display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:50;
+  }
+  .overlay.active{display:flex; animation:fadeIn .2s ease;}
+  .modal{
+    background:linear-gradient(180deg,#fdf8ea, var(--parchment-light));
+    max-width:680px;width:100%;border-radius:12px;border:1px solid var(--line);
+    box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(226,180,90,.20);
+    padding:28px;position:relative;
+    animation:modalIn .25s ease;
+  }
+  .modal h2{margin-top:0;font-size:28px;color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:10px;}
+  #confirm-overlay{z-index:70;align-items:center;}
+  .confirm-modal{max-width:440px;}
+  .confirm-modal h2{font-size:22px;}
+  .confirm-modal #confirm-message{color:var(--ink-soft);font-size:var(--fs-md);margin:0 0 4px;}
+  .confirm-modal .btn-gold.btn-danger-action{background:linear-gradient(180deg,#c96a5a,var(--red) 60%,#8c3030);border:1px solid #8c3030;color:#fff;box-shadow:0 3px 0 #8c3030, 0 8px 18px rgba(156,52,52,0.35);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:var(--fs-sm);text-transform:uppercase;letter-spacing:.08em;color:var(--brass);margin-bottom:5px;font-weight:600;}
+  .field input, .field select, .field textarea{width:100%;}
+  .row{display:flex;gap:12px;}
+  .row > .field{flex:1;}
+  textarea{resize:vertical;min-height:70px;line-height:1.5;}
+
+  .list-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+  .list-row input{flex:1;}
+  .list-row input.qty{flex:0 0 70px;}
+  .list-row input.unit{flex:0 0 70px;}
+  .remove-row{background:transparent;border:none;color:var(--red);font-size:18px;padding:2px 8px;line-height:1;border-radius:4px;}
+  .remove-row:hover{background:rgba(156,52,52,0.10);}
+  .add-row-btn{font-size:var(--fs-md);background:transparent;border:1px dashed var(--brass);color:var(--brass);padding:6px 12px;border-radius:6px;}
+  .add-row-btn:hover{background:rgba(140,106,47,0.10);}
+  .ingredients-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  #dispensa-nutrition-toggle-btn.active{background:var(--brass);color:#fff;}
+  .ingredient-block{margin-bottom:8px;}
+  .ingredient-nutrition{
+    display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;padding:8px;border:1px dashed var(--line);border-radius:6px;
+    background:rgba(255,255,255,0.45);
+  }
+  .ingredient-nutrition .mini{display:flex;flex-direction:column;font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);}
+  .ingredient-nutrition .mini input{width:64px;padding:5px 6px;font-size:var(--fs-md);}
+  .ingredient-nutrition .mini input.ing-crea-search{width:100%;min-width:180px;}
+
+  /* Ricerca CREA: menu a tendina agganciato da attachCreaAutocomplete() in crea-nutrition.js */
+  .crea-autocomplete-wrapper{position:relative;}
+  .crea-autocomplete-dropdown{
+    position:absolute;z-index:40;top:calc(100% + 4px);left:0;right:0;margin:0;padding:4px;
+    list-style:none;background:var(--parchment-light);border:1px solid var(--gold);border-radius:6px;
+    max-height:220px;overflow-y:auto;box-shadow:0 6px 18px var(--shadow);
+    text-transform:none;letter-spacing:normal;
+  }
+  .crea-autocomplete-item{
+    padding:6px 8px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;
+    gap:10px;align-items:baseline;font-size:var(--fs-md);
+  }
+  .crea-autocomplete-item:hover{background:rgba(184,137,44,0.16);}
+  .crea-autocomplete-nome{font-family:var(--font-testo);font-weight:500;color:var(--ink);}
+  .crea-autocomplete-dettagli{font-size:var(--fs-xs);color:var(--ink-soft);white-space:nowrap;}
+
+  /* Pulsante "ℹ️ scheda completa" accanto alla ricerca CREA nella riga ingrediente */
+  .crea-scheda-btn{
+    flex:0 0 auto;border:1px solid var(--gold);background:var(--parchment-light);
+    border-radius:6px;padding:0 10px;font-size:15px;cursor:pointer;color:var(--ink);
+    display:none; /* compare solo dopo aver collegato un alimento CREA alla riga */
+  }
+  .crea-scheda-btn.visibile{display:inline-block;}
+
+  /* Contenuto della scheda nutrizionale completa (dentro l'overlay dedicato) */
+  .crea-scheda-completa{font-family:var(--font-testo);color:var(--ink);}
+  .crea-scheda-titolo{font-family:var(--font-titoli);font-size:26px;margin:0 0 2px;color:var(--wood);}
+  .crea-scheda-sottotitolo{font-size:var(--fs-md);color:var(--ink-soft);margin-bottom:14px;}
+  .crea-scheda-sezione{margin-bottom:16px;}
+  .crea-scheda-sezione h4{
+    font-family:var(--font-titoli);font-size:17px;margin:0 0 6px;color:var(--gold-deep);
+    border-bottom:1px solid var(--line);padding-bottom:4px;
+  }
+  .crea-scheda-tabella{width:100%;border-collapse:collapse;font-size:14px;}
+  .crea-scheda-tabella tr:nth-child(odd){background:rgba(184,137,44,0.06);}
+  .crea-scheda-tabella td{padding:3px 8px;}
+  .crea-scheda-tabella td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;}
+  .crea-scheda-fonte{
+    margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);
+    font-size:var(--fs-sm);color:var(--ink-soft);
+  }
+  .crea-scheda-fonte a{color:var(--gold-deep);}
+
+  /* Picker di importazione ricette CREA: riusa lo stile di .recipe-picker-item
+     ma con checkbox per la selezione multipla */
+  .crea-ricetta-picker-item{
+    display:flex;align-items:center;gap:10px;padding:9px 6px;border-radius:6px;cursor:pointer;
+  }
+  .crea-ricetta-picker-item:hover{background:rgba(140,106,47,0.12);}
+  .crea-ricetta-picker-item .name{flex:1;font-family:var(--font-titoli);font-size:17px;color:var(--ink);}
+  .crea-ricetta-picker-item .meta{font-size:var(--fs-sm);color:var(--ink-soft);white-space:nowrap;}
+
+  /* Righe elenco per le viste "CREA Alimenti" e "CREA Menù" (liste lunghe,
+     stile compatto ma coerente col resto del sito) */
+  .crea-elenco-riga{
+    display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .crea-elenco-riga:hover{background:rgba(184,137,44,0.08);}
+  .crea-elenco-riga .cat-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;box-shadow:0 1px 3px rgba(44,29,13,.3);}
+  .crea-elenco-riga .nome{flex:1;font-family:var(--font-titoli);font-size:18px;color:var(--ink);}
+  .crea-elenco-riga .meta{font-size:var(--fs-sm);color:var(--ink-soft);white-space:nowrap;}
+  .crea-elenco-vuoto{padding:24px 4px;text-align:center;color:var(--ink-soft);font-style:italic;}
+  .crea-elenco-troncato{padding:10px 4px;text-align:center;color:var(--ink-soft);font-size:var(--fs-sm);font-style:italic;}
+
+  /* Dettaglio di una ricetta CREA (vista "CREA Menù") */
+  .crea-menu-dettaglio h2{margin:0 0 2px;}
+  .crea-menu-dettaglio .crea-menu-meta{font-size:var(--fs-md);color:var(--ink-soft);margin-bottom:14px;}
+  .crea-menu-dettaglio h4{font-family:var(--font-titoli);font-size:18px;color:var(--gold-deep);
+    border-bottom:1px solid var(--line);padding-bottom:4px;margin:18px 0 8px;}
+  .crea-menu-dettaglio ul{margin:0;padding-left:20px;}
+  .crea-menu-dettaglio li{margin-bottom:4px;}
+  .crea-menu-dettaglio .crea-menu-prep{white-space:pre-wrap;line-height:1.5;}
+  .nutrition-summary{
+    margin:14px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;
+    background:linear-gradient(180deg,rgba(226,180,90,0.10),rgba(226,180,90,0.03));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .nutrition-summary h4{margin:0 0 8px;font-family:var(--font-titoli);font-size:17px;color:var(--wood);}
+  .nutrition-grid{display:flex;flex-wrap:wrap;gap:10px 18px;}
+  .nutrition-grid div{font-size:var(--fs-md);color:var(--ink);}
+  .nutrition-grid b{color:var(--brass);}
+  .nutrition-note{font-size:var(--fs-xs);color:var(--ink-soft);font-style:italic;margin-top:8px;}
+
+  .step-block{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,0.45);box-shadow:0 1px 4px rgba(44,29,13,.05);}
+  .step-row-bottom{display:flex;gap:10px;align-items:flex-end;margin-top:8px;flex-wrap:wrap;}
+  .step-row-bottom .mini{display:flex;flex-direction:column;font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
+  .step-row-bottom .mini input{width:90px;padding:5px 6px;font-size:var(--fs-md);}
+  .robot-toggle-btn{background:transparent;border:1px solid var(--brass);color:var(--brass);border-radius:14px;padding:6px 12px;font-size:var(--fs-sm);}
+  .robot-toggle-btn.active{background:var(--brass);color:#fff;}
+  .pressure-toggle-btn{background:transparent;border:1px solid var(--brass);color:var(--brass);border-radius:14px;padding:6px 12px;font-size:var(--fs-sm);}
+  .pressure-toggle-btn.active{background:var(--brass);color:#fff;}
+  .step-settings{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+  .step-settings .mini{display:flex;flex-direction:column;font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
+  .step-settings .mini input, .step-settings .mini select{width:72px;padding:5px 6px;font-size:var(--fs-md);}
+
+  .photo-preview{max-width:160px;max-height:110px;border-radius:6px;border:1px solid var(--line);display:block;margin-top:8px;box-shadow:0 4px 10px rgba(44,29,13,.12);}
+
+  /* Ritaglio/rotazione foto: un riquadro trascinabile e ridimensionabile sopra l'anteprima
+     dell'immagine, per scegliere l'area da mantenere senza strumenti esterni. */
+  .photo-crop-modal{max-width:520px;}
+  .photo-crop-stage{
+    position:relative; max-width:100%; margin:0 auto 16px; user-select:none;
+    display:flex; align-items:center; justify-content:center; background:#1a1410; border-radius:8px;
+    touch-action:none; overflow:hidden;
+  }
+  .photo-crop-stage img{display:block; max-width:100%; max-height:60vh; pointer-events:none;}
+  .photo-crop-box{
+    position:absolute; border:2px solid var(--gold-bright); box-shadow:0 0 0 2000px rgba(0,0,0,.55);
+    cursor:move; touch-action:none;
+  }
+  .photo-crop-handle{
+    position:absolute; width:20px; height:20px; background:var(--gold-bright); border:2px solid #fff;
+    border-radius:50%; touch-action:none;
+  }
+  .photo-crop-handle[data-handle="nw"]{top:-10px; left:-10px; cursor:nwse-resize;}
+  .photo-crop-handle[data-handle="ne"]{top:-10px; right:-10px; cursor:nesw-resize;}
+  .photo-crop-handle[data-handle="sw"]{bottom:-10px; left:-10px; cursor:nesw-resize;}
+  .photo-crop-handle[data-handle="se"]{bottom:-10px; right:-10px; cursor:nwse-resize;}
+
+  .modal-actions{display:flex;justify-content:space-between;margin-top:20px;gap:10px;flex-wrap:wrap;}
+
+  /* ---------- Vista ricetta ---------- */
+  #view-modal .servings-control{
+    display:flex;align-items:center;gap:10px;
+    background:linear-gradient(180deg,rgba(226,180,90,0.16),rgba(226,180,90,0.06));
+    border:1px solid var(--gold);border-radius:24px;padding:8px 14px;margin:14px 0 14px;width:fit-content;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .servings-control button{width:28px;height:28px;padding:0;border-radius:50%;background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));color:#2c1d0d;font-weight:700;box-shadow:0 2px 5px rgba(44,29,13,.2);}
+  .servings-control button:hover{transform:scale(1.1);}
+  .servings-control .count{font-weight:600;min-width:70px;text-align:center;}
+
+  .view-top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .view-photo{width:100%;max-height:220px;object-fit:cover;border-radius:8px;border:1px solid var(--line);margin:10px 0 4px;box-shadow:0 6px 16px rgba(44,29,13,.14);}
+  .last-made-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:var(--fs-md);color:var(--ink-soft);flex-wrap:wrap;}
+
+  #view-ingredients{list-style:none;padding:0;margin:0 0 22px;}
+  #view-ingredients li{display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding:6px 0;font-size:16px;}
+  #view-ingredients li .amt{color:var(--brass);font-weight:600;}
+
+  .view-step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start;}
+  .view-step .num{
+    flex:0 0 30px;height:30px;border-radius:50%;
+    background:linear-gradient(180deg,#4a3320,#2b1d14);
+    color:var(--gold-bright);
+    display:flex;align-items:center;justify-content:center;font-family:var(--font-titoli);font-weight:700;font-size:15px;
+    box-shadow:0 2px 6px rgba(44,29,13,.3), inset 0 1px 0 rgba(226,180,90,.35);
+  }
+  .view-step .txt{flex:1;padding-top:2px;}
+  .step-meta{
+    display:inline-flex;gap:10px;margin-top:6px;font-size:var(--fs-sm);color:var(--wood);
+    background:linear-gradient(180deg,#f7edd4,#f0e2bd);
+    border:1px solid var(--brass);border-radius:20px;padding:4px 12px;align-items:center;flex-wrap:wrap;
+    box-shadow:0 1px 3px rgba(44,29,13,.08);
+  }
+  .step-meta span b{color:var(--brass);}
+  .step-timer-btn{background:none;border:1px solid var(--brass);color:var(--brass);border-radius:12px;padding:2px 10px;font-size:var(--fs-xs);}
+  .step-timer-btn:hover{background:rgba(140,106,47,0.12);}
+  .step-timer-display{font-weight:700;color:var(--red);}
+
+  .view-notes{border-top:1px solid var(--line);margin-top:10px;padding-top:14px;font-style:italic;color:var(--ink-soft);}
+
+  .close-x{position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;color:var(--ink-soft);padding:4px 8px;border-radius:6px;line-height:1;}
+  .close-x:hover{background:rgba(0,0,0,0.06); color:var(--ink);}
+
+  footer{text-align:center;color:#a08a5f;font-size:var(--fs-sm);margin-top:28px;font-style:italic;}
+
+  /* ---------- Modalità cucina guidata ---------- */
+  .cook-overlay{
+    position:fixed;inset:0;z-index:80;display:none;
+    background:
+      radial-gradient(1000px 480px at 50% 0%, rgba(226,180,90,0.14), transparent 60%),
+      linear-gradient(180deg,#2c1c11, var(--wood-deep));
+    flex-direction:column;align-items:center;justify-content:center;padding:30px 16px;color:var(--parchment-light);
+    text-align:center;
+  }
+  .cook-overlay.active{display:flex; animation:fadeIn .25s ease;}
+  .cook-overlay .cook-progress{font-size:var(--fs-md);letter-spacing:.18em;text-transform:uppercase;color:var(--gold-bright);margin-bottom:14px;}
+  .cook-overlay .cook-wakelock-note{font-size:var(--fs-xs);font-style:italic;color:#d9b36a;margin:-8px 0 14px;max-width:420px;}
+  .cook-overlay .cook-step-text{font-size:clamp(22px,4vw,34px);max-width:760px;line-height:1.35;margin-bottom:22px;font-family:var(--font-titoli);}
+  .cook-overlay .cook-dial{
+    font-size:16px;color:var(--parchment);
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(226,180,90,0.5);border-radius:24px;padding:8px 20px;margin-bottom:24px;
+    display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .cook-nav{display:flex;gap:14px;align-items:center;}
+  .cook-nav button{padding:12px 22px;font-size:15px;}
+  .cook-release-row{display:flex;align-items:center;gap:16px;justify-content:center;margin:6px 0 14px;}
+  .cook-timer-small{font-size:26px;margin-bottom:0;}
+  .cook-timer{font-size:44px;font-weight:700;color:var(--gold-bright);margin-bottom:10px;font-family:var(--font-titoli);text-shadow:0 0 24px rgba(226,180,90,.35);}
+  .cook-exit{
+    position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.06);
+    border:1px solid rgba(242,230,201,0.6);color:var(--parchment-light);
+    border-radius:20px;padding:6px 16px;font-size:var(--fs-md);
+  }
+  .cook-exit:hover{background:rgba(255,255,255,0.14);}
+
+  /* ---------- Pianificazione settimanale ---------- */
+  .planning-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+  .planning-header h2{margin:0 0 2px;font-size:27px;color:var(--ink);}
+
+  .plan-day-card{
+    background:linear-gradient(180deg,#fdf8ea, var(--parchment-light));
+    border:1px solid var(--line);border-radius:12px;padding:20px 22px;
+    box-shadow:0 6px 18px rgba(44,29,13,0.10);
+    animation:cardIn .3s ease both;
+  }
+  .plan-day-card h3{
+    margin:0 0 14px;font-size:27px;color:var(--brass);text-align:center;
+    padding-bottom:10px;
+    background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent) bottom / 100% 1px no-repeat;
+  }
+  .plan-meal-block{padding:10px 0;border-top:1px dashed var(--line);}
+  .plan-meal-block:first-of-type{border-top:none;padding-top:0;}
+  .plan-meal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;}
+  .plan-meal-name{font-size:var(--fs-sm);text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ink-soft);}
+  .plan-meal-actions{display:flex;gap:2px;flex:0 0 auto;}
+  .icon-btn{background:none;border:none;color:var(--ink-soft);font-size:var(--fs-md);padding:2px 6px;border-radius:4px;}
+  .icon-btn:hover{color:var(--brass); background:rgba(140,106,47,0.10);}
+  .plan-entry-consume:hover{color:var(--green);}
+  .plan-entry-consumed{color:var(--green);font-size:var(--fs-md);padding:2px 6px;flex:0 0 auto;font-weight:700;}
+  .plan-entry-list{margin-bottom:8px;}
+  .plan-entry{padding:4px 0;border-bottom:1px dotted var(--line);font-size:14.5px;}
+  .plan-entry-main{display:flex;align-items:center;gap:8px;}
+  .plan-entry-nutrition{font-size:var(--fs-xs);color:var(--ink-soft);margin:2px 0 0 2px;}
+  .plan-meal-total{font-size:var(--fs-sm);color:var(--brass);font-weight:600;margin:6px 0 2px;text-align:right;}
+  .plan-day-total{font-size:var(--fs-md);color:var(--brass);font-weight:600;text-align:center;margin:-4px 0 14px;}
+  .week-totals-day{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dotted var(--line);font-size:var(--fs-md);}
+  .week-totals-day-name{font-family:var(--font-titoli);font-size:16px;flex:0 0 auto;}
+  .week-totals-day-values{color:var(--ink-soft);text-align:right;}
+  .plan-entry-time{
+    font-weight:700;color:var(--brass);font-size:var(--fs-xs);
+    background:linear-gradient(180deg,#f7edd4,#f0e2bd);
+    border:1px solid var(--line);border-radius:10px;padding:1px 8px;flex:0 0 auto;
+  }
+  .plan-entry-name{flex:1;cursor:pointer;}
+  .plan-entry-name:hover{text-decoration:underline;}
+  .plan-entry-empty{font-size:var(--fs-md);font-style:italic;color:var(--ink-soft);padding:2px 0;}
+  .plan-add-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .plan-add-row select{flex:1;min-width:140px;}
+  .plan-add-row input[type="time"]{width:110px;}
+  .plan-note-input{
+    width:100%;box-sizing:border-box;font-style:italic;font-size:var(--fs-sm);
+    padding:5px 8px;margin:6px 0 2px;border:1px dashed var(--line);border-radius:6px;
+    background:rgba(255,253,244,0.5);color:var(--ink-soft);
+  }
+  .plan-note-input:focus{font-style:normal;color:var(--ink);}
+  .plan-day-nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+  .plan-day-tabs{display:flex;gap:6px;flex:1;overflow-x:auto;padding-bottom:2px;}
+  .plan-day-tab{
+    flex:0 0 auto;
+    background:rgba(255,255,255,0.35);
+    border:1px solid var(--brass);color:var(--brass);
+    border-radius:16px;padding:7px 14px;font-size:var(--fs-md);font-weight:600;white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .plan-day-tab:hover{background:rgba(140,106,47,0.10);}
+  .plan-day-tab.active{
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));
+    color:#fff;border-color:transparent;
+    box-shadow:0 4px 12px rgba(184,137,44,0.40);
+  }
+  .plan-day-nav-arrow{
+    flex:0 0 auto;background:rgba(255,255,255,0.35);border:1px solid var(--line);color:var(--brass);
+    border-radius:50%;width:34px;height:34px;font-size:16px;padding:0;
+  }
+  .plan-day-nav-arrow:hover{background:rgba(140,106,47,0.12);}
+  .tag-checks{display:flex;flex-wrap:wrap;gap:6px 14px;}
+  .tag-checks label{display:flex;align-items:center;gap:5px;font-size:var(--fs-md);font-weight:400;text-transform:none;letter-spacing:normal;}
+  .tag-checks input{width:auto;}
+  .tag-filter-chip{background:rgba(255,255,255,0.35);border:1px solid var(--brass);color:var(--brass);border-radius:14px;padding:5px 13px;font-size:var(--fs-sm);}
+  .tag-filter-chip:hover{background:rgba(140,106,47,0.10);}
+  .tag-filter-chip.active{background:var(--brass);color:#fff;}
+  .filter-section-label{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:7px;font-weight:600;}
+  .view-tag-chip{
+    display:inline-block;background:linear-gradient(180deg,#f7edd4,#f0e2bd);
+    border:1px solid var(--brass);color:var(--brass);border-radius:12px;padding:2px 10px;font-size:var(--fs-xs);margin-right:6px;
+    box-shadow:0 1px 3px rgba(44,29,13,.08);
+  }
+  .view-tag-chip.allergen-chip{
+    background:linear-gradient(180deg,#f7dede,#f0c3c3);
+    border:1px solid #a85a5a;color:#8c3030;
+  }
+  .allergen-checks label{color:inherit;}
+
+  .shopping-list-items{list-style:none;padding:0;margin:0;}
+  .shopping-list-items li{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dotted var(--line);font-size:15px;}
+  .shopping-list-items li.checked span{text-decoration:line-through;color:var(--ink-soft);}
+  .shopping-list-items li .amt{color:var(--brass);font-weight:600;margin-left:auto;}
+  .shopping-list-items li.covered>span{text-decoration:line-through;color:var(--ink-soft);}
+  .shopping-pantry-note{flex-basis:100%;font-size:var(--fs-sm);color:var(--ink-soft);margin:-2px 0 0 30px;}
+  .shopping-list-items li.shopping-reparto-header{
+    border-bottom:none;padding:14px 0 4px;margin-top:4px;font-family:var(--font-titoli);
+    font-size:var(--fs-sm);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);
+  }
+  .shopping-list-items li.shopping-reparto-header:first-child{margin-top:0;padding-top:0;}
+  .shopping-reparto-header .reparto-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:7px;box-shadow:0 1px 3px rgba(44,29,13,.3);}
+  .shopping-subtract-btn{margin-left:8px;background:none;border:none;color:var(--brass);font-weight:600;text-decoration:underline;cursor:pointer;padding:0;font-size:var(--fs-sm);}
+  .shopping-subtract-btn:hover{color:var(--ink);}
+
+  /* ---------- Animazioni ---------- */
+  @keyframes cardIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @keyframes modalIn{from{opacity:0; transform:translateY(14px) scale(.98);} to{opacity:1; transform:none;}}
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:600px){
+    /* Su schermo piccolo i testi di servizio diventano difficili da leggere:
+       qui si ingrandiscono tutti insieme, agendo sulle variabili di :root. */
+    :root{
+      --fs-xxs: 11.5px;
+      --fs-xs: 13px;
+      --fs-sm: 14px;
+      --fs-md: 15px;
+    }
+    body{padding:24px 12px 70px; font-size:17px;}
+    .masthead h1{font-size:38px;}
+    .masthead .sub{font-size:22px;}
+    .masthead-ornament span{width:60px;}
+    .book{padding:20px 14px;}
+    .row{flex-direction:column;}
+    .toolbar{flex-direction:column;align-items:stretch;}
+    .panel-row{flex-direction:column;align-items:stretch;}
+    .panel-row select{width:100%;}
+    /* Campi di inserimento: almeno 16px, sotto quella soglia i browser
+       mobili ingrandiscono la pagina da soli quando ci si scrive dentro. */
+    input[type="text"], input[type="number"], input[type="date"],
+    input[type="time"], select, textarea{font-size:16px;}
+    .view-nav-btn{font-size:15px;padding:10px 20px;}
+    .card h3{font-size:21px;}
+    .btn-ghost, .btn-gold{font-size:15px;}
+    .btn-small{font-size:14px;}
+    .ingredient-nutrition .mini input{width:72px;font-size:15px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card,.modal,.menu-dropdown,.plan-day-card{animation:none; transition:none;}
+    .card{transition:none;}
+  }
+
+/* ============================================================
+   IL MIO RICETTARIO 4.0 — NAVIGAZIONE / APP SHELL
+   Primo passaggio: migliora gerarchia e usabilità senza
+   modificare gli ID usati da app.js e dai test automatici.
+   ============================================================ */
+@media (min-width:761px){
+  .masthead{max-width:1100px;margin-bottom:18px;}
+  .masthead h1{font-size:52px;}
+  .view-nav{
+    max-width:1100px;
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:8px;
+    padding:7px;
+    border:1px solid var(--nav-border);
+    border-radius:16px;
+    background:rgba(0,0,0,.10);
+    box-shadow:0 10px 28px rgba(0,0,0,.14);
+    margin-bottom:22px;
+  }
+  .view-nav-btn{width:100%;padding:10px 12px;border-radius:10px;font-size:14px;white-space:nowrap;}
+  .view-nav-btn:nth-child(n+5){font-size:13px;opacity:.92;}
+  .view-nav-btn:nth-child(5){grid-column:1 / 2;}
+  .view-nav-btn:nth-child(6){grid-column:2 / 3;}
+  .view-nav-btn:nth-child(7){grid-column:3 / 4;}
+  .book{max-width:1100px;}
+}
+
+/* Il menu secondario resta visivamente subordinato al percorso principale. */
+.view-nav-btn:nth-child(n+5){border-style:dashed;}
+
+/* Toolbar più ordinata nella 4.0. */
+.toolbar{gap:8px;padding-bottom:14px;margin-bottom:18px;}
+.toolbar-group{gap:8px;}
+.toolbar .btn-gold,.toolbar .btn-ghost{min-height:40px;}
+
+/* La pagina deve sembrare un'app, non una pagina con tanti pannelli isolati. */
+.panel,.today-card,.plan-day-card,.dispensa-section,.crea-section{border-radius:14px;}
+
+@media (max-width:760px){
+  body{padding:18px 10px 82px;}
+  .masthead{margin-bottom:12px;}
+  .masthead h1{font-size:36px;}
+  .masthead .sub{font-size:20px;}
+  .mobile-nav-bar{margin-bottom:10px;}
+  .mobile-nav-bar button{min-height:48px;border-radius:12px;box-shadow:0 6px 16px rgba(0,0,0,.12);}
+  .view-nav{border-radius:14px;padding:8px;box-shadow:0 12px 28px rgba(0,0,0,.16);}
+  .view-nav-btn{min-height:48px;}
+  .view-nav-btn:nth-child(n+5){border-style:dashed;}
+  .book{padding:18px 12px;border-radius:12px;}
+}
+
+/* Focus tastiera più evidente, senza alterare i colori dei temi. */
+.view-nav-btn:focus-visible,.mobile-nav-bar button:focus-visible,
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid var(--gold-bright);
+  outline-offset:2px;
+}
+
+
+/* Ricettario 4.0 — motivazione dei suggerimenti */
+.today-suggestion-body { display:flex; flex-direction:column; }
+.today-suggestion-reason { display:block; margin:7px 0 10px; color:var(--muted-text, #667085); font-size:.82rem; line-height:1.3; min-height:2.1em; }
+.today-availability.expiry { background:rgba(245,158,11,.14); color:#a16207; border:1px solid rgba(245,158,11,.25); }
+.today-suggestion-body .btn-outline { margin-top:auto; }
+@media (max-width:700px){ .today-suggestion-reason{min-height:0;} }
+
+
+/* Versione 4.0 Alpha 4 — Dispensa intelligente nella dashboard */
+.today-section-head-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.today-pantry-total small{display:block;margin-top:5px;color:var(--ink-soft);font-size:11px}
+.today-pantry-priority-wrap{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.today-subhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.today-pantry-priority-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.today-pantry-priority{display:flex;align-items:center;gap:9px;text-align:left;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;color:inherit;min-width:0}
+.today-pantry-priority:hover{border-color:var(--accent);transform:translateY(-1px)}
+.today-pantry-priority-icon{font-size:22px;flex:0 0 auto}.today-pantry-priority b,.today-pantry-priority small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today-pantry-priority small{margin-top:3px;color:var(--danger);font-size:11px}.today-pantry-empty{padding:12px;border:1px dashed var(--line);border-radius:12px;color:var(--ink-soft)}
+@media(max-width:760px){.today-pantry-priority-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.today-section-head-actions{width:100%;justify-content:flex-start}.today-subhead{align-items:flex-start;flex-direction:column;gap:5px}}
+
+/* ---------- Lista spesa 4.0: quantità nette ---------- */
+.shopping-auto-note{color:var(--ink-soft);}
+.shopping-list-items li.covered{opacity:.72;background:rgba(61,140,91,.045);border-radius:8px;padding-left:8px;padding-right:8px;}
+.shopping-list-items li.covered .amt{color:#3d8c5b;}
+
+/* ================= Pianificazione 4.0 ================= */
+.planning-week-overview{margin:18px 0 16px;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(250,247,240,.75));box-shadow:0 8px 24px rgba(30,25,15,.06)}
+.planning-week-overview-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:14px}
+.planning-week-overview-head h3{margin:2px 0 0;font-size:20px}
+.planning-week-overview-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--ink-soft)}
+.planning-week-overview-legend span{display:inline-flex;align-items:center;gap:5px}
+.planning-week-overview-grid{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px;overflow-x:auto}
+.planning-week-day{appearance:none;border:1px solid var(--line);background:var(--surface,#fff);border-radius:15px;padding:12px;text-align:left;min-height:145px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;position:relative;color:inherit}
+.planning-week-day:hover{transform:translateY(-2px);box-shadow:0 7px 18px rgba(30,25,15,.08)}
+.planning-week-day.active{border-color:var(--gold,#b88a2b);box-shadow:0 0 0 2px rgba(184,138,43,.12)}
+.planning-week-day.today{background:linear-gradient(180deg,rgba(184,138,43,.08),rgba(255,255,255,.95))}
+.planning-week-day-top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:9px}
+.planning-week-day-name{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.planning-week-day-badge{font-size:10px;border-radius:999px;padding:3px 6px;background:rgba(40,130,80,.1);color:#267548;white-space:nowrap}
+.planning-week-day-badge.empty{background:rgba(190,140,35,.12);color:#916d16}
+.planning-week-meal{display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid rgba(0,0,0,.06)}
+.planning-week-meal:first-of-type{border-top:0}
+.planning-week-meal-icon{width:18px;flex:0 0 18px}
+.planning-week-meal-text{font-size:11px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planning-week-meal-text strong{display:block;font-size:9px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.planning-week-empty{font-size:11px;color:var(--ink-soft);font-style:italic;margin-top:12px}
+@media(max-width:1050px){.planning-week-overview-grid{grid-template-columns:repeat(7,145px);padding-bottom:4px}.planning-week-overview{overflow:hidden}}
+@media(max-width:760px){.planning-week-overview{padding:14px;margin-top:12px}.planning-week-overview-head{align-items:flex-start}.planning-week-overview-legend{display:none}.planning-week-overview-grid{grid-template-columns:repeat(7,132px);gap:8px}.planning-week-day{min-height:132px;padding:10px}.planning-week-day-name{font-size:11px}.planning-week-meal-text{font-size:10px}.planning-week-day-badge{font-size:9px}.planning-week-overview-head h3{font-size:17px}}
