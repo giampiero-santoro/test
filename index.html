@@ -24,25 +24,45 @@
 </head>
 <body>
 
-<div class="masthead">
-  <div class="eyebrow">Ricettario personale</div>
-  <div class="masthead-ornament"><span></span>✦<span></span></div>
-  <h1>Il Mio Ricettario</h1>
-  <div class="sub">Le tue ricette annotate, adattate, tramandate</div>
-</div>
+<aside class="app-sidebar" aria-label="Navigazione principale">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-mark">👨‍🍳</div>
+    <div>
+      <strong>Il Mio Ricettario</strong>
+      <small>Cucina · Organizza · Mangia meglio</small>
+    </div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="view-nav" id="view-nav" aria-label="Navigazione principale">
+    <button class="view-nav-btn active" id="nav-today-btn"><span class="nav-icon">⌂</span><span>Oggi</span></button>
+    <button class="view-nav-btn" id="nav-recipes-btn"><span class="nav-icon">▤</span><span>Ricette</span></button>
+    <button class="view-nav-btn" id="nav-planning-btn"><span class="nav-icon">▣</span><span>Pianificazione</span></button>
+    <button class="view-nav-btn" id="nav-dispensa-btn"><span class="nav-icon">▱</span><span>Dispensa</span></button>
+    <div class="sidebar-section-label">STRUMENTI</div>
+    <button class="view-nav-btn" id="nav-crea-alimenti-btn"><span class="nav-icon">▥</span><span>CREA</span></button>
+    <button class="view-nav-btn" id="nav-crea-menu-btn"><span class="nav-icon">✦</span><span>Ricette CREA</span></button>
+    <button class="view-nav-btn" id="nav-info-btn"><span class="nav-icon">?</span><span>Come funziona</span></button>
+  </nav>
+  <div class="sidebar-footer">
+    <button type="button" class="sidebar-theme" id="sidebar-theme-btn"><span>☼</span><span>Tema chiaro</span><i></i></button>
+    <small>v4.0.0</small>
+  </div>
+</aside>
 
 <div class="mobile-nav-bar">
-  <button type="button" id="nav-hamburger-btn" aria-label="Apri il menu" aria-expanded="false">☰ <span id="nav-current-label">Ricettario</span></button>
+  <button type="button" id="nav-hamburger-btn" aria-label="Apri il menu" aria-expanded="false">☰ <span id="nav-current-label">Oggi</span></button>
 </div>
-<nav class="view-nav" id="view-nav" aria-label="Navigazione principale">
-  <button class="view-nav-btn" id="nav-today-btn">☀️ Oggi</button>
-  <button class="view-nav-btn active" id="nav-recipes-btn">📖 Ricettario</button>
-  <button class="view-nav-btn" id="nav-planning-btn">📅 Pianificazione</button>
-  <button class="view-nav-btn" id="nav-dispensa-btn">🥫 Dispensa</button>
-  <button class="view-nav-btn" id="nav-crea-alimenti-btn">🌾 Valori Alimenti dal sito CREA</button>
-  <button class="view-nav-btn" id="nav-crea-menu-btn">🇮🇹 Ricette dal sito CREA</button>
-  <button class="view-nav-btn" id="nav-info-btn">ℹ️ Come funziona</button>
-</nav>
+
+<header class="app-topbar">
+  <div class="global-search">
+    <span>⌕</span>
+    <input id="global-search-input" type="search" placeholder="Cerca ricette, ingredienti..." autocomplete="off">
+  </div>
+  <div class="topbar-actions">
+    <button type="button" aria-label="Notifiche" class="topbar-icon">♧<b>3</b></button>
+    <button type="button" aria-label="Profilo" class="topbar-avatar">G</button>
+  </div>
+</header>
 
 <div class="book">
 
@@ -60,6 +80,15 @@
   </div>
 
   <div id="recipes-view">
+  <div id="cook-mode-hero" class="cook-mode-hero" aria-label="Cosa posso cucinare">
+    <div class="cook-mode-hero-icon">👨‍🍳</div>
+    <div class="cook-mode-hero-copy">
+      <span>CUCINA CON QUELLO CHE HAI</span>
+      <h1>Cosa posso cucinare?</h1>
+      <p>Partiamo dalla tua Dispensa e troviamo le ricette più adatte, dando priorità agli ingredienti che hai già.</p>
+    </div>
+    <button type="button" class="btn-ghost cook-mode-back">← Torna al Ricettario</button>
+  </div>
 
   <div class="toolbar">
     <div class="toolbar-group">
@@ -220,7 +249,17 @@
     <div class="panel-row" style="align-items:center;">
       <label style="font-size:13px;color:var(--ink-soft);">Per quante persone stai pianificando?</label>
       <input type="number" id="plan-servings-input" min="1" style="width:70px;">
+      <div style="flex:1;"></div>
+      <button class="btn-ghost btn-small" id="planning-today-btn" type="button">☀️ Vai a oggi</button>
     </div>
+
+    <section class="planning-week-overview" aria-label="Panoramica della settimana">
+      <div class="planning-week-overview-head">
+        <div><span class="today-section-kicker">PANORAMICA</span><h3>La tua settimana</h3></div>
+        <div class="planning-week-overview-legend"><span><i class="dot good"></i> pianificato</span><span><i class="dot warn"></i> da completare</span></div>
+      </div>
+      <div id="planning-week-overview-grid" class="planning-week-overview-grid"></div>
+    </section>
 
     <div class="plan-day-nav">
       <button type="button" class="plan-day-nav-arrow" id="plan-day-prev" title="Giorno precedente">‹</button>

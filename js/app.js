@@ -4097,20 +4097,22 @@
 
   // Etichetta breve mostrata nella barra ☰ su schermo piccolo, per vista corrente.
   const NAV_LABELS = {
-    today: '☀️ Oggi', recipes: '📖 Ricettario', planning: '📅 Pianificazione',
+    today: '☀️ Oggi', recipes: '📖 Ricettario', cook: '👨‍🍳 Cosa posso cucinare?', planning: '📅 Pianificazione',
     dispensa: '🥫 Dispensa', 'crea-alimenti': '🌾 Valori Alimenti CREA',
     'crea-menu': '🇮🇹 Ricette CREA', info: 'ℹ️ Come funziona'
   };
   function switchView(view){
+    const recipesView = document.getElementById('recipes-view');
+    recipesView.classList.remove('cook-mode-active');
     document.getElementById('today-view').style.display = view === 'today' ? '' : 'none';
-    document.getElementById('recipes-view').style.display = view === 'recipes' ? '' : 'none';
+    recipesView.style.display = (view === 'recipes' || view === 'cook') ? '' : 'none';
     document.getElementById('planning-view').style.display = view === 'planning' ? '' : 'none';
     document.getElementById('dispensa-view').style.display = view === 'dispensa' ? '' : 'none';
     document.getElementById('crea-alimenti-view').style.display = view === 'crea-alimenti' ? '' : 'none';
     document.getElementById('crea-menu-view').style.display = view === 'crea-menu' ? '' : 'none';
     document.getElementById('info-view').style.display = view === 'info' ? '' : 'none';
     document.getElementById('nav-today-btn').classList.toggle('active', view === 'today');
-    document.getElementById('nav-recipes-btn').classList.toggle('active', view === 'recipes');
+    document.getElementById('nav-recipes-btn').classList.toggle('active', view === 'recipes' || view === 'cook');
     document.getElementById('nav-planning-btn').classList.toggle('active', view === 'planning');
     document.getElementById('nav-dispensa-btn').classList.toggle('active', view === 'dispensa');
     document.getElementById('nav-crea-alimenti-btn').classList.toggle('active', view === 'crea-alimenti');
@@ -4118,6 +4120,13 @@
     document.getElementById('nav-info-btn').classList.toggle('active', view === 'info');
     if(view === 'today') renderToday();
     if(view === 'recipes') renderList();
+    if(view === 'cook'){
+      recipesView.classList.add('cook-mode-active');
+      pantryMode = true;
+      document.getElementById('pantry-reset-btn').style.display = 'inline-flex';
+      renderList();
+      document.getElementById('cook-mode-hero')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }
     if(view === 'planning') renderPlanningDays();
     if(view === 'dispensa') renderDispensaList();
     if(view === 'crea-alimenti') apriVistaCreaAlimenti();
@@ -4128,6 +4137,7 @@
   }
   document.getElementById('nav-today-btn').addEventListener('click', ()=> switchView('today'));
   document.getElementById('nav-recipes-btn').addEventListener('click', ()=> switchView('recipes'));
+  document.querySelectorAll('.cook-mode-back').forEach(btn=>btn.addEventListener('click', ()=> switchView('recipes')));
   document.getElementById('nav-planning-btn').addEventListener('click', ()=> switchView('planning'));
   document.getElementById('nav-dispensa-btn').addEventListener('click', ()=> switchView('dispensa'));
   document.getElementById('nav-crea-alimenti-btn').addEventListener('click', ()=> switchView('crea-alimenti'));
@@ -4364,12 +4374,51 @@
     document.getElementById('week-totals-overlay').classList.remove('active');
   });
 
+  function planningMealIcon(mealType){
+    const t = String(mealType || '').toLowerCase();
+    if(t.includes('colaz')) return '☕';
+    if(t.includes('pranz')) return '🍝';
+    if(t.includes('cen')) return '🍽️';
+    if(t.includes('spunt')) return '🍎';
+    return '🥣';
+  }
+
+  function renderPlanningWeekOverview(){
+    const grid = document.getElementById('planning-week-overview-grid');
+    if(!grid) return;
+    const todayIdx = new Date().getDay();
+    const todayName = DAYS[todayIdx === 0 ? 6 : todayIdx - 1];
+    grid.innerHTML = DAYS.map(day => {
+      const entries = (weekPlan[day] || []).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+      const active = day === selectedPlanDay;
+      const isToday = day === todayName;
+      const visible = mealTypes.slice(0,4).map(mt => {
+        const e = entries.find(x => x.mealType === mt);
+        if(!e) return '';
+        return `<div class="planning-week-meal"><span class="planning-week-meal-icon">${planningMealIcon(mt)}</span><div class="planning-week-meal-text"><strong>${escapeHtml(mt)}</strong>${escapeHtml(planEntryName(e))}</div></div>`;
+      }).filter(Boolean).join('');
+      const extra = entries.length > 4 ? `<div class="planning-week-empty">+${entries.length-4} altri</div>` : '';
+      const badge = entries.length ? `${entries.length} ${entries.length===1?'pasto':'pasti'}` : 'Da pianificare';
+      return `<button type="button" class="planning-week-day ${active?'active':''} ${isToday?'today':''}" data-week-day="${escapeAttr(day)}">
+        <div class="planning-week-day-top"><span class="planning-week-day-name">${escapeHtml(day.slice(0,3))}</span><span class="planning-week-day-badge ${entries.length?'':'empty'}">${badge}</span></div>
+        ${visible || '<div class="planning-week-empty">Nessun pasto</div>'}${extra}
+      </button>`;
+    }).join('');
+    grid.querySelectorAll('.planning-week-day').forEach(btn=>btn.addEventListener('click',()=>{
+      selectedPlanDay = btn.dataset.weekDay;
+      renderPlanningDays();
+      document.getElementById('planning-days')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }));
+  }
+
   function renderPlanningDays(){
     if(!planningDaysEl) return;
     if(!selectedPlanDay){
       const jsDay = new Date().getDay(); // 0=domenica...6=sabato
       selectedPlanDay = DAYS[jsDay === 0 ? 6 : jsDay - 1];
     }
+
+    renderPlanningWeekOverview();
 
     const dayTabsEl = document.getElementById('plan-day-tabs');
     dayTabsEl.innerHTML = DAYS.map(day =>
@@ -4559,6 +4608,12 @@
     if(count > 0){ badge.textContent = ` · ${count}`; badge.style.display = 'inline'; }
     else { badge.textContent = ''; badge.style.display = 'none'; }
   }
+
+  document.getElementById('planning-today-btn')?.addEventListener('click', ()=>{
+    const jsDay = new Date().getDay();
+    selectedPlanDay = DAYS[jsDay === 0 ? 6 : jsDay - 1];
+    renderPlanningDays();
+  });
 
   document.getElementById('plan-day-prev').addEventListener('click', ()=>{
     const idx = DAYS.indexOf(selectedPlanDay);
@@ -5147,6 +5202,43 @@
     e.returnValue = '';
   });
 
+  // ---------- Ricerca globale della nuova dashboard ----------
+  const globalSearchInput = document.getElementById('global-search-input');
+  if(globalSearchInput){
+    globalSearchInput.addEventListener('input', ()=>{
+      const searchInput = document.getElementById('search');
+      if(searchInput){
+        searchInput.value = globalSearchInput.value;
+        searchInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+    });
+    globalSearchInput.addEventListener('focus', ()=>{
+      if(document.getElementById('recipes-view')?.style.display !== 'none') return;
+    });
+    globalSearchInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && globalSearchInput.value.trim()){
+        switchView('recipes');
+        const searchInput = document.getElementById('search');
+        if(searchInput){
+          searchInput.value = globalSearchInput.value;
+          searchInput.dispatchEvent(new Event('input', {bubbles:true}));
+          searchInput.focus();
+        }
+      }
+    });
+  }
+
+  const sidebarThemeBtn = document.getElementById('sidebar-theme-btn');
+  if(sidebarThemeBtn){
+    sidebarThemeBtn.addEventListener('click', ()=>{
+      const root = document.documentElement;
+      const current = root.getAttribute('data-dashboard-theme') || 'light';
+      const next = current === 'light' ? 'soft' : 'light';
+      root.setAttribute('data-dashboard-theme', next);
+      sidebarThemeBtn.querySelector('span:nth-child(2)').textContent = next === 'light' ? 'Tema chiaro' : 'Tema morbido';
+    });
+  }
+
   // ---------- Init ----------
   (async function avviaApp(){
     await inizializzaStorageFileAllAvvio();
@@ -5156,7 +5248,7 @@
     migrateWeekPlan();
     planServingsInput.value = planServings;
     updatePantryPanelSub();
-    switchView('recipes');
+    switchView('today');
     aggiornaControlliMenuStorage();
     mostraSceltaStorageSeNecessario();
   })();
