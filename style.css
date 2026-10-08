@@ -873,3 +873,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .today-pantry-priority:hover{border-color:var(--accent);transform:translateY(-1px)}
 .today-pantry-priority-icon{font-size:22px;flex:0 0 auto}.today-pantry-priority b,.today-pantry-priority small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today-pantry-priority small{margin-top:3px;color:var(--danger);font-size:11px}.today-pantry-empty{padding:12px;border:1px dashed var(--line);border-radius:12px;color:var(--ink-soft)}
 @media(max-width:760px){.today-pantry-priority-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.today-section-head-actions{width:100%;justify-content:flex-start}.today-subhead{align-items:flex-start;flex-direction:column;gap:5px}}
+
+/* ---------- Lista spesa 4.0: quantità nette ---------- */
+.shopping-auto-note{color:var(--ink-soft);}
+.shopping-list-items li.covered{opacity:.72;background:rgba(61,140,91,.045);border-radius:8px;padding-left:8px;padding-right:8px;}
+.shopping-list-items li.covered .amt{color:#3d8c5b;}

@@ -3064,6 +3064,26 @@
     }
     return items;
   }
+  // Calcola la quantità realmente da acquistare, sottraendo automaticamente ciò che è già
+  // disponibile in Dispensa. Non modifica la Dispensa: è solo un calcolo per la lista della spesa.
+  function subtractPantryFromShoppingItems(items){
+    return items.map(item=>{
+      if(item.fromDispensaFlag || !item.qty) return item;
+      const found = findDispensaMatch(item.name);
+      const pantry = found && found.match;
+      if(!pantry) return item;
+      const pantryQty = parseFloat(pantry.qty) || 0;
+      if(pantryQty <= 0) return item;
+      const converted = convertQty(pantryQty, pantry.unit, item.unit);
+      if(converted === null){
+        return {...item, pantryNote:`Presente in Dispensa: ${formatQtyForUnit(pantryQty, pantry.unit)} ${pantry.unit||''}`.trim()};
+      }
+      const requested = parseFloat(item.qty) || 0;
+      const remaining = Math.max(0, Math.round((requested - converted) * 100) / 100);
+      return {...item, qty:remaining, pantryCovered:remaining===0, pantryUsedQty:Math.min(requested, converted), pantryUsedUnit:item.unit||pantry.unit||'', pantryMatchName:pantry.name, pantryApprox:!!found.isApprox};
+    });
+  }
+
   function computeWeekPlanData(){
     const days = DAYS.map(day=>{
       const entries = (weekPlan[day] || []).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
@@ -4923,9 +4943,11 @@
 
   // Popola e apre il modal della lista della spesa con un elenco di voci già calcolato
   // (usata sia dalla lista della settimana, sia da quella di un giorno o di una singola ricetta).
-  function openShoppingListOverlay(items, subtitleText){
+  function openShoppingListOverlay(items, subtitleText, autoSubtracted){
     shoppingSubtitle.textContent = subtitleText;
     let dispensaSyncCount = 0;
+    const subtractAllBtn = document.getElementById('shopping-subtract-all-btn');
+    if(subtractAllBtn) subtractAllBtn.style.display = autoSubtracted ? 'none' : '';
     shoppingDispensaSyncNote.style.display = 'none';
     shoppingListItems.innerHTML = '';
 
@@ -4947,16 +4969,25 @@
         shoppingListItems.appendChild(header);
       }
       const li = document.createElement('li');
-      const amt = item.fromDispensaFlag ? 'dalla dispensa' : `${item.qty ? formatQtyForUnit(item.qty, item.unit) : ''} ${item.unit||''}`.trim();
+      if(item.pantryCovered) li.classList.add('covered');
+      const amt = item.fromDispensaFlag ? 'dalla dispensa' : (item.pantryCovered ? 'già in Dispensa' : `${item.qty ? formatQtyForUnit(item.qty, item.unit) : ''} ${item.unit||''}`.trim());
       const giaSpuntato = !!shoppingCheckedItems[normalize(item.name)];
       li.innerHTML = `<input type="checkbox"${giaSpuntato?' checked':''}><span>${escapeHtml(item.name)}</span><span class="amt">${escapeHtml(amt)}</span>`;
       if(giaSpuntato) li.classList.add('checked');
       const amtSpan = li.querySelector('.amt');
+      if(autoSubtracted && !item.fromDispensaFlag && (item.pantryCovered || item.pantryUsedQty || item.pantryNote)){
+        const note = document.createElement('div');
+        note.className = 'shopping-pantry-note shopping-auto-note';
+        if(item.pantryCovered) note.textContent = `✓ Coperto dalla Dispensa${item.pantryApprox ? ` (corrispondenza: ${item.pantryMatchName})` : ''}`;
+        else if(item.pantryUsedQty) note.textContent = `🥫 Sottratti ${formatQtyForUnit(item.pantryUsedQty, item.pantryUsedUnit)} ${item.pantryUsedUnit||''} già presenti in Dispensa${item.pantryApprox ? ` (corrispondenza: ${item.pantryMatchName})` : ''}`.trim();
+        else note.textContent = `🥫 ${item.pantryNote}`;
+        li.appendChild(note);
+      }
 
       // Controllo incrociato con la Dispensa: se il prodotto risulta già presente, propone di
       // sottrarre la quantità disponibile da quella ancora da acquistare (con "Annulla" per
       // tornare indietro in caso di tocco per sbaglio).
-      if(!item.fromDispensaFlag){
+      if(!item.fromDispensaFlag && !autoSubtracted){
         const { match: dispensaMatch, isApprox, ambiguous: otherMatches } = findDispensaMatch(item.name);
         const qtyUnitLabel = (val, unit) => unit ? `${formatQtyForUnit(val, unit)} ${unit}` : formatQtyForUnit(val, unit);
         if(dispensaMatch){
@@ -5068,11 +5099,12 @@
       return;
     }
     const pairs = plannedRecipes.map(r=>({ recipe: r, scale: planServings / (r.servings || 1) }));
-    const items = buildAggregatedShoppingItems(pairs);
+    const rawItems = buildAggregatedShoppingItems(pairs);
+    const items = subtractPantryFromShoppingItems(rawItems);
     const subtitle = plannedRecipes.length
-      ? `Per ${planServings} persone — ${plannedRecipes.map(r=>r.name).join(', ')}`
+      ? `Per ${planServings} persone — quantità già presenti in Dispensa sottratte automaticamente`
       : 'Ingredienti segnalati mancanti dalla Dispensa';
-    openShoppingListOverlay(items, subtitle);
+    openShoppingListOverlay(items, subtitle, true);
   });
   document.getElementById('shopping-close').addEventListener('click', ()=> shoppingOverlay.classList.remove('active'));
   document.getElementById('shopping-subtract-all-btn').addEventListener('click', ()=>{
