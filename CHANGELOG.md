@@ -2,6 +2,11 @@
 
 Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
+## [4.1.2] — Il contenuto ora riempie tutta la pagina
+
+### Corretto
+- Il pannello principale ("il libro") aveva una larghezza massima fissa (1180px) che risaliva al vecchio tema: su schermi larghi lasciava una fascia vuota a destra invece di usare tutto lo spazio disponibile, ad esempio nella griglia delle ricette. Ora il pannello occupa sempre tutta la larghezza della pagina; solo i testi lunghi di "Come funziona" restano a una larghezza comoda da leggere, invece di stirarsi per tutto lo schermo.
+
 ## [4.1.1] — Ricerca senza distinzione di accenti
 
 ### Corretto

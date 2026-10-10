@@ -294,7 +294,7 @@
      ombra leggeri, in stile dashboard, niente più texture/cornici dorate. */
   .book{
     position:relative;
-    max-width:1180px;margin:0;background:var(--parchment-light);
+    margin:0;background:var(--parchment-light);
     border:1px solid var(--line);border-radius:16px;
     box-shadow:0 1px 2px var(--shadow-2), 0 10px 26px var(--shadow-2);
     padding:28px 30px;
@@ -316,6 +316,10 @@
   .panel-sub{font-size:var(--fs-md);color:var(--ink-soft);font-style:italic;}
   .panel-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
   .panel-row input[type="text"]{flex:1;min-width:220px;}
+  /* I testi lunghi di "Come funziona" restano a una larghezza comoda da
+     leggere anche su schermi larghissimi, pur stando dentro un .book che
+     ora occupa tutta la larghezza disponibile (vedi sopra). */
+  #info-view .panel{max-width:860px;}
   #info-view .panel p{line-height:1.6;margin:0 0 10px;}
   #info-view .panel p:last-child{margin-bottom:0;}
   #info-view .panel a{color:var(--gold-deep);text-decoration:underline;}
