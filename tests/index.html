@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Il Mio Ricettario</title>
+<script>
+  // Applica subito il tema salvato (se diverso da quello originale), prima
+  // che il resto della pagina venga disegnato: evita un lampo del tema
+  // sbagliato per una frazione di secondo. Il caricamento del font
+  // corrispondente resta invece a carico dello script principale più sotto.
+  (function(){
+    try {
+      var t = localStorage.getItem('mc_ricettario_tema_v1');
+      if (t === 'scuro') document.documentElement.setAttribute('data-tema', 'scuro');
+    } catch(e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<base target="_blank">
+</head>
+<body>
+
+<div class="app-shell">
+<aside class="app-sidebar" id="app-sidebar">
+  <div class="masthead">
+    <div class="masthead-logo" aria-hidden="true">🍲</div>
+    <h1>Il Mio Ricettario</h1>
+    <div class="sub">Cucina, organizza, tramanda</div>
+  </div>
+
+  <div class="view-nav" id="view-nav">
+    <button class="view-nav-btn" id="nav-today-btn" title="Oggi" aria-label="Oggi"><span class="nav-ico">☀️</span><span class="nav-label">Oggi</span></button>
+    <button class="view-nav-btn active" id="nav-recipes-btn" title="Ricettario" aria-label="Ricettario"><span class="nav-ico">📖</span><span class="nav-label">Ricettario</span></button>
+    <button class="view-nav-btn" id="nav-planning-btn" title="Pianificazione" aria-label="Pianificazione"><span class="nav-ico">📅</span><span class="nav-label">Pianificazione</span></button>
+    <button class="view-nav-btn" id="nav-dispensa-btn" title="Dispensa" aria-label="Dispensa"><span class="nav-ico">🥫</span><span class="nav-label">Dispensa</span></button>
+    <button class="view-nav-btn" id="nav-crea-alimenti-btn" title="Valori Alimenti dal sito CREA" aria-label="Valori Alimenti dal sito CREA"><span class="nav-ico">🌾</span><span class="nav-label">Valori Alimenti dal sito CREA</span></button>
+    <button class="view-nav-btn" id="nav-crea-menu-btn" title="Ricette dal sito CREA" aria-label="Ricette dal sito CREA"><span class="nav-ico">🇮🇹</span><span class="nav-label">Ricette dal sito CREA</span></button>
+    <button class="view-nav-btn" id="nav-info-btn" title="Come funziona" aria-label="Come funziona"><span class="nav-ico">ℹ️</span><span class="nav-label">Come funziona</span></button>
+  </div>
+
+  <label class="theme-toggle-row" for="tema-toggle">
+    <span class="theme-toggle-label"><span aria-hidden="true">🌙</span><span class="theme-toggle-text"> Tema scuro</span></span>
+    <span class="switch">
+      <input type="checkbox" id="tema-toggle" aria-label="Tema scuro">
+      <span class="switch-track" aria-hidden="true"></span>
+    </span>
+  </label>
+  <div class="sidebar-footnote">Conservato localmente sul tuo dispositivo<br>nessun server, nessun account</div>
+</aside>
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<main class="app-main">
+<div class="mobile-topbar">
+  <button type="button" id="nav-hamburger-btn" aria-label="Apri il menu" aria-expanded="false">☰</button>
+  <span id="nav-current-label">Ricettario</span>
+</div>
+<header class="app-topbar">
+  <div class="topbar-search">
+    <span class="topbar-search-icon" aria-hidden="true">🔍</span>
+    <input type="text" id="topbar-search" placeholder="Cerca ricette, ingredienti…">
+  </div>
+  <div class="topbar-actions">
+    <button type="button" class="topbar-icon-btn" id="topbar-alerts-btn" aria-label="Avvisi dispensa: scorte in esaurimento o in scadenza" title="Avvisi dispensa">
+      <span aria-hidden="true">🔔</span>
+      <span class="topbar-badge" id="topbar-alerts-badge" style="display:none;"></span>
+    </button>
+    <button type="button" class="topbar-icon-btn topbar-avatar" id="topbar-info-btn" aria-label="Come funziona" title="Come funziona">🧑‍🍳</button>
+  </div>
+</header>
+<div class="book">
+
+  <div id="file-reconnect-banner" style="display:none;background:var(--parchment-light);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:var(--fs-md);align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;">
+    <span id="file-reconnect-text" style="flex:1 1 220px;">🔓 Il file dei dati salvati ha bisogno di conferma per riconnettersi.</span>
+    <span style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button type="button" class="btn-gold btn-small" id="file-reconnect-btn">Riconnetti</button>
+      <button type="button" class="btn-ghost btn-small" id="file-reconnect-later-btn">Non ora</button>
+      <button type="button" class="btn-ghost btn-small" id="file-reconnect-stop-btn" title="Scollega il file: i dati restano comunque salvati nel browser">Non chiedere più</button>
+    </span>
+  </div>
+
+  <div id="today-view" style="display:none;">
+    <div id="today-content"></div>
+  </div>
+
+  <div id="recipes-view">
+
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button class="btn-gold" id="new-recipe-btn">+ Nuova ricetta</button>
+      <div class="menu-wrap">
+        <button class="btn-ghost" id="import-menu-btn">📋 Importa ricetta ▾</button>
+        <div class="menu-dropdown" id="import-menu-dropdown">
+          <button id="paste-import-btn">📋 Da testo</button>
+          <button id="import-recipe-file-btn">📄 Da file (.json)</button>
+          <button id="crea-ricette-open-btn">🇮🇹 Da ricette CREA</button>
+          <input type="file" id="import-recipe-file-input" accept=".json,application/json" style="display:none;">
+        </div>
+      </div>
+      <div class="menu-wrap">
+        <button class="btn-ghost" id="data-menu-btn">📦 Backup e CSV ▾</button>
+        <div class="menu-dropdown" id="data-menu-dropdown">
+          <div class="menu-info" id="backup-reminder-text"></div>
+          <button id="export-btn">⬇ Esporta backup</button>
+          <button id="import-btn">⬆ Importa backup</button>
+          <input type="file" id="import-file-input" accept="application/json" style="display:none;">
+          <div class="menu-divider"></div>
+          <div class="menu-info" id="file-storage-status-text">Salvataggio: solo in questo browser</div>
+          <button id="file-storage-link-btn">🗂️ Collega un file di salvataggio…</button>
+          <button id="file-storage-unlink-btn" style="display:none;">🔌 Scollega (torna al solo browser)</button>
+          <div class="menu-divider"></div>
+          <button id="export-csv-btn">⬇ Esporta CSV</button>
+          <button id="import-csv-btn">⬆ Importa CSV</button>
+          <input type="file" id="import-csv-file-input" accept=".csv,text/csv" style="display:none;">
+          <div class="menu-divider"></div>
+          <button id="export-all-pdf-btn">📖 Esporta ricettario in PDF…</button>
+        </div>
+      </div>
+      <button class="btn-ghost" id="select-mode-btn">☑️ Elimina ricette</button>
+    </div>
+  </div>
+
+  <div id="selection-bar" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--parchment-light);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+    <span id="selection-count" style="flex:1 1 140px;font-weight:600;">Nessuna ricetta selezionata</span>
+    <button type="button" class="btn-ghost btn-small" id="selection-all-btn">Seleziona tutte</button>
+    <button type="button" class="btn-ghost btn-small" id="selection-none-btn">Deseleziona tutte</button>
+    <button type="button" class="btn-gold btn-small" id="selection-delete-btn">🗑 Elimina selezionate</button>
+    <button type="button" class="btn-ghost btn-small" id="selection-exit-btn">Annulla</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-icon">🧺</span>
+      <div>
+        <h3>Cosa posso cucinare?</h3>
+        <div class="panel-sub" id="pantry-panel-sub">Usa automaticamente quello che hai in Dispensa</div>
+      </div>
+    </div>
+    <div class="panel-row">
+      <input type="text" id="pantry-input" placeholder="Altri ingredienti che hai, separati da virgola (facoltativo)">
+      <label style="display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:var(--fs-md);">
+        Per
+        <input type="number" id="pantry-servings" min="1" value="4" style="width:64px;" title="Per quante porzioni vuoi cucinare: le quantità della ricetta vengono riscalate e confrontate con quelle in Dispensa">
+        porzioni
+      </label>
+      <select id="pantry-missing-limit" title="Quanti ingredienti possono mancare">
+        <option value="any">Qualsiasi risultato</option>
+        <option value="0">Solo ricette pronte</option>
+        <option value="1">Manca max 1 ingrediente</option>
+        <option value="2">Mancano max 2 ingredienti</option>
+        <option value="3">Mancano max 3 ingredienti</option>
+        <option value="5">Mancano max 5 ingredienti</option>
+      </select>
+      <button class="btn-ghost" id="pantry-pick-btn" type="button" title="Scegli solo alcuni prodotti della Dispensa da usare per la ricerca">📋 Scegli prodotti</button>
+      <button class="btn-gold" id="pantry-search-btn">Trova ricette</button>
+      <button class="btn-ghost" id="pantry-reset-btn" style="display:none;">Mostra tutte</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-group" style="flex:1;">
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="Cerca per nome o ingrediente…">
+      </div>
+      <select id="category-filter">
+        <option value="">Tutte le categorie</option>
+        <option value="Primi">Primi</option>
+        <option value="Secondi">Secondi</option>
+        <option value="Zuppe & Vellutate">Zuppe &amp; Vellutate</option>
+        <option value="Impasti & Pane">Impasti &amp; Pane</option>
+        <option value="Salse & Sughi">Salse &amp; Sughi</option>
+        <option value="Dolci">Dolci</option>
+        <option value="Infusi & Tisane">Infusi &amp; Tisane</option>
+        <option value="Altro">Altro</option>
+      </select>
+      <select id="sort-select">
+        <option value="name-asc">Nome (A-Z)</option>
+        <option value="name-desc">Nome (Z-A)</option>
+        <option value="recent">Aggiunta di recente</option>
+        <option value="last-made">Ultima preparata</option>
+        <option value="most-made">Più preparate</option>
+      </select>
+      <select id="time-filter" title="Filtra per tempo di preparazione">
+        <option value="">Qualsiasi tempo</option>
+        <option value="15">Entro 15 min</option>
+        <option value="30">Entro 30 min</option>
+        <option value="60">Entro 1 ora</option>
+        <option value="has-time">Con tempo indicato</option>
+      </select>
+      <button class="btn-ghost" id="favorites-filter-btn">★ Solo preferite</button>
+      <button class="btn-ghost" id="archived-filter-btn">📦 Mostra archiviate</button>
+      <button class="btn-ghost" id="advanced-filters-toggle">🔍 Cottura, tag ed esclusioni ▾</button>
+    </div>
+  </div>
+
+  <div class="panel" id="advanced-filters-panel" style="display:none;">
+    <div class="filter-section-label">Metodo di cottura</div>
+    <div class="panel-row" id="method-filter-row" style="margin-bottom:14px;">
+      <button class="tag-filter-chip" id="pressure-filter-btn">🍲 Pentola a pressione</button>
+      <button class="tag-filter-chip" id="robot-filter-btn">🤖 Robot</button>
+      <button class="tag-filter-chip" id="traditional-filter-btn">🔥 Tradizionale</button>
+    </div>
+    <div class="filter-section-label">Escludi ingredienti</div>
+    <div class="panel-row" style="margin-bottom:14px;">
+      <input type="text" id="exclude-input" placeholder="es. glutine, latticini">
+      <button class="btn-ghost btn-small" id="exclude-apply-btn">Applica esclusione</button>
+      <button class="btn-ghost btn-small" id="exclude-clear-btn" style="display:none;">Rimuovi esclusione</button>
+    </div>
+    <div class="filter-section-label">Tag dietetici</div>
+    <div class="panel-row" id="tag-filter-row" style="margin-bottom:14px;"></div>
+    <div class="filter-section-label">Escludi ricette con questi allergeni</div>
+    <div class="panel-row" id="allergen-filter-row" style="margin-bottom:0;"></div>
+  </div>
+
+  <div id="recipe-list"></div>
+
+  </div>
+
+  <div id="planning-view" style="display:none;">
+    <div class="planning-header">
+      <div>
+        <h2>📅 Pianificazione settimanale</h2>
+        <div class="panel-sub">Colazione, pranzo, cena, spuntini — più ricette per ogni fascia, con orario facoltativo</div>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn-ghost btn-small" id="planning-goto-dispensa-btn" title="Apri la Dispensa per controllare cosa hai già">🥫 Dispensa</button>
+        <button class="btn-ghost btn-small" id="add-mealtype-btn">+ Aggiungi fascia pasto</button>
+      </div>
+    </div>
+
+    <div class="panel-row" style="align-items:center;">
+      <label style="font-size:13px;color:var(--ink-soft);">Per quante persone stai pianificando?</label>
+      <input type="number" id="plan-servings-input" min="1" style="width:70px;">
+    </div>
+
+    <div class="plan-day-nav">
+      <button type="button" class="plan-day-nav-arrow" id="plan-day-prev" title="Giorno precedente">‹</button>
+      <div class="plan-day-tabs" id="plan-day-tabs"></div>
+      <button type="button" class="plan-day-nav-arrow" id="plan-day-next" title="Giorno successivo">›</button>
+    </div>
+
+    <div id="planning-days"></div>
+
+    <div class="modal-actions" style="border-top:1px solid var(--line);padding-top:16px;margin-top:4px;">
+      <button class="btn-ghost" id="clear-week-btn">Svuota settimana</button>
+      <button class="btn-ghost" id="copy-last-week-btn" title="Aggiunge le ricette della settimana scorsa a quella attuale, senza cancellare quello che hai già pianificato">➕ Aggiungi settimana scorsa</button>
+      <button class="btn-ghost" id="export-week-pdf-btn">⬇ Esporta PDF settimana</button>
+      <div style="flex:1;"></div>
+      <button class="btn-gold" id="generate-shopping-btn">🛒 Lista della spesa (settimana)<span id="planning-shopping-count" style="display:none;"></span></button>
+    </div>
+  </div>
+
+  <div id="dispensa-view" style="display:none;">
+
+    <div class="toolbar">
+      <div class="toolbar-group" style="flex:1;">
+        <button class="btn-gold" id="new-dispensa-item-btn">+ Nuovo prodotto</button>
+        <button class="btn-ghost" id="expiring-recipes-btn" title="Mostra le ricette che usano prodotti in scadenza entro 3 giorni">🍽 Usa prima ciò che scade</button>
+        <button class="btn-ghost" id="dispensa-low-stock-filter-btn" title="Mostra solo i prodotti in esaurimento">⚠ In esaurimento</button>
+        <div class="search-wrap">
+          <input type="text" id="dispensa-search" placeholder="Cerca prodotto…">
+        </div>
+        <select id="dispensa-category-filter">
+          <option value="">Tutte le categorie</option>
+          <option value="Frutta">Frutta</option>
+          <option value="Verdura">Verdura</option>
+          <option value="Uova">Uova</option>
+          <option value="Salumi">Salumi</option>
+          <option value="Latticini e pronti">Latticini e pronti</option>
+          <option value="Surgelati">Surgelati</option>
+          <option value="Pasta, riso e cereali">Pasta, riso e cereali</option>
+          <option value="Legumi">Legumi</option>
+          <option value="Farine, zucchero e lieviti">Farine, zucchero e lieviti</option>
+          <option value="Conserve e scatolame">Conserve e scatolame</option>
+          <option value="Spezie e condimenti">Spezie e condimenti</option>
+          <option value="Oli, aceti e grassi">Oli, aceti e grassi</option>
+          <option value="Bevande">Bevande</option>
+          <option value="Snack e dolciumi">Snack e dolciumi</option>
+          <option value="Altro">Altro</option>
+        </select>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn-ghost" id="dispensa-goto-planning-btn" title="Apri la Pianificazione per vedere cosa hai in programma">📅 Pianificazione</button>
+      </div>
+    </div>
+
+    <div id="dispensa-list"></div>
+
+  </div>
+
+  <!-- ============ CREA ALIMENTI (consultazione banca dati) ============ -->
+  <div id="crea-alimenti-view" style="display:none;">
+
+    <div class="toolbar">
+      <div class="toolbar-group" style="flex:1;">
+        <div class="search-wrap">
+          <input type="text" id="crea-alimenti-search" placeholder="Cerca un alimento (es. farro, parmigiano, pomodoro)…">
+        </div>
+        <select id="crea-alimenti-category-filter">
+          <option value="">Tutte le categorie</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="font-size:13px;color:var(--ink-soft);margin:-6px 0 12px;" id="crea-alimenti-hint">
+      900 alimenti della banca dati ufficiale CREA. Digita per cercare o scegli una categoria per iniziare a sfogliare.
+    </div>
+
+    <div id="crea-alimenti-list"></div>
+
+  </div>
+
+  <!-- ============ CREA MENÙ (ricette ufficiali CREA) ============ -->
+  <div id="crea-menu-view" style="display:none;">
+
+    <div class="toolbar">
+      <div class="toolbar-group" style="flex:1;">
+        <div class="search-wrap">
+          <input type="text" id="crea-menu-search" placeholder="Cerca una ricetta CREA…">
+        </div>
+        <select id="crea-menu-category-filter">
+          <option value="">Tutte le categorie</option>
+          <option>Primi</option><option>Secondi</option><option>Zuppe & Vellutate</option>
+          <option>Impasti & Pane</option><option>Salse & Sughi</option><option>Dolci</option>
+          <option>Infusi & Tisane</option><option>Altro</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="crea-menu-list"></div>
+
+  </div>
+
+  <!-- ============ COME FUNZIONA (pagina introduttiva) ============ -->
+  <div id="info-view" style="display:none;">
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">📖</span>
+        <div>
+          <h3>Come funziona questo sito</h3>
+          <div class="panel-sub">Nessun account, nessun server: tutto resta qui</div>
+        </div>
+      </div>
+      <p>Il Mio Ricettario è un sito a pagina singola: non c'è un server dietro, non serve registrarsi e i dati non vengono inviati da nessuna parte. Tutto quello che scrivi — ricette, pianificazione, dispensa — viene salvato direttamente nella memoria del tuo browser (si chiama <em>localStorage</em>), oppure, se lo colleghi, in un file sul tuo dispositivo che si aggiorna da solo a ogni modifica (vedi la sezione "Salvataggio dei dati" nella guida). Chiudendo il sito e riaprendolo, ritrovi tutto com'era.</p>
+      <p style="margin-bottom:0;">Le viste in alto ti portano alle diverse sezioni:</p>
+      <ul style="margin:8px 0 0;padding-left:20px;line-height:1.7;">
+        <li><b>☀️ Oggi</b> — un riepilogo rapido: cosa è pianificato per oggi, cosa sta per scadere in Dispensa, un accesso diretto alla lista della spesa</li>
+        <li><b>📖 Ricettario</b> — tutte le tue ricette, con ricerca, filtri e "Cosa posso cucinare?" in base a quello che hai in Dispensa</li>
+        <li><b>📅 Pianificazione</b> — cosa cucinare giorno per giorno, pasto per pasto</li>
+        <li><b>🥫 Dispensa</b> — i prodotti che hai in casa, con quantità, scadenze e valori nutrizionali</li>
+        <li><b>🌾 Valori Alimenti dal sito CREA</b> e <b>🇮🇹 Ricette dal sito CREA</b> — la banca dati ufficiale italiana, spiegata qui sotto</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🌾</span>
+        <div>
+          <h3>Cos'è il CREA</h3>
+          <div class="panel-sub">La banca dati ufficiale italiana dei valori nutrizionali</div>
+        </div>
+      </div>
+      <p>Il <b>CREA</b> (Consiglio per la ricerca in agricoltura e l'analisi dell'economia agraria) è un ente pubblico di ricerca italiano. Il suo Centro di ricerca Alimenti e Nutrizione cura da decenni le <b>Tabelle di composizione degli alimenti</b>, il riferimento ufficiale in Italia per sapere quante calorie, proteine, grassi, carboidrati e altri nutrienti contiene un alimento ogni 100 grammi.</p>
+      <p>In questo sito la banca dati CREA alimenta tre cose: la ricerca rapida "🔎 Cerca su CREA" quando aggiungi un ingrediente o un prodotto in Dispensa, la scheda nutrizionale completa (oltre 120 valori per alimento, non solo i principali), e le 56 ricette ufficiali CREA importabili così come sono nella sezione "🇮🇹 Ricette dal sito CREA". Non è un servizio in tempo reale: i dati sono stati scaricati una volta e inclusi nel sito, così funzionano anche offline.</p>
+      <p style="margin-bottom:0;">Fonte: <a href="https://www.alimentinutrizione.it" rel="noopener">alimentinutrizione.it</a> — il portale ufficiale del CREA dedicato all'alimentazione.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">📷</span>
+        <div>
+          <h3>Cos'è Open Food Facts</h3>
+          <div class="panel-sub">Usato per la scansione del codice a barre in Dispensa</div>
+        </div>
+      </div>
+      <p><b>Open Food Facts</b> è una banca dati collaborativa e indipendente di prodotti alimentari in vendita nei supermercati di tutto il mondo, costruita e aggiornata da volontari — un po' come Wikipedia, ma per le etichette dei prodotti. Non è un ente ufficiale (a differenza del CREA): le informazioni arrivano da chi fotografa e carica le confezioni, quindi possono essere incomplete, mancanti per un prodotto specifico o occasionalmente imprecise.</p>
+      <p>Quando aggiungi un nuovo prodotto in Dispensa, puoi scansionarne il codice a barre (o cercarlo per nome): se il prodotto è presente nel database, nome, marca, categoria e valori nutrizionali vengono compilati automaticamente, con l'eventuale Nutri-Score. Vale sempre la pena controllare che i dati trovati siano corretti e completarli a mano dove manca qualcosa.</p>
+      <p style="margin-bottom:0;">Fonte: <a href="https://world.openfoodfacts.org" rel="noopener">world.openfoodfacts.org</a>.</p>
+    </div>
+
+  </div>
+
+</div>
+
+</main>
+</div>
+
+<!-- ============ EDIT / CREATE MODAL ============ -->
+<div class="overlay" id="edit-overlay">
+  <div class="modal">
+    <button class="close-x" id="edit-close" aria-label="Chiudi">×</button>
+    <h2 id="edit-title">Nuova ricetta</h2>
+
+    <div class="row">
+      <div class="field">
+        <label>Nome ricetta</label>
+        <input type="text" id="f-name" placeholder="es. Carbonara risottata">
+      </div>
+      <div class="field">
+        <label>Categoria</label>
+        <select id="f-category">
+          <option>Primi</option>
+          <option>Secondi</option>
+          <option>Zuppe & Vellutate</option>
+          <option>Impasti & Pane</option>
+          <option>Salse & Sughi</option>
+          <option>Dolci</option>
+          <option>Infusi &amp; Tisane</option>
+          <option>Altro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tag dietetici (facoltativi)</label>
+      <div class="panel-sub" style="margin:-2px 0 6px;">Per chi è adatta questa ricetta</div>
+      <div class="tag-checks" id="f-tags-wrap"></div>
+    </div>
+
+    <div class="field">
+      <label>Allergeni contenuti (facoltativi)</label>
+      <div class="panel-sub" style="margin:-2px 0 6px;">Cosa contiene questa ricetta, da segnalare a chi la mangia — diverso dai tag dietetici qui sopra</div>
+      <div class="tag-checks allergen-checks" id="f-allergens-wrap"></div>
+    </div>
+
+    <div class="field">
+      <label><input type="checkbox" id="f-freezable"> ❄️ Si congela bene</label>
+      <div class="panel-sub" style="margin:2px 0 0;">Se attivo, nella scheda della ricetta compare un suggerimento per preparare una porzione doppia e congelare il resto</div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Porzioni base</label>
+        <input type="number" id="f-servings" min="1" value="4">
+      </div>
+      <div class="field">
+        <label>Tempo totale (min)</label>
+        <input type="number" id="f-time" min="1" placeholder="es. 25">
+      </div>
+      <div class="field">
+        <label>Tipo pentola a pressione (facoltativo)</label>
+        <select id="f-cooker-type">
+          <option value="">— non specificato —</option>
+          <option value="Elettrica">Elettrica</option>
+          <option value="A fornello">A fornello</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="ingredients-actions" style="justify-content:flex-start;">
+        <button type="button" class="btn-ghost btn-small" id="recipe-nutrition-toggle-btn">🍎 Valori nutrizionali (per porzione)</button>
+      </div>
+      <div class="ingredient-nutrition" id="recipe-nutrition-fields" style="display:none;margin-top:8px;">
+        <div class="mini">Kcal<input type="number" id="f-nutri-kcal" min="0"></div>
+        <div class="mini">Proteine (g)<input type="number" id="f-nutri-protein" min="0" step="0.1"></div>
+        <div class="mini">Grassi (g)<input type="number" id="f-nutri-fat" min="0" step="0.1"></div>
+        <div class="mini">Carb. (g)<input type="number" id="f-nutri-carbs" min="0" step="0.1"></div>
+        <div class="mini">Fibre (g)<input type="number" id="f-nutri-fiber" min="0" step="0.1"></div>
+        <div class="mini">Zuccheri (g)<input type="number" id="f-nutri-sugar" min="0" step="0.1"></div>
+        <div class="mini">Sale (g)<input type="number" id="f-nutri-salt" min="0" step="0.01"></div>
+      </div>
+      <div style="font-size:11px;color:var(--ink-soft);font-style:italic;margin-top:6px;">
+        Facoltativi: inseriscili se li conosci già (es. da un'etichetta o un'altra fonte), riferiti a una singola porzione. Non vengono calcolati automaticamente dagli ingredienti: restano un'informazione a parte da quella ufficiale CREA, quando presente.
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Foto (opzionale)</label>
+      <input type="file" id="f-photo" accept="image/*">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-top:8px;">
+        <img id="f-photo-preview" class="photo-preview" alt="Anteprima foto ricetta" style="display:none;">
+        <button type="button" class="btn-ghost btn-small" id="f-photo-edit-btn" style="display:none;">✂️ Ritaglia/ruota</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Ingredienti</label>
+      <div id="ingredients-editor"></div>
+      <div class="ingredients-actions">
+        <button class="add-row-btn" id="add-ingredient">+ Aggiungi ingrediente</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Passaggi</label>
+      <div style="font-size:12.5px;color:var(--ink-soft);font-style:italic;margin:-2px 0 10px;">Scrivi il passaggio in modo normale. Se usi un robot da cucina, premi "🤖 Impostazioni robot" per aggiungere velocità/temperatura/modalità a quel passaggio — è del tutto facoltativo.</div>
+      <div id="steps-editor"></div>
+      <button class="add-row-btn" id="add-step">+ Aggiungi passaggio</button>
+    </div>
+
+    <div class="field">
+      <label>Note personali</label>
+      <textarea id="f-notes" placeholder="es. usare carote al posto dei piselli…"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" id="delete-recipe-btn" style="display:none;">Elimina ricetta</button>
+      <div style="flex:1;"></div>
+      <button class="btn-ghost" id="cancel-edit">Annulla</button>
+      <button class="btn-gold" id="save-recipe">Salva ricetta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NUOVO / MODIFICA PRODOTTO DISPENSA ============ -->
+<div class="overlay" id="dispensa-edit-overlay">
+  <div class="modal">
+    <button class="close-x" id="dispensa-edit-close" aria-label="Chiudi">×</button>
+    <h2 id="dispensa-edit-title">Nuovo prodotto</h2>
+
+    <div class="field">
+      <label>Nome</label>
+      <input type="text" id="d-name" placeholder="es. Mele, Yogurt bianco, Prosciutto crudo">
+    </div>
+
+    <div class="field">
+      <div class="ingredients-actions" style="justify-content:flex-start;">
+        <button type="button" class="btn-ghost btn-small" id="off-scan-open-btn">📷 Scansiona codice a barre</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:8px;">
+        <input type="text" id="off-barcode-input" placeholder="…oppure incolla qui il codice a barre (EAN/UPC)" inputmode="numeric" style="flex:1;">
+        <button type="button" class="btn-ghost btn-small" id="off-barcode-search-btn">Cerca</button>
+      </div>
+      <div style="margin-top:8px;">
+        <input type="text" id="off-text-search" placeholder="🔎 Cerca su Open Food Facts (es. nutella, pasta barilla)…" autocomplete="off">
+      </div>
+      <div id="off-preview" style="display:none;align-items:center;gap:10px;margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--parchment-light);">
+        <img id="off-preview-img" src="" alt="" style="width:44px;height:44px;object-fit:contain;border-radius:4px;">
+        <div style="flex:1;font-size:13px;">
+          <div id="off-preview-nome" style="font-family:var(--font-titoli);font-size:16px;"></div>
+          <div id="off-preview-marca" style="color:var(--ink-soft);"></div>
+        </div>
+        <span id="off-preview-nutriscore" class="cat-tag" style="display:none;"></span>
+      </div>
+      <div id="off-status" style="font-size:12px;color:var(--ink-soft);margin-top:6px;"></div>
+      <div style="font-size:11px;color:var(--ink-soft);font-style:italic;margin-top:4px;">
+        Dati prodotto da Open Food Facts (banca dati collaborativa): compilano nome, categoria e valori nutrizionali per 100 g — controlla e completa a mano ciò che manca.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Categoria</label>
+        <select id="d-category">
+          <option>Frutta</option>
+          <option>Verdura</option>
+          <option>Uova</option>
+          <option>Salumi</option>
+          <option>Latticini e pronti</option>
+          <option>Surgelati</option>
+          <option>Pasta, riso e cereali</option>
+          <option>Legumi</option>
+          <option>Farine, zucchero e lieviti</option>
+          <option>Conserve e scatolame</option>
+          <option>Spezie e condimenti</option>
+          <option>Oli, aceti e grassi</option>
+          <option>Bevande</option>
+          <option>Snack e dolciumi</option>
+          <option>Altro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Quantità</label>
+        <input type="number" id="d-qty" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>Unità</label>
+        <input type="text" id="d-unit" placeholder="es. pz, g, ml" list="unit-suggestions">
+      </div>
+      <div class="field">
+        <label>Avvisa sotto (facoltativo)</label>
+        <input type="number" id="d-min-qty" min="0" step="0.01" placeholder="es. 2">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="ingredients-actions" style="justify-content:flex-start;">
+        <button type="button" class="btn-ghost btn-small" id="dispensa-nutrition-toggle-btn">🍎 Valori nutrizionali</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:8px;">
+        <input type="text" id="d-crea-search" placeholder="🔎 Cerca su CREA (es. mele, yogurt bianco…)" autocomplete="off" style="flex:1;">
+        <button type="button" class="crea-scheda-btn" id="d-crea-scheda-btn" title="Scheda nutrizionale completa CREA">ℹ️</button>
+      </div>
+      <div class="ingredient-nutrition" id="dispensa-nutrition-fields" style="display:none;margin-top:8px;">
+        <div class="mini">Kcal<input type="number" id="d-kcal" min="0"></div>
+        <div class="mini">Proteine (g)<input type="number" id="d-protein" min="0" step="0.1"></div>
+        <div class="mini">Grassi (g)<input type="number" id="d-fat" min="0" step="0.1"></div>
+        <div class="mini">Carb. (g)<input type="number" id="d-carbs" min="0" step="0.1"></div>
+        <div class="mini">Fibre (g)<input type="number" id="d-fiber" min="0" step="0.1"></div>
+        <div class="mini">Zuccheri (g)<input type="number" id="d-sugar" min="0" step="0.1"></div>
+        <div class="mini">Sale (g)<input type="number" id="d-salt" min="0" step="0.01"></div>
+      </div>
+      <div style="font-size:12px;color:var(--ink-soft);font-style:italic;margin-top:6px;">Riferiti a 100 g di prodotto (non alla quantità che hai in dispensa).</div>
+    </div>
+
+    <div class="field">
+      <label>Data di scadenza (facoltativa)</label>
+      <input type="date" id="d-expiry">
+    </div>
+
+    <div class="field">
+      <label>Note (facoltative)</label>
+      <textarea id="d-notes" rows="2" placeholder="es. aperto il 20/08"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" id="dispensa-delete-btn" style="display:none;">Elimina prodotto</button>
+      <div style="flex:1;"></div>
+      <button class="btn-gold" id="dispensa-save-btn">Salva prodotto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ IMPORTA RICETTA DA TESTO ============ -->
+<div class="overlay" id="paste-import-overlay">
+  <div class="modal">
+    <button class="close-x" id="paste-import-close" aria-label="Chiudi">×</button>
+    <h2>Importa ricetta da testo</h2>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin-top:-6px;line-height:1.5;">
+      Incolla qui il testo di una ricetta: il ricettario prova a riconoscere da solo nome, ingredienti e passaggi. Prima di salvare potrai correggere ogni campo.
+    </p>
+    <div class="field">
+      <textarea id="paste-import-text" rows="10" placeholder="Incolla qui il testo della ricetta…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="paste-import-cancel">Annulla</button>
+      <div style="flex:1;"></div>
+      <button class="btn-gold" id="paste-import-analyze">Analizza e compila</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SELEZIONA RICETTA (per la pianificazione) ============ -->
+<div class="overlay" id="recipe-picker-overlay">
+  <div class="modal">
+    <button class="close-x" id="recipe-picker-close" aria-label="Chiudi">×</button>
+    <h2>Scegli una ricetta</h2>
+    <div class="field">
+      <input type="text" id="recipe-picker-search" placeholder="Cerca per nome o ingrediente…">
+    </div>
+    <div class="recipe-picker-list" id="recipe-picker-list"></div>
+  </div>
+</div>
+
+<!-- ============ SELEZIONA PRODOTTO DISPENSA (per la pianificazione) ============ -->
+<div class="overlay" id="dispensa-picker-overlay">
+  <div class="modal">
+    <button class="close-x" id="dispensa-picker-close" aria-label="Chiudi">×</button>
+    <h2>Scegli dalla dispensa</h2>
+    <div id="dispensa-picker-search-step">
+      <div class="field">
+        <input type="text" id="dispensa-picker-search" placeholder="Cerca prodotto…">
+      </div>
+      <div class="recipe-picker-list" id="dispensa-picker-list"></div>
+    </div>
+    <div id="dispensa-picker-qty-step" style="display:none;">
+      <h3 id="dispensa-picker-qty-name" style="margin:0 0 14px;"></h3>
+      <div class="row">
+        <div class="field">
+          <label>Quantità per questo pasto (facoltativa)</label>
+          <input type="number" id="dispensa-picker-qty" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Unità</label>
+          <input type="text" id="dispensa-picker-unit" placeholder="es. pz, g, ml" list="unit-suggestions">
+        </div>
+      </div>
+      <div class="ingredients-actions" style="justify-content:space-between;margin-top:6px;">
+        <button type="button" class="btn-ghost btn-small" id="dispensa-picker-back-btn">‹ Indietro</button>
+        <button type="button" class="btn-gold btn-small" id="dispensa-picker-confirm-btn">+ Aggiungi alla pianificazione</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCEGLI PRODOTTI DISPENSA (per "Cosa posso cucinare?") ============ -->
+<div class="overlay" id="pantry-picker-overlay">
+  <div class="modal">
+    <button class="close-x" id="pantry-picker-close" aria-label="Chiudi">×</button>
+    <h2>Scegli i prodotti da usare</h2>
+    <p class="panel-sub" style="margin:-6px 0 12px;">Per impostazione predefinita vengono usati tutti i prodotti della Dispensa. Deseleziona quelli che non vuoi usare in questa ricerca.</p>
+    <div class="field">
+      <input type="text" id="pantry-picker-search" placeholder="Cerca prodotto…">
+    </div>
+    <div class="ingredients-actions" style="justify-content:flex-start;gap:10px;margin-bottom:8px;">
+      <button type="button" class="btn-ghost btn-small" id="pantry-picker-all-btn">Seleziona tutti</button>
+      <button type="button" class="btn-ghost btn-small" id="pantry-picker-none-btn">Deseleziona tutti</button>
+    </div>
+    <div class="recipe-picker-list" id="pantry-picker-list"></div>
+    <div class="ingredients-actions" style="justify-content:flex-end;margin-top:10px;">
+      <button type="button" class="btn-gold btn-small" id="pantry-picker-apply-btn">Applica selezione</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCHEDA NUTRIZIONALE CREA COMPLETA ============ -->
+<div class="overlay" id="crea-scheda-overlay">
+  <div class="modal">
+    <button class="close-x" id="crea-scheda-close" aria-label="Chiudi">×</button>
+    <div id="crea-scheda-content">Caricamento…</div>
+  </div>
+</div>
+
+<!-- ============ IMPORTA RICETTE UFFICIALI CREA ============ -->
+<div class="overlay" id="crea-ricette-overlay">
+  <div class="modal">
+    <button class="close-x" id="crea-ricette-close" aria-label="Chiudi">×</button>
+    <h2>Importa ricette CREA</h2>
+    <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">
+      56 ricette ufficiali del Centro di ricerca Alimenti e Nutrizione (CREA), pronte da aggiungere
+      così come sono. Categoria e porzioni sono assegnate in automatico: puoi correggerle dopo l'importazione,
+      come per qualsiasi altra ricetta.
+    </div>
+    <div class="field">
+      <input type="text" id="crea-ricette-search" placeholder="Cerca per nome…">
+    </div>
+    <div class="recipe-picker-list" id="crea-ricette-list"></div>
+    <div class="modal-actions">
+      <span id="crea-ricette-selezionate-count" style="font-size:13px;color:var(--ink-soft);align-self:center;">Nessuna selezionata</span>
+      <button type="button" class="btn-gold" id="crea-ricette-import-btn">+ Importa selezionate</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ESPORTA RICETTARIO IN PDF ============ -->
+<div class="overlay" id="export-pdf-overlay">
+  <div class="modal">
+    <button class="close-x" id="export-pdf-close" aria-label="Chiudi">×</button>
+    <h2>Esporta ricettario in PDF</h2>
+    <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">
+      Scegli le categorie intere o le singole ricette da includere (le archiviate restano escluse). Nel PDF le ricette sono raggruppate per categoria, con una pagina divisoria tra una categoria e l'altra.
+    </div>
+    <div class="field">
+      <input type="text" id="export-pdf-search" placeholder="Cerca per nome…">
+    </div>
+    <div class="modal-actions" style="margin-bottom:4px;">
+      <button type="button" class="btn-ghost btn-small" id="export-pdf-all-btn">Seleziona tutte</button>
+      <button type="button" class="btn-ghost btn-small" id="export-pdf-none-btn">Deseleziona tutte</button>
+      <span id="export-pdf-count" style="font-size:13px;color:var(--ink-soft);align-self:center;flex:1;text-align:right;">Nessuna ricetta selezionata</span>
+    </div>
+    <div class="recipe-picker-list" id="export-pdf-list"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-gold" id="export-pdf-confirm-btn">📖 Esporta PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DETTAGLIO RICETTA CREA (vista "CREA Menù") ============ -->
+<div class="overlay" id="crea-menu-dettaglio-overlay">
+  <div class="modal">
+    <button class="close-x" id="crea-menu-dettaglio-close" aria-label="Chiudi">×</button>
+    <div id="crea-menu-dettaglio-content">Caricamento…</div>
+  </div>
+</div>
+
+<!-- ============ SCANNER CODICE A BARRE (Open Food Facts) ============ -->
+<div class="overlay" id="off-scanner-overlay">
+  <div class="modal">
+    <button class="close-x" id="off-scanner-close" aria-label="Chiudi">×</button>
+    <h2>Scansiona codice a barre</h2>
+    <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">
+      Inquadra il codice a barre della confezione. Serve l'autorizzazione
+      del browser a usare la fotocamera.
+    </div>
+    <div id="off-scanner-reader" style="width:100%;"></div>
+    <div id="off-scanner-status" style="font-size:13px;color:var(--ink-soft);margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- ============ SCELTA DOVE SALVARE I DATI ============ -->
+<div class="overlay" id="storage-choice-overlay">
+  <div class="modal">
+    <button class="close-x" id="storage-choice-close" aria-label="Chiudi">×</button>
+
+    <div id="storage-choice-supportato">
+      <h2>Dove vuoi salvare i tuoi dati?</h2>
+      <div style="font-size:14px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5;">
+        Per impostazione predefinita, ricette, dispensa e pianificazione restano
+        nella memoria di questo browser. Puoi invece collegare un file sul tuo
+        dispositivo — anche dentro una cartella sincronizzata con Google Drive,
+        Dropbox o simili — così ogni modifica si salva automaticamente lì, e
+        potrai riaprirlo da un altro browser o computer.
+        <br><br>
+        <span style="font-style:italic;">Disponibile solo su Chrome, Edge e browser simili — su questo browser potrebbe non funzionare.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button type="button" class="btn-gold" id="storage-choice-new-btn">📄 Crea un nuovo file per i dati</button>
+        <button type="button" class="btn-ghost" id="storage-choice-open-btn">📂 Apri un file dati che ho già</button>
+        <button type="button" class="btn-ghost" id="storage-choice-skip-btn">💾 Continua solo con la memoria del browser</button>
+      </div>
+      <div id="storage-choice-status" style="font-size:13px;color:var(--ink-soft);margin-top:12px;"></div>
+    </div>
+
+    <div id="storage-choice-non-supportato" style="display:none;">
+      <h2>Il collegamento a un file non è disponibile qui</h2>
+      <div style="font-size:14px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5;">
+        Questo browser non supporta il salvataggio automatico su un file del
+        dispositivo — è una scelta di Safari e Firefox (anche su iOS/iPadOS,
+        dove tutti i browser si basano su Safari), non qualcosa che dipende
+        dal sito. I tuoi dati restano comunque salvati normalmente nella
+        memoria di questo browser.
+        <br><br>
+        La via più semplice per tenerli anche altrove (un altro dispositivo,
+        una cartella Drive/Dropbox) resta il backup manuale, già disponibile:
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button type="button" class="btn-gold" id="storage-choice-fallback-export-btn">⬇ Esporta backup ora</button>
+        <button type="button" class="btn-ghost" id="storage-choice-fallback-close-btn">Ho capito</button>
+      </div>
+      <div style="font-size:12px;color:var(--ink-soft);font-style:italic;margin-top:12px;">
+        Una sincronizzazione automatica col cloud (Google Drive, Dropbox) funzionerebbe anche qui, ma è una funzionalità più grande, ancora da costruire.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ VIEW MODAL ============ -->
+<div class="overlay" id="view-overlay">
+  <div class="modal">
+    <button class="close-x" id="view-close" aria-label="Chiudi">×</button>
+    <div class="view-top-row">
+      <div>
+        <span class="cat-tag" id="view-category"></span>
+        <h2 id="view-name" style="margin:0;"></h2>
+      </div>
+      <button class="star" id="view-favorite-btn" style="position:static;font-size:24px;">★</button>
+    </div>
+    <img id="view-photo" class="view-photo" style="display:none;">
+    <div style="font-size:13px;color:var(--ink-soft);" id="view-time"></div>
+    <div id="view-tags" style="margin:4px 0;"></div>
+    <div id="view-allergens" style="margin:4px 0;"></div>
+    <div id="view-archived-note" class="pantry-caveat" style="display:none;margin:4px 0 0;">📦 Questa ricetta è archiviata — non compare nell'elenco principale.</div>
+
+    <div class="last-made-row">
+      <span id="view-last-made-text">Non ancora preparata</span>
+      <button class="btn-ghost btn-small" id="mark-made-btn">Ho preparato questa oggi</button>
+    </div>
+
+    <div class="servings-control">
+      <button id="servings-minus">−</button>
+      <span class="count"><span id="view-servings-count"></span> porzioni</span>
+      <button id="servings-plus">+</button>
+    </div>
+
+    <div id="freezable-suggestion" class="pantry-caveat" style="display:none;margin:0 0 10px;">
+      ❄️ Questa ricetta si congela bene — considera di prepararne una porzione doppia e congelare il resto.
+      <button class="btn-ghost btn-small" id="double-servings-btn" style="margin-left:8px;">👯 Raddoppia le porzioni</button>
+    </div>
+
+    <ul id="view-ingredients"></ul>
+    <div id="view-nutrition" style="display:none;"></div>
+
+    <h3 style="margin-bottom:8px;">Preparazione</h3>
+    <div id="view-steps"></div>
+
+    <div class="view-notes" id="view-notes-block" style="display:none;">
+      <strong style="color:var(--brass);font-style:normal;">Note personali —</strong>
+      <span id="view-notes"></span>
+    </div>
+
+    <div class="modal-actions">
+      <div class="menu-wrap">
+        <button class="btn-ghost" id="view-export-menu-btn">⬇ Esporta ▾</button>
+        <div class="menu-dropdown" id="view-export-menu-dropdown">
+          <button id="export-recipe-pdf-btn">⬇ Esporta PDF</button>
+          <button id="export-recipe-json-btn">⬇ Esporta ricetta (.json)</button>
+        </div>
+      </div>
+      <button class="btn-ghost" id="recipe-shopping-btn">🛒 Lista della spesa</button>
+      <div class="menu-wrap">
+        <button class="btn-ghost" id="view-schedule-btn">📅 Pianifica</button>
+        <div class="menu-dropdown schedule-dropdown" id="view-schedule-dropdown">
+          <div class="schedule-field">
+            <label>Giorno</label>
+            <select id="schedule-day-select">
+              <option>Lunedì</option>
+              <option>Martedì</option>
+              <option>Mercoledì</option>
+              <option>Giovedì</option>
+              <option>Venerdì</option>
+              <option>Sabato</option>
+              <option>Domenica</option>
+            </select>
+          </div>
+          <div class="schedule-field">
+            <label>Fascia</label>
+            <select id="schedule-mealtype-select"></select>
+          </div>
+          <div class="schedule-field">
+            <label>Orario (facoltativo)</label>
+            <input type="time" id="schedule-time-input">
+          </div>
+          <button class="btn-gold btn-small" id="schedule-confirm-btn">+ Aggiungi alla pianificazione</button>
+          <div class="schedule-status" id="schedule-status" style="display:none;"></div>
+        </div>
+      </div>
+      <button class="btn-ghost" id="duplicate-recipe-btn">⧉ Duplica</button>
+      <button class="btn-gold" id="cook-mode-btn">👩‍🍳 Modalità cucina</button>
+      <button class="btn-ghost" id="archive-toggle-btn">📦 Archivia</button>
+      <div style="flex:1;"></div>
+      <button class="btn-ghost" id="view-edit-btn">Modifica</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GUIDED COOKING MODE ============ -->
+<div class="cook-overlay" id="cook-overlay">
+  <button class="cook-exit" id="cook-exit-btn">Esci ✕</button>
+  <div class="cook-progress" id="cook-progress"></div>
+  <div class="cook-wakelock-note" id="cook-wakelock-note" style="display:none;">💡 Questo browser non permette di evitare lo spegnimento automatico dello schermo: se si spegne, riaccendilo per continuare</div>
+  <div class="cook-timer" id="cook-timer" style="display:none;"></div>
+  <div class="cook-step-text" id="cook-step-text"></div>
+  <div class="cook-dial" id="cook-dial"></div>
+  <div class="cook-release-row" id="cook-release-row" style="display:none;">
+    <div class="cook-timer cook-timer-small" id="cook-release-timer"></div>
+    <button class="btn-gold" id="cook-release-timer-btn">Avvia timer rilascio</button>
+  </div>
+  <div class="cook-nav">
+    <button class="btn-ghost" id="cook-prev-btn" style="color:#f2e6c9;border-color:#f2e6c9;">← Indietro</button>
+    <button class="btn-gold" id="cook-timer-btn" style="display:none;">Avvia timer</button>
+    <button class="btn-gold" id="cook-next-btn">Avanti →</button>
+  </div>
+</div>
+
+<!-- ============ SHOPPING LIST MODAL ============ -->
+<div class="overlay" id="shopping-overlay">
+  <div class="modal">
+    <button class="close-x" id="shopping-close" aria-label="Chiudi">×</button>
+    <h2>Lista della spesa</h2>
+    <div style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;" id="shopping-subtitle"></div>
+    <div style="font-size:12px;color:var(--brass);font-weight:600;margin:-8px 0 14px;display:none;" id="shopping-dispensa-sync-note"></div>
+    <div style="font-size:11.5px;color:var(--ink-soft);font-style:italic;margin:-10px 0 14px;">Spuntando un ingrediente lo aggiungi (o ne aumenti la quantità) in Dispensa</div>
+    <ul class="shopping-list-items" id="shopping-list-items"></ul>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="shopping-subtract-all-btn" title="Sottrae da tutta la lista la quantità già disponibile in Dispensa, dove possibile">🥫 Sottrai tutto</button>
+      <div style="flex:1;"></div>
+      <button class="btn-ghost" id="export-shopping-pdf-btn">⬇ Esporta PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOTALI NUTRIZIONALI DELLA SETTIMANA ============ -->
+<div class="overlay" id="week-totals-overlay">
+  <div class="modal">
+    <button class="close-x" id="week-totals-close" aria-label="Chiudi">×</button>
+    <h2>📊 Totali nutrizionali della settimana</h2>
+    <div style="font-size:12px;color:var(--ink-soft);font-style:italic;margin-bottom:14px;">
+      Solo per le voci pianificate che hanno valori nutrizionali disponibili (ricette con valori per porzione, o prodotti Dispensa con quantità in grammi/kg): i giorni o pasti senza nessun dato non vengono conteggiati, non trattati come zero.
+    </div>
+    <div id="week-totals-days"></div>
+    <div class="nutrition-summary" id="week-totals-grand" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- ============ AVVISO DI CONFERMA (usato prima delle azioni che non si possono annullare) ============ -->
+<div class="overlay" id="confirm-overlay">
+  <div class="modal confirm-modal">
+    <h2 id="confirm-title">Conferma</h2>
+    <p id="confirm-message" style="white-space:pre-line;line-height:1.5;"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="confirm-cancel-btn">Annulla</button>
+      <div style="flex:1;"></div>
+      <button type="button" class="btn-gold" id="confirm-ok-btn">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RITAGLIO/ROTAZIONE FOTO ============ -->
+<div class="overlay" id="photo-crop-overlay">
+  <div class="modal photo-crop-modal">
+    <h2>✂️ Ritaglia o ruota la foto</h2>
+    <div class="panel-sub" style="margin:-4px 0 12px;">Trascina il riquadro per spostarlo, trascina un angolo per ridimensionarlo. "Ruota" gira l'immagine di 90° ad ogni tocco.</div>
+    <div class="photo-crop-stage" id="photo-crop-stage">
+      <img id="photo-crop-img" draggable="false" alt="">
+      <div class="photo-crop-box" id="photo-crop-box">
+        <div class="photo-crop-handle" data-handle="nw"></div>
+        <div class="photo-crop-handle" data-handle="ne"></div>
+        <div class="photo-crop-handle" data-handle="sw"></div>
+        <div class="photo-crop-handle" data-handle="se"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="photo-crop-rotate-btn">⟲ Ruota</button>
+      <button type="button" class="btn-ghost" id="photo-crop-reset-btn">Reimposta</button>
+      <div style="flex:1;"></div>
+      <button type="button" class="btn-ghost" id="photo-crop-cancel-btn">Annulla</button>
+      <button type="button" class="btn-gold" id="photo-crop-apply-btn">Applica</button>
+    </div>
+  </div>
+</div>
+
+<!-- Suggerimenti di unità di misura standard, per uniformare la scrittura tra Ricette, Dispensa
+     e Lista della spesa (es. preferire "g" a "gr", "cucchiai" a "cucchiaio" per quantità > 1).
+     Restano comunque campi di testo libero: queste sono solo proposte nel menu a tendina. -->
+<datalist id="unit-suggestions">
+  <option value="g"></option>
+  <option value="kg"></option>
+  <option value="ml"></option>
+  <option value="l"></option>
+  <option value="pz"></option>
+  <option value="cucchiaio"></option>
+  <option value="cucchiai"></option>
+  <option value="cucchiaino"></option>
+  <option value="cucchiaini"></option>
+  <option value="pizzico"></option>
+  <option value="tazza"></option>
+  <option value="tazze"></option>
+  <option value="fetta"></option>
+  <option value="fette"></option>
+  <option value="spicchio"></option>
+  <option value="spicchi"></option>
+  <option value="rametto"></option>
+  <option value="filetto"></option>
+  <option value="foglia"></option>
+</datalist>
+
+<!-- Banca dati nutrizionale CREA: deve caricarsi PRIMA dello script principale,
+     perché quest'ultimo usa l'oggetto CreaDB e la funzione attachCreaAutocomplete. -->
+<script src="js/crea-nutrition.js"></script>
+<script src="js/off-integration.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
