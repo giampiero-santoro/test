@@ -131,6 +131,14 @@
     'Impasti & Pane': '#b8892c', 'Salse & Sughi': '#a64b2a', 'Dolci': '#b83a6b',
     'Infusi & Tisane': '#8a6642', 'Altro': '#3f6e79'
   };
+  // Un piccolo simbolo per categoria, usato come illustrazione al posto della
+  // foto nelle card senza immagine: così l'elenco ricette resta curato anche
+  // prima di aver fotografato qualcosa.
+  const CATEGORY_ICONS = {
+    'Primi': '🍝', 'Secondi': '🍖', 'Zuppe & Vellutate': '🥣',
+    'Impasti & Pane': '🍞', 'Salse & Sughi': '🫙', 'Dolci': '🍰',
+    'Infusi & Tisane': '🍵', 'Altro': '🍽️'
+  };
 
   // ---------- Storage ----------
   function loadRecipes(){
@@ -592,6 +600,23 @@
 
   function escapeHtml(s){ const d=document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
   function escapeAttr(s){ return (s ?? '').toString().replace(/"/g,'&quot;'); }
+
+  // Rende una card/riga cliccabile (un <div> con solo un listener "click")
+  // raggiungibile e azionabile da tastiera: Tab la mette a fuoco, Invio/Spazio
+  // la "clicca". Senza questo, chi naviga da tastiera non può aprirla.
+  function makeKeyboardClickable(el, label){
+    if(!el) return;
+    if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    if(!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    if(label && !el.hasAttribute('aria-label')) el.setAttribute('aria-label', label);
+    el.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+        if(e.target !== el) return; // non intercettare Invio/Spazio su un campo interno (es. ricerca)
+        e.preventDefault();
+        el.click();
+      }
+    });
+  }
   function normalize(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
 
   // ---------- Avviso di conferma (al posto del confirm() nativo del browser, per le azioni
@@ -761,16 +786,6 @@
   // "Farina 00" invece di "Farina di mais"). Restituisce { match, isApprox, ambiguous }: "match" è
   // il prodotto trovato (o null), "isApprox" indica se è una corrispondenza elastica e non per nome
   // esatto, "ambiguous" è l'eventuale elenco di più candidati quando non se ne può scegliere uno solo.
-  function pantryIcon(category){
-    const icons = {
-      'Frutta':'🍎','Verdura':'🥬','Uova':'🥚','Salumi':'🥩','Latticini e pronti':'🥛',
-      'Surgelati':'❄️','Pasta, riso e cereali':'🍝','Legumi':'🫘','Farine, zucchero e lieviti':'🌾',
-      'Conserve e scatolame':'🥫','Spezie e condimenti':'🧂','Oli, aceti e grassi':'🫒','Bevande':'🥤',
-      'Snack e dolciumi':'🍪','Altro':'📦'
-    };
-    return icons[category] || '📦';
-  }
-
   function findDispensaMatch(ingredientName){
     const target = normalize(ingredientName);
     const exact = dispensaItems.find(it => normalize(it.name) === target);
@@ -1061,7 +1076,7 @@
   // estratta a parte così anche l'esportazione PDF dell'intero ricettario può riutilizzarla ed
   // esportare esattamente le ricette che si vedono in quel momento, non sempre tutte.
   function getFilteredRecipes(){
-    const q = searchEl.value.trim().toLowerCase();
+    const q = normalize(searchEl.value);
     const cat = categoryFilterEl.value;
     const timeFilter = timeFilterEl.value;
     return recipes.filter(r=>{
@@ -1093,8 +1108,8 @@
         if(hasExcluded) return false;
       }
       if(!q) return true;
-      const inName = r.name.toLowerCase().includes(q);
-      const inIngr = r.ingredients.some(i=>i.name.toLowerCase().includes(q));
+      const inName = normalize(r.name).includes(q);
+      const inIngr = r.ingredients.some(i=>normalize(i.name).includes(q));
       return inName || inIngr;
     });
   }
@@ -1151,6 +1166,7 @@
           }</div>`:''}
         `;
         card.addEventListener('click', ()=> openView(r.id));
+        makeKeyboardClickable(card, r.name);
         listEl.appendChild(card);
       });
       return;
@@ -1171,7 +1187,9 @@
         ${selectionMode
           ? `<span class="card-select-box">${selezionata ? '☑️' : '⬜'}</span>`
           : `<button class="star ${r.favorite?'active':''}" data-id="${r.id}">★</button>`}
-        ${r.photo ? `<img class="thumb" src="${r.photo}" alt="${escapeAttr(r.name)}">` : ''}
+        ${r.photo
+          ? `<img class="thumb" src="${r.photo}" alt="${escapeAttr(r.name)}">`
+          : `<div class="thumb thumb-placeholder" aria-hidden="true">${CATEGORY_ICONS[r.category] || '🍽️'}</div>`}
         <span class="cat-tag">${escapeHtml(r.category)}</span>
         ${recipeHasPressure(r) ? '<span class="pressure-badge" title="Ha passaggi per pentola a pressione">🍲</span>' : ''}
         ${recipeHasRobot(r) ? '<span class="robot-badge" title="Ha passaggi con impostazioni robot da cucina">🤖</span>' : ''}
@@ -1203,6 +1221,7 @@
           openView(r.id);
         }
       });
+      makeKeyboardClickable(card, r.name);
       listEl.appendChild(card);
     });
   }
@@ -1295,8 +1314,8 @@
   let pantryPickerDraft = null; // Set temporanea mentre l'overlay è aperto
 
   function renderPantryPickerList(query){
-    const q = (query||'').trim().toLowerCase();
-    const matches = dispensaItems.filter(it => !q || it.name.toLowerCase().includes(q))
+    const q = normalize(query);
+    const matches = dispensaItems.filter(it => !q || normalize(it.name).includes(q))
       .sort((a,b) => a.name.localeCompare(b.name));
     pantryPickerList.innerHTML = matches.length ? matches.map(it => {
       const checked = pantryPickerDraft.has(it.id);
@@ -1315,6 +1334,7 @@
         else pantryPickerDraft.add(id);
         renderPantryPickerList(pantryPickerSearch.value);
       });
+      makeKeyboardClickable(item);
     });
   }
 
@@ -1452,17 +1472,6 @@
     }
   });
 
-  const appearanceMenuBtn = document.getElementById('appearance-menu-btn');
-  const appearanceMenuDropdown = document.getElementById('appearance-menu-dropdown');
-  appearanceMenuBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    appearanceMenuDropdown.classList.toggle('open');
-  });
-  document.addEventListener('click', (e)=>{
-    if(appearanceMenuDropdown.classList.contains('open') && !appearanceMenuDropdown.contains(e.target) && e.target !== appearanceMenuBtn){
-      appearanceMenuDropdown.classList.remove('open');
-    }
-  });
 
   // ---------- Menu "Esporta" (scheda ricetta) ----------
   const viewExportMenuBtn = document.getElementById('view-export-menu-btn');
@@ -1497,45 +1506,25 @@
   }
   updateBackupReminder();
 
-  // ---------- Tema grafico ----------
+  // ---------- Tema chiaro/scuro ----------
   const TEMA_STORAGE_KEY = 'mc_ricettario_tema_v1';
-  // Solo i temi con font diversi da quelli già caricati in <head> (Cormorant
-  // Garamond/Crimson Pro/Great Vibes) hanno bisogno di un link aggiuntivo:
-  // "osteria" (originale) e "cantina" li riusano, quindi non compaiono qui.
-  const TEMA_FONT_URLS = {
-    mediterranea: 'https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Karla:wght@400;500;600&display=swap',
-    bosco: 'https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Mulish:wght@400;600&display=swap',
-    trattoria: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap',
-  };
-  const temaSelect = document.getElementById('tema-select');
-
-  function caricaFontTema(tema){
-    const url = TEMA_FONT_URLS[tema];
-    if(!url) return; // tema senza font aggiuntivi da caricare (osteria, cantina)
-    if(document.querySelector(`link[data-tema-font="${tema}"]`)) return; // già caricato in precedenza
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = url;
-    link.setAttribute('data-tema-font', tema);
-    document.head.appendChild(link);
-  }
+  const temaToggle = document.getElementById('tema-toggle');
 
   function applicaTema(tema, salvaScelta){
-    if(tema === 'osteria') document.documentElement.removeAttribute('data-tema');
-    else document.documentElement.setAttribute('data-tema', tema);
-    caricaFontTema(tema);
-    if(temaSelect) temaSelect.value = tema;
+    if(tema === 'scuro') document.documentElement.setAttribute('data-tema', 'scuro');
+    else document.documentElement.removeAttribute('data-tema');
+    if(temaToggle) temaToggle.checked = (tema === 'scuro');
     if(salvaScelta) safeStorageSet(TEMA_STORAGE_KEY, tema);
   }
 
-  if(temaSelect){
-    temaSelect.addEventListener('change', () => applicaTema(temaSelect.value, true));
+  if(temaToggle){
+    temaToggle.addEventListener('change', () => applicaTema(temaToggle.checked ? 'scuro' : 'chiaro', true));
   }
 
   // Applica di nuovo (senza ri-salvare) il tema già impostato nello script
-  // anti-lampo in <head>: qui serve solo per caricare il font giusto e
-  // sincronizzare il <select> del menu, il colore è già quello corretto.
-  applicaTema(localStorage.getItem(TEMA_STORAGE_KEY) || 'osteria', false);
+  // anti-lampo in <head>: qui serve solo a sincronizzare l'interruttore,
+  // il colore è già quello corretto.
+  applicaTema(localStorage.getItem(TEMA_STORAGE_KEY) || 'chiaro', false);
 
   dataMenuBtn.addEventListener('click', (e)=>{
     e.stopPropagation();
@@ -3064,26 +3053,6 @@
     }
     return items;
   }
-  // Calcola la quantità realmente da acquistare, sottraendo automaticamente ciò che è già
-  // disponibile in Dispensa. Non modifica la Dispensa: è solo un calcolo per la lista della spesa.
-  function subtractPantryFromShoppingItems(items){
-    return items.map(item=>{
-      if(item.fromDispensaFlag || !item.qty) return item;
-      const found = findDispensaMatch(item.name);
-      const pantry = found && found.match;
-      if(!pantry) return item;
-      const pantryQty = parseFloat(pantry.qty) || 0;
-      if(pantryQty <= 0) return item;
-      const converted = convertQty(pantryQty, pantry.unit, item.unit);
-      if(converted === null){
-        return {...item, pantryNote:`Presente in Dispensa: ${formatQtyForUnit(pantryQty, pantry.unit)} ${pantry.unit||''}`.trim()};
-      }
-      const requested = parseFloat(item.qty) || 0;
-      const remaining = Math.max(0, Math.round((requested - converted) * 100) / 100);
-      return {...item, qty:remaining, pantryCovered:remaining===0, pantryUsedQty:Math.min(requested, converted), pantryUsedUnit:item.unit||pantry.unit||'', pantryMatchName:pantry.name, pantryApprox:!!found.isApprox};
-    });
-  }
-
   function computeWeekPlanData(){
     const days = DAYS.map(day=>{
       const entries = (weekPlan[day] || []).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
@@ -3929,190 +3898,83 @@
   }
 
   function renderToday(){
+    aggiornaTopbarAlerts();
     const content = document.getElementById('today-content');
-    if(!content) return;
-
     const day = todayDayName();
-    const now = new Date();
-    const today = now.toISOString().slice(0,10);
-    const soonLimit = addDays(today, 3);
     const entries = (weekPlan[day] || []).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+    const today = new Date().toISOString().slice(0,10);
+    const soonLimit = addDays(today, 3);
     const expiring = dispensaItems
       .filter(it => it.expiry && it.expiry >= today && it.expiry <= soonLimit)
       .sort((a,b)=>a.expiry.localeCompare(b.expiry));
-    const expired = dispensaItems.filter(it => it.expiry && it.expiry < today);
-    const lowStock = dispensaItems.filter(it => {
-      const q = parseFloat(it.qty);
-      return it.lowStock && q >= 0 ? q <= parseFloat(it.lowStock) : false;
-    });
     const weekEntries = DAYS.flatMap(d=>weekPlan[d] || []);
     const plannedRecipes = weekEntries.map(e=>recipes.find(r=>r.id===e.recipeId)).filter(Boolean);
-    const shoppingItems = buildAggregatedShoppingItems(
+    const shoppingCount = buildAggregatedShoppingItems(
       plannedRecipes.map(r=>({recipe:r, scale:planServings / (r.servings || 1)}))
-    );
-    const shoppingCount = shoppingItems.length;
-    const nutritionToday = nutrizioneGiorno(day);
-    const dateLabel = now.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
-    const greeting = now.getHours() < 12 ? 'Buongiorno!' : now.getHours() < 18 ? 'Buon pomeriggio!' : 'Buonasera!';
-
-    const mealIcons = { 'Colazione':'☕', 'Pranzo':'🍝', 'Spuntino':'🍎', 'Cena':'🌙' };
-    const mealColors = { 'Colazione':'morning', 'Pranzo':'lunch', 'Spuntino':'snack', 'Cena':'dinner' };
-
+    ).length;
+    const dateLabel = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
     const mealsHtml = entries.length ? entries.map(e=>{
-      const recipe = e.recipeId ? recipes.find(r=>r.id===e.recipeId) : null;
-      const name = planEntryName(e);
-      const match = recipe ? computeMatch(recipe, dispensaItems.map(x=>normalize(x.name)), planServings) : null;
-      const ready = match ? match.missing.length === 0 : true;
-      const photo = recipe && recipe.photo ? `<img src="${escapeAttr(recipe.photo)}" alt="${escapeAttr(recipe.name)}">` : `<div class="today-meal-placeholder">${mealIcons[e.mealType] || '🍽️'}</div>`;
-      const status = recipe
-        ? (ready ? '<span class="today-status ready">✓ Ingredienti disponibili</span>' : `<span class="today-status missing">⚠ Mancano ${match.missing.length} ingredienti</span>`)
-        : '<span class="today-status neutral">Pasto personalizzato</span>';
-      return `<article class="today-meal-card ${mealColors[e.mealType] || 'dinner'}">
-        <div class="today-meal-top"><span>${mealIcons[e.mealType] || '🍽️'} ${escapeHtml(e.mealType || 'Pasto')}</span><time>${escapeHtml(e.time || '—')}</time></div>
-        <div class="today-meal-image">${photo}</div>
-        <div class="today-meal-body"><h3>${escapeHtml(name)}</h3>${status}</div>
-        <div class="today-card-actions">
-          ${recipe ? `<button type="button" class="btn-primary today-open-recipe" data-recipe-id="${escapeAttr(recipe.id)}">${ready ? 'Cucina ora' : 'Vedi dettagli'} →</button>` : '<button type="button" class="btn-ghost today-meals-btn">Apri pianificazione</button>'}
-        </div>
-      </article>`;
-    }).join('') : `<div class="today-empty-state"><div class="today-empty-icon">📅</div><div><strong>Nessun pasto pianificato per oggi</strong><p>Organizza la giornata dalla pianificazione oppure scegli una ricetta dalla dispensa.</p></div><button type="button" class="btn-primary today-plan-btn">Organizza la giornata →</button></div>`;
-
-    const expiryHtml = expiring.length ? expiring.slice(0,5).map(it=>{
-      const diff = Math.ceil((new Date(it.expiry+'T00:00:00') - new Date(today+'T00:00:00')) / 86400000);
-      const label = diff === 0 ? 'Scade oggi' : diff === 1 ? 'Scade domani' : `Scade tra ${diff} giorni`;
-      const statusClass = diff <= 1 ? 'urgent' : diff <= 3 ? 'soon' : 'ok';
-      return `<li><span class="today-pantry-icon">${escapeHtml(pantryIcon(it.category))}</span><span class="today-pantry-name"><b>${escapeHtml(it.name)}</b><small>${escapeHtml(label)}</small></span><span class="today-pill ${statusClass}">${diff <= 1 ? 'In scadenza' : 'Da consumare'}</span></li>`;
-    }).join('') : `<li class="today-no-items"><span>✓</span><span>Nessun prodotto in scadenza nei prossimi 3 giorni.</span></li>`;
-
-    const pantryTotal = dispensaItems.length;
-    const pantryGood = Math.max(0, pantryTotal - expiring.length - expired.length - lowStock.length);
-    const pantryPriority = [...expiring].sort((a,b)=>String(a.expiry||'').localeCompare(String(b.expiry||''))).slice(0,4);
-    const pantryQuickHtml = pantryPriority.length ? pantryPriority.map(it=>{
-      const diff = Math.ceil((new Date(it.expiry+'T00:00:00') - new Date(today+'T00:00:00')) / 86400000);
-      const label = diff <= 0 ? 'Scade oggi' : diff === 1 ? 'Scade domani' : `Tra ${diff} giorni`;
-      return `<button type="button" class="today-pantry-priority" data-pantry-item="${escapeAttr(it.id)}"><span class="today-pantry-priority-icon">${escapeHtml(pantryIcon(it.category))}</span><span><b>${escapeHtml(it.name)}</b><small>${escapeHtml(label)}</small></span></button>`;
-    }).join('') : '<div class="today-pantry-empty">✓ Nessun prodotto urgente</div>';
-
-    const pantryNames = dispensaItems.map(x=>normalize(x.name));
-    // Motore di suggerimento della dashboard: privilegia prima gli ingredienti realmente
-    // disponibili, poi quelli prossimi alla scadenza e infine le ricette con pochi mancanti.
-    const suggested = recipes.map(r=>{
-      const m = computeMatch(r, pantryNames, planServings);
-      const ingredients = (r.ingredients || []).filter(i => i && i.name);
-      const total = Math.max(1, ingredients.length);
-      const missingSet = new Set(m.missing.map(normalize));
-      let available = 0;
-      let expiringUsed = 0;
-      let expiredUsed = 0;
-      ingredients.forEach(ing=>{
-        const product = trovaProdottoDispensaPerIngrediente(ing.name);
-        if(!product) return;
-        const pn = normalize(product.name);
-        if(missingSet.has(normalize(ing.name))) return;
-        available++;
-        if(product.expiry){
-          if(product.expiry < today) expiredUsed++;
-          else if(product.expiry <= soonLimit) expiringUsed++;
-        }
-      });
-      const missing = m.missing.length;
-      const availability = Math.round((available / total) * 100);
-      const missingPenalty = Math.min(40, missing * 12);
-      const expiryBonus = Math.min(24, expiringUsed * 12);
-      const favoriteBonus = r.favorite ? 4 : 0;
-      const quickBonus = Number(r.time) > 0 && Number(r.time) <= 30 ? 2 : 0;
-      // Una ricetta che richiede prodotti scaduti non viene proposta come scelta prioritaria.
-      const expiredPenalty = expiredUsed * 25;
-      const score = Math.max(0, availability + expiryBonus + favoriteBonus + quickBonus - missingPenalty - expiredPenalty);
-      const reason = expiringUsed > 0
-        ? `Usa ${expiringUsed} prodotto${expiringUsed===1?'':'i'} in scadenza`
-        : missing === 0
-          ? 'Puoi prepararla con quello che hai'
-          : `Mancano ${missing} ingredient${missing===1?'e':'i'}`;
-      return {r,m,score,availability,expiringUsed,reason,missing};
-    }).filter(x=>!x.r.archived && x.availability > 0)
-      .sort((a,b)=>b.score-a.score || b.expiringUsed-a.expiringUsed || a.missing-b.missing || a.r.name.localeCompare(b.r.name))
-      .slice(0,4);
-
-    const suggestionsHtml = suggested.length ? suggested.map(({r,score,availability,expiringUsed,reason})=>{
-      const photo = r.photo ? `<img src="${escapeAttr(r.photo)}" alt="${escapeAttr(r.name)}">` : `<div class="today-suggestion-placeholder">🍴</div>`;
-      const badgeClass = expiringUsed ? 'expiry' : availability >= 100 ? 'full' : availability >= 70 ? 'partial' : 'low';
-      return `<article class="today-suggestion-card"><div class="today-suggestion-image">${photo}<button type="button" class="today-favorite" aria-label="Preferita">${r.favorite?'★':'☆'}</button></div><div class="today-suggestion-body"><h3>${escapeHtml(r.name)}</h3><div class="today-meta">⏱ ${escapeHtml(String(r.time || '—'))} min · ${escapeHtml(r.category || 'Ricetta')}</div><span class="today-availability ${badgeClass}">${expiringUsed ? '⚠ ' : ''}${availability}% disponibili</span><small class="today-suggestion-reason">${escapeHtml(reason)}</small><button type="button" class="btn-outline today-open-recipe" data-recipe-id="${escapeAttr(r.id)}">Vedi ricetta →</button></div></article>`;
-    }).join('') : '<p class="today-muted">Aggiungi qualche prodotto alla Dispensa per ricevere suggerimenti personalizzati.</p>';
-
-    const nutritionFields = nutritionToday ? [
-      ['🔥','Calorie',nutritionToday.kcal,'kcal','today-nutri-kcal'],
-      ['💪','Proteine',nutritionToday.proteine,'g','today-nutri-protein'],
-      ['🌾','Carboidrati',nutritionToday.carboidrati,'g','today-nutri-carbs'],
-      ['🥑','Grassi',nutritionToday.grassi,'g','today-nutri-fat']
-    ].filter(x=>x[2] !== null && x[2] !== undefined) : [];
-    const nutritionHtml = nutritionFields.length ? nutritionFields.map(([icon,label,val,unit,cls])=>`<div class="today-nutri-card ${cls}"><span>${icon}</span><div><small>${label}</small><strong>${escapeHtml(String(roundNice(val)))} ${unit}</strong></div></div>`).join('') : '<p class="today-muted">I valori nutrizionali compariranno qui quando saranno presenti nella pianificazione di oggi.</p>';
-
+      const name = escapeHtml(planEntryName(e));
+      return `<li><span class="today-time">${escapeHtml(e.time || '—')}</span><b>${name}</b> <span class="today-meal">· ${escapeHtml(e.mealType || 'Pasto')}</span></li>`;
+    }).join('') : '<p class="today-empty">Nessun pasto pianificato per oggi.</p>';
+    const expiryHtml = expiring.length ? expiring.slice(0,4).map(it=>{
+      const date = new Date(it.expiry + 'T00:00:00').toLocaleDateString('it-IT', {day:'numeric', month:'short'});
+      return `<li><b>${escapeHtml(it.name)}</b> <span class="today-expiry-soon">· scade ${date}</span></li>`;
+    }).join('') : '<p class="today-empty">Nessun prodotto in scadenza nei prossimi 3 giorni.</p>';
+    const shoppingText = shoppingCount
+      ? `${shoppingCount} voci da verificare per i pasti pianificati.`
+      : (shoppingExtraItems.length ? `${shoppingExtraItems.length} promemoria dalla Dispensa.` : 'Nessuna lista della spesa da preparare.');
     content.innerHTML = `
-      <div class="today-dashboard">
-        <header class="today-hero">
-          <div class="today-hero-copy"><span class="today-kicker">${escapeHtml(day)}</span><h1>${escapeHtml(greeting)}</h1><p>${escapeHtml(dateLabel.charAt(0).toUpperCase()+dateLabel.slice(1))}</p></div>
-          <div class="today-hero-actions"><button type="button" class="btn-primary today-plan-btn">📅 Organizza la settimana</button><button type="button" class="btn-ghost today-cook-btn">🍳 Cosa posso cucinare?</button></div>
-        </header>
-
-        <section class="today-section today-main-section">
-          <div class="today-section-head"><div><span class="today-section-kicker">PROGRAMMA DI OGGI</span><h2>🍽 I tuoi pasti</h2></div><button type="button" class="today-link today-plan-btn">Vedi settimana →</button></div>
-          <div class="today-meals-grid">${mealsHtml}</div>
-        </section>
-
-        <div class="today-two-columns">
-          <section class="today-section today-alert-section"><div class="today-section-head"><div><span class="today-section-kicker">ATTENZIONE</span><h2>⚠️ Da consumare prima</h2></div><button type="button" class="today-link today-expiry-btn">Vedi Dispensa →</button></div><ul class="today-expiry-list">${expiryHtml}</ul></section>
-          <section class="today-section today-action-section"><div class="today-section-head"><div><span class="today-section-kicker">AZIONI RAPIDE</span><h2>✨ Cosa vuoi fare?</h2></div></div><div class="today-action-grid"><button class="today-action-card cook" type="button" id="today-cook-action"><span>👨‍🍳</span><b>Cosa posso cucinare?</b><small>Trova ricette con quello che hai</small></button><button class="today-action-card pantry" type="button" id="today-pantry-action"><span>🥫</span><b>La mia Dispensa</b><small>${pantryTotal} prodotti registrati</small></button><button class="today-action-card shopping" type="button" id="today-shopping-action"><span>🛒</span><b>Lista della spesa</b><small>${shoppingCount ? `${shoppingCount} voci dalla settimana` : 'Nessuna lista da preparare'}</small></button><button class="today-action-card planning" type="button" id="today-planning-action"><span>📅</span><b>Pianificazione</b><small>Organizza i prossimi pasti</small></button></div></section>
-        </div>
-
-        <section class="today-section"><div class="today-section-head"><div><span class="today-section-kicker">IN DISPENSA</span><h2>⭐ Ricette consigliate per te</h2></div><button type="button" class="today-link today-recipes-btn">Vedi tutte →</button></div><div class="today-suggestions-grid">${suggestionsHtml}</div></section>
-
-        <div class="today-bottom-grid">
-          <section class="today-section"><div class="today-section-head"><div><span class="today-section-kicker">RIEPILOGO</span><h2>🥫 La tua Dispensa</h2></div><div class="today-section-head-actions"><button type="button" class="today-link today-new-pantry-btn">+ Aggiungi</button><button type="button" class="today-link today-expiry-btn">Vedi tutto →</button></div></div><div class="today-pantry-summary"><div class="today-pantry-total"><strong>${pantryTotal}</strong><span>prodotti</span><small>${pantryGood} disponibili</small></div><div class="today-pantry-stats"><span><i class="dot good"></i> Disponibili <b>${pantryGood}</b></span><span><i class="dot warn"></i> In esaurimento <b>${lowStock.length}</b></span><span><i class="dot soon"></i> In scadenza <b>${expiring.length}</b></span><span><i class="dot bad"></i> Scaduti <b>${expired.length}</b></span></div></div><div class="today-pantry-priority-wrap"><div class="today-subhead"><b>Da consumare per primi</b><button type="button" class="today-link today-cook-btn">Trova ricette →</button></div><div class="today-pantry-priority-grid">${pantryQuickHtml}</div></div></section>
-          <section class="today-section"><div class="today-section-head"><div><span class="today-section-kicker">OGGI</span><h2>📊 Valori nutrizionali</h2></div><button type="button" class="today-link today-planning-action">Vedi pianificazione →</button></div><div class="today-nutrition-grid">${nutritionHtml}</div></section>
-        </div>
-
-        <section class="today-tip"><div class="today-tip-icon">💡</div><div><strong>Un suggerimento per oggi</strong><p>${expiring.length ? `Hai ${expiring.length} prodotto${expiring.length===1?'':'i'} da consumare a breve. Prova a partire da quelli nella sezione “Da consumare prima”.` : pantryTotal ? 'La tua Dispensa è aggiornata. Prova “Cosa posso cucinare?” per trovare una ricetta usando ciò che hai già.' : 'Inizia aggiungendo qualche prodotto alla Dispensa: il Ricettario potrà suggerirti cosa cucinare e aiutarti con la spesa.'}</p></div><button type="button" class="btn-outline today-cook-btn">Vai a “Cosa posso cucinare?” →</button></section>
+      <div class="today-heading">
+        <div><h2>☀️ Oggi</h2><p>${escapeHtml(dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1))}</p></div>
+        <button type="button" class="btn-gold" id="today-plan-btn">📅 Organizza la settimana</button>
+      </div>
+      <div class="today-grid">
+        <section class="today-card"><h3><span class="today-icon">🍽</span> I pasti di oggi</h3><ul class="today-list">${mealsHtml}</ul><div class="today-actions"><button type="button" class="btn-ghost btn-small" id="today-meals-btn">Apri pianificazione</button></div></section>
+        <section class="today-card"><h3><span class="today-icon">🥫</span> Da consumare prima</h3><ul class="today-list">${expiryHtml}</ul><div class="today-actions"><button type="button" class="btn-ghost btn-small" id="today-expiry-btn">Apri Dispensa</button></div></section>
+        <section class="today-card"><h3><span class="today-icon">🛒</span> Lista della spesa</h3><p class="today-empty">${escapeHtml(shoppingText)}</p><div class="today-actions"><button type="button" class="btn-ghost btn-small" id="today-shopping-btn">Apri lista</button><button type="button" class="btn-ghost btn-small" id="today-recipes-btn">Cerca ricette</button></div></section>
+      </div>
+      <div class="today-quick-grid">
+        <button type="button" class="today-quick-card" id="today-quick-pantry-btn" style="--qc-color:#DB2777;">
+          <span class="today-icon">🧑‍🍳</span><h4>Cosa posso cucinare?</h4><p>Trova ricette con gli ingredienti della tua dispensa</p><span class="today-quick-arrow">Vai →</span>
+        </button>
+        <button type="button" class="today-quick-card" id="today-quick-dispensa-btn" style="--qc-color:#2563EB;">
+          <span class="today-icon">🥫</span><h4>La mia dispensa</h4><p>Controlla scorte e scadenze</p><span class="today-quick-arrow">Vai →</span>
+        </button>
+        <button type="button" class="today-quick-card" id="today-quick-shopping-btn" style="--qc-color:#16A34A;">
+          <span class="today-icon">🛒</span><h4>Lista della spesa</h4><p>Genera dalla pianificazione o dalle ricette</p><span class="today-quick-arrow">Vai →</span>
+        </button>
+        <button type="button" class="today-quick-card" id="today-quick-planning-btn" style="--qc-color:#7C3AED;">
+          <span class="today-icon">📅</span><h4>Pianificazione</h4><p>Organizza i pasti della settimana</p><span class="today-quick-arrow">Vai →</span>
+        </button>
       </div>`;
-
-    content.querySelectorAll('.today-new-pantry-btn').forEach(btn=>btn.addEventListener('click',()=>document.getElementById('new-dispensa-item-btn')?.click()));
-    content.querySelectorAll('.today-pantry-priority').forEach(btn=>btn.addEventListener('click',()=>{ const target=document.querySelector(`[data-id=\"${CSS.escape(btn.dataset.pantryItem)}\"]`); if(target) target.scrollIntoView({behavior:'smooth',block:'center'}); switchView('dispensa'); }));
-    content.querySelectorAll('.today-open-recipe').forEach(btn=>btn.addEventListener('click',()=>openView(btn.dataset.recipeId)));
-    content.querySelectorAll('.today-plan-btn, .today-planning-action').forEach(btn=>btn.addEventListener('click',()=>switchView('planning')));
-    content.querySelectorAll('.today-expiry-btn').forEach(btn=>btn.addEventListener('click',()=>switchView('dispensa')));
-    content.querySelectorAll('.today-recipes-btn').forEach(btn=>btn.addEventListener('click',()=>switchView('recipes')));
-    content.querySelectorAll('.today-cook-btn, #today-cook-action').forEach(btn=>btn.addEventListener('click',()=>{
-      switchView('recipes');
-      const search = document.getElementById('pantry-search-btn');
-      if(search) search.click();
-    }));
-    const pantryAction = document.getElementById('today-pantry-action');
-    if(pantryAction) pantryAction.addEventListener('click',()=>switchView('dispensa'));
-    const shoppingAction = document.getElementById('today-shopping-action');
-    if(shoppingAction) shoppingAction.addEventListener('click',()=>document.getElementById('generate-shopping-btn')?.click());
-    const planningAction = document.getElementById('today-planning-action');
-    if(planningAction) planningAction.addEventListener('click',()=>switchView('planning'));
-    content.querySelectorAll('.today-meals-btn').forEach(btn=>btn.addEventListener('click',()=>switchView('planning')));
+    document.getElementById('today-plan-btn').addEventListener('click', ()=>switchView('planning'));
+    document.getElementById('today-meals-btn').addEventListener('click', ()=>switchView('planning'));
+    document.getElementById('today-expiry-btn').addEventListener('click', ()=>switchView('dispensa'));
+    document.getElementById('today-recipes-btn').addEventListener('click', ()=>switchView('recipes'));
+    document.getElementById('today-shopping-btn').addEventListener('click', ()=>document.getElementById('generate-shopping-btn').click());
+    document.getElementById('today-quick-pantry-btn').addEventListener('click', ()=>switchView('recipes'));
+    document.getElementById('today-quick-dispensa-btn').addEventListener('click', ()=>switchView('dispensa'));
+    document.getElementById('today-quick-shopping-btn').addEventListener('click', ()=>switchView('planning'));
+    document.getElementById('today-quick-planning-btn').addEventListener('click', ()=>switchView('planning'));
   }
 
   // Etichetta breve mostrata nella barra ☰ su schermo piccolo, per vista corrente.
   const NAV_LABELS = {
-    today: '☀️ Oggi', recipes: '📖 Ricettario', cook: '👨‍🍳 Cosa posso cucinare?', planning: '📅 Pianificazione',
+    today: '☀️ Oggi', recipes: '📖 Ricettario', planning: '📅 Pianificazione',
     dispensa: '🥫 Dispensa', 'crea-alimenti': '🌾 Valori Alimenti CREA',
     'crea-menu': '🇮🇹 Ricette CREA', info: 'ℹ️ Come funziona'
   };
   function switchView(view){
-    const recipesView = document.getElementById('recipes-view');
-    recipesView.classList.remove('cook-mode-active');
     document.getElementById('today-view').style.display = view === 'today' ? '' : 'none';
-    recipesView.style.display = (view === 'recipes' || view === 'cook') ? '' : 'none';
+    document.getElementById('recipes-view').style.display = view === 'recipes' ? '' : 'none';
     document.getElementById('planning-view').style.display = view === 'planning' ? '' : 'none';
     document.getElementById('dispensa-view').style.display = view === 'dispensa' ? '' : 'none';
     document.getElementById('crea-alimenti-view').style.display = view === 'crea-alimenti' ? '' : 'none';
     document.getElementById('crea-menu-view').style.display = view === 'crea-menu' ? '' : 'none';
     document.getElementById('info-view').style.display = view === 'info' ? '' : 'none';
     document.getElementById('nav-today-btn').classList.toggle('active', view === 'today');
-    document.getElementById('nav-recipes-btn').classList.toggle('active', view === 'recipes' || view === 'cook');
+    document.getElementById('nav-recipes-btn').classList.toggle('active', view === 'recipes');
     document.getElementById('nav-planning-btn').classList.toggle('active', view === 'planning');
     document.getElementById('nav-dispensa-btn').classList.toggle('active', view === 'dispensa');
     document.getElementById('nav-crea-alimenti-btn').classList.toggle('active', view === 'crea-alimenti');
@@ -4120,13 +3982,6 @@
     document.getElementById('nav-info-btn').classList.toggle('active', view === 'info');
     if(view === 'today') renderToday();
     if(view === 'recipes') renderList();
-    if(view === 'cook'){
-      recipesView.classList.add('cook-mode-active');
-      pantryMode = true;
-      document.getElementById('pantry-reset-btn').style.display = 'inline-flex';
-      renderList();
-      document.getElementById('cook-mode-hero')?.scrollIntoView({behavior:'smooth',block:'start'});
-    }
     if(view === 'planning') renderPlanningDays();
     if(view === 'dispensa') renderDispensaList();
     if(view === 'crea-alimenti') apriVistaCreaAlimenti();
@@ -4137,7 +3992,6 @@
   }
   document.getElementById('nav-today-btn').addEventListener('click', ()=> switchView('today'));
   document.getElementById('nav-recipes-btn').addEventListener('click', ()=> switchView('recipes'));
-  document.querySelectorAll('.cook-mode-back').forEach(btn=>btn.addEventListener('click', ()=> switchView('recipes')));
   document.getElementById('nav-planning-btn').addEventListener('click', ()=> switchView('planning'));
   document.getElementById('nav-dispensa-btn').addEventListener('click', ()=> switchView('dispensa'));
   document.getElementById('nav-crea-alimenti-btn').addEventListener('click', ()=> switchView('crea-alimenti'));
@@ -4148,23 +4002,61 @@
   document.getElementById('planning-goto-dispensa-btn').addEventListener('click', ()=> switchView('dispensa'));
   document.getElementById('dispensa-goto-planning-btn').addEventListener('click', ()=> switchView('planning'));
 
-  // ---------- Menu ☰ di navigazione su schermo piccolo ----------
-  // Sotto i 760px la fila di pulsanti vista diventa un menu a tendina aperto/chiuso da
-  // questo pulsante, invece di stare sempre visibile occupando spazio verticale.
-  const viewNavEl = document.getElementById('view-nav');
+  // ---------- Barra superiore: ricerca rapida e avvisi dispensa ----------
+  const topbarSearchEl = document.getElementById('topbar-search');
+  if(topbarSearchEl){
+    topbarSearchEl.addEventListener('input', ()=>{
+      switchView('recipes');
+      searchEl.value = topbarSearchEl.value;
+      searchEl.dispatchEvent(new Event('input'));
+    });
+  }
+  document.getElementById('topbar-info-btn').addEventListener('click', ()=> switchView('info'));
+  document.getElementById('topbar-alerts-btn').addEventListener('click', ()=>{
+    switchView('dispensa');
+    if(!dispensaLowStockOnly) document.getElementById('dispensa-low-stock-filter-btn').click();
+  });
+  // Pallino con il numero di prodotti in esaurimento o in scadenza nei prossimi 3 giorni:
+  // ricalcolato ogni volta che si passa per Oggi o Dispensa, cioè quando questi dati
+  // possono essere cambiati.
+  function aggiornaTopbarAlerts(){
+    const badge = document.getElementById('topbar-alerts-badge');
+    if(!badge) return;
+    const today = new Date().toISOString().slice(0,10);
+    const soonLimit = addDays(today, 3);
+    let count = 0;
+    dispensaItems.forEach(it=>{
+      const qty = parseFloat(it.qty), minQty = parseFloat(it.minQty);
+      const basso = !isNaN(qty) && !isNaN(minQty) && qty <= minQty;
+      const inScadenza = it.expiry && it.expiry >= today && it.expiry <= soonLimit;
+      if(basso || inScadenza) count++;
+    });
+    if(count > 0){ badge.textContent = count > 99 ? '99+' : String(count); badge.style.display = 'flex'; }
+    else badge.style.display = 'none';
+  }
+
+  // ---------- Cassetto ☰ di navigazione su schermo piccolo ----------
+  // Sotto i 760px l'intera barra laterale (marchio, voci, interruttore tema) diventa
+  // un cassetto a comparsa aperto/chiuso da questo pulsante, con uno sfondo scuro
+  // dietro per poterlo chiudere toccando fuori.
+  const appSidebarEl = document.getElementById('app-sidebar');
+  const sidebarBackdropEl = document.getElementById('sidebar-backdrop');
   const navHamburgerBtn = document.getElementById('nav-hamburger-btn');
   function closeMobileNav(){
-    viewNavEl.classList.remove('open');
+    appSidebarEl.classList.remove('open');
+    sidebarBackdropEl.classList.remove('open');
     navHamburgerBtn.setAttribute('aria-expanded', 'false');
   }
   function toggleMobileNav(){
-    const opening = !viewNavEl.classList.contains('open');
-    viewNavEl.classList.toggle('open', opening);
+    const opening = !appSidebarEl.classList.contains('open');
+    appSidebarEl.classList.toggle('open', opening);
+    sidebarBackdropEl.classList.toggle('open', opening);
     navHamburgerBtn.setAttribute('aria-expanded', String(opening));
   }
   navHamburgerBtn.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMobileNav(); });
+  sidebarBackdropEl.addEventListener('click', closeMobileNav);
   document.addEventListener('click', (e)=>{
-    if(viewNavEl.classList.contains('open') && !viewNavEl.contains(e.target) && e.target !== navHamburgerBtn){
+    if(appSidebarEl.classList.contains('open') && !appSidebarEl.contains(e.target) && e.target !== navHamburgerBtn){
       closeMobileNav();
     }
   });
@@ -4181,8 +4073,8 @@
   let pickerTargetDay = null, pickerTargetMealType = null, pickerTargetTime = '';
 
   function renderRecipePickerList(query){
-    const q = query.trim().toLowerCase();
-    const matches = recipes.filter(r => !q || r.name.toLowerCase().includes(q) || r.ingredients.some(i => i.name.toLowerCase().includes(q)))
+    const q = normalize(query);
+    const matches = recipes.filter(r => !q || normalize(r.name).includes(q) || r.ingredients.some(i => normalize(i.name).includes(q)))
       .sort((a,b) => a.name.localeCompare(b.name));
     recipePickerList.innerHTML = matches.length ? matches.map(r => `
       <div class="recipe-picker-item" data-id="${r.id}">
@@ -4201,6 +4093,7 @@
         renderPlanningDays();
         offerAddMissingToShoppingList(recipes.find(r=>r.id === recipeId));
       });
+      makeKeyboardClickable(item);
     });
   }
 
@@ -4229,8 +4122,8 @@
   let pickerSelectedDispensaItem = null;
 
   function renderDispensaPickerList(query){
-    const q = query.trim().toLowerCase();
-    const matches = dispensaItems.filter(it => !q || it.name.toLowerCase().includes(q))
+    const q = normalize(query);
+    const matches = dispensaItems.filter(it => !q || normalize(it.name).includes(q))
       .sort((a,b) => a.name.localeCompare(b.name));
     dispensaPickerList.innerHTML = matches.length ? matches.map(it => `
       <div class="recipe-picker-item" data-id="${it.id}">
@@ -4245,6 +4138,7 @@
         if(!it) return;
         showDispensaPickerQtyStep(it);
       });
+      makeKeyboardClickable(item);
     });
   }
 
@@ -4374,51 +4268,12 @@
     document.getElementById('week-totals-overlay').classList.remove('active');
   });
 
-  function planningMealIcon(mealType){
-    const t = String(mealType || '').toLowerCase();
-    if(t.includes('colaz')) return '☕';
-    if(t.includes('pranz')) return '🍝';
-    if(t.includes('cen')) return '🍽️';
-    if(t.includes('spunt')) return '🍎';
-    return '🥣';
-  }
-
-  function renderPlanningWeekOverview(){
-    const grid = document.getElementById('planning-week-overview-grid');
-    if(!grid) return;
-    const todayIdx = new Date().getDay();
-    const todayName = DAYS[todayIdx === 0 ? 6 : todayIdx - 1];
-    grid.innerHTML = DAYS.map(day => {
-      const entries = (weekPlan[day] || []).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
-      const active = day === selectedPlanDay;
-      const isToday = day === todayName;
-      const visible = mealTypes.slice(0,4).map(mt => {
-        const e = entries.find(x => x.mealType === mt);
-        if(!e) return '';
-        return `<div class="planning-week-meal"><span class="planning-week-meal-icon">${planningMealIcon(mt)}</span><div class="planning-week-meal-text"><strong>${escapeHtml(mt)}</strong>${escapeHtml(planEntryName(e))}</div></div>`;
-      }).filter(Boolean).join('');
-      const extra = entries.length > 4 ? `<div class="planning-week-empty">+${entries.length-4} altri</div>` : '';
-      const badge = entries.length ? `${entries.length} ${entries.length===1?'pasto':'pasti'}` : 'Da pianificare';
-      return `<button type="button" class="planning-week-day ${active?'active':''} ${isToday?'today':''}" data-week-day="${escapeAttr(day)}">
-        <div class="planning-week-day-top"><span class="planning-week-day-name">${escapeHtml(day.slice(0,3))}</span><span class="planning-week-day-badge ${entries.length?'':'empty'}">${badge}</span></div>
-        ${visible || '<div class="planning-week-empty">Nessun pasto</div>'}${extra}
-      </button>`;
-    }).join('');
-    grid.querySelectorAll('.planning-week-day').forEach(btn=>btn.addEventListener('click',()=>{
-      selectedPlanDay = btn.dataset.weekDay;
-      renderPlanningDays();
-      document.getElementById('planning-days')?.scrollIntoView({behavior:'smooth',block:'start'});
-    }));
-  }
-
   function renderPlanningDays(){
     if(!planningDaysEl) return;
     if(!selectedPlanDay){
       const jsDay = new Date().getDay(); // 0=domenica...6=sabato
       selectedPlanDay = DAYS[jsDay === 0 ? 6 : jsDay - 1];
     }
-
-    renderPlanningWeekOverview();
 
     const dayTabsEl = document.getElementById('plan-day-tabs');
     dayTabsEl.innerHTML = DAYS.map(day =>
@@ -4609,12 +4464,6 @@
     else { badge.textContent = ''; badge.style.display = 'none'; }
   }
 
-  document.getElementById('planning-today-btn')?.addEventListener('click', ()=>{
-    const jsDay = new Date().getDay();
-    selectedPlanDay = DAYS[jsDay === 0 ? 6 : jsDay - 1];
-    renderPlanningDays();
-  });
-
   document.getElementById('plan-day-prev').addEventListener('click', ()=>{
     const idx = DAYS.indexOf(selectedPlanDay);
     selectedPlanDay = DAYS[(idx - 1 + DAYS.length) % DAYS.length];
@@ -4634,9 +4483,10 @@
   }
 
   function renderDispensaList(){
+    aggiornaTopbarAlerts();
     updatePantryPanelSub();
     const listEl = document.getElementById('dispensa-list');
-    const q = document.getElementById('dispensa-search').value.trim().toLowerCase();
+    const q = normalize(document.getElementById('dispensa-search').value);
     const cat = document.getElementById('dispensa-category-filter').value;
     const today = new Date().toISOString().slice(0,10);
     const soonLimit = addDays(today, 3);
@@ -4658,7 +4508,7 @@
 
     const filtered = dispensaItems.filter(it=>{
       if(cat && it.category !== cat) return false;
-      if(q && !it.name.toLowerCase().includes(q)) return false;
+      if(q && !normalize(it.name).includes(q)) return false;
       if(dispensaLowStockOnly && !isLowStock(it)) return false;
       return true;
     }).sort((a,b)=>{
@@ -4733,6 +4583,7 @@
         ${it.notes ? `<div class="dispensa-notes">${escapeHtml(it.notes)}</div>` : ''}
       `;
       card.addEventListener('click', ()=> openDispensaEdit(it));
+      makeKeyboardClickable(card, it.name);
       const creaInfoBtn = card.querySelector('.crea-scheda-btn');
       if (creaInfoBtn) {
         creaInfoBtn.addEventListener('click', (e) => {
@@ -4998,11 +4849,9 @@
 
   // Popola e apre il modal della lista della spesa con un elenco di voci già calcolato
   // (usata sia dalla lista della settimana, sia da quella di un giorno o di una singola ricetta).
-  function openShoppingListOverlay(items, subtitleText, autoSubtracted){
+  function openShoppingListOverlay(items, subtitleText){
     shoppingSubtitle.textContent = subtitleText;
     let dispensaSyncCount = 0;
-    const subtractAllBtn = document.getElementById('shopping-subtract-all-btn');
-    if(subtractAllBtn) subtractAllBtn.style.display = autoSubtracted ? 'none' : '';
     shoppingDispensaSyncNote.style.display = 'none';
     shoppingListItems.innerHTML = '';
 
@@ -5024,25 +4873,16 @@
         shoppingListItems.appendChild(header);
       }
       const li = document.createElement('li');
-      if(item.pantryCovered) li.classList.add('covered');
-      const amt = item.fromDispensaFlag ? 'dalla dispensa' : (item.pantryCovered ? 'già in Dispensa' : `${item.qty ? formatQtyForUnit(item.qty, item.unit) : ''} ${item.unit||''}`.trim());
+      const amt = item.fromDispensaFlag ? 'dalla dispensa' : `${item.qty ? formatQtyForUnit(item.qty, item.unit) : ''} ${item.unit||''}`.trim();
       const giaSpuntato = !!shoppingCheckedItems[normalize(item.name)];
       li.innerHTML = `<input type="checkbox"${giaSpuntato?' checked':''}><span>${escapeHtml(item.name)}</span><span class="amt">${escapeHtml(amt)}</span>`;
       if(giaSpuntato) li.classList.add('checked');
       const amtSpan = li.querySelector('.amt');
-      if(autoSubtracted && !item.fromDispensaFlag && (item.pantryCovered || item.pantryUsedQty || item.pantryNote)){
-        const note = document.createElement('div');
-        note.className = 'shopping-pantry-note shopping-auto-note';
-        if(item.pantryCovered) note.textContent = `✓ Coperto dalla Dispensa${item.pantryApprox ? ` (corrispondenza: ${item.pantryMatchName})` : ''}`;
-        else if(item.pantryUsedQty) note.textContent = `🥫 Sottratti ${formatQtyForUnit(item.pantryUsedQty, item.pantryUsedUnit)} ${item.pantryUsedUnit||''} già presenti in Dispensa${item.pantryApprox ? ` (corrispondenza: ${item.pantryMatchName})` : ''}`.trim();
-        else note.textContent = `🥫 ${item.pantryNote}`;
-        li.appendChild(note);
-      }
 
       // Controllo incrociato con la Dispensa: se il prodotto risulta già presente, propone di
       // sottrarre la quantità disponibile da quella ancora da acquistare (con "Annulla" per
       // tornare indietro in caso di tocco per sbaglio).
-      if(!item.fromDispensaFlag && !autoSubtracted){
+      if(!item.fromDispensaFlag){
         const { match: dispensaMatch, isApprox, ambiguous: otherMatches } = findDispensaMatch(item.name);
         const qtyUnitLabel = (val, unit) => unit ? `${formatQtyForUnit(val, unit)} ${unit}` : formatQtyForUnit(val, unit);
         if(dispensaMatch){
@@ -5154,12 +4994,11 @@
       return;
     }
     const pairs = plannedRecipes.map(r=>({ recipe: r, scale: planServings / (r.servings || 1) }));
-    const rawItems = buildAggregatedShoppingItems(pairs);
-    const items = subtractPantryFromShoppingItems(rawItems);
+    const items = buildAggregatedShoppingItems(pairs);
     const subtitle = plannedRecipes.length
-      ? `Per ${planServings} persone — quantità già presenti in Dispensa sottratte automaticamente`
+      ? `Per ${planServings} persone — ${plannedRecipes.map(r=>r.name).join(', ')}`
       : 'Ingredienti segnalati mancanti dalla Dispensa';
-    openShoppingListOverlay(items, subtitle, true);
+    openShoppingListOverlay(items, subtitle);
   });
   document.getElementById('shopping-close').addEventListener('click', ()=> shoppingOverlay.classList.remove('active'));
   document.getElementById('shopping-subtract-all-btn').addEventListener('click', ()=>{
@@ -5202,43 +5041,6 @@
     e.returnValue = '';
   });
 
-  // ---------- Ricerca globale della nuova dashboard ----------
-  const globalSearchInput = document.getElementById('global-search-input');
-  if(globalSearchInput){
-    globalSearchInput.addEventListener('input', ()=>{
-      const searchInput = document.getElementById('search');
-      if(searchInput){
-        searchInput.value = globalSearchInput.value;
-        searchInput.dispatchEvent(new Event('input', {bubbles:true}));
-      }
-    });
-    globalSearchInput.addEventListener('focus', ()=>{
-      if(document.getElementById('recipes-view')?.style.display !== 'none') return;
-    });
-    globalSearchInput.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter' && globalSearchInput.value.trim()){
-        switchView('recipes');
-        const searchInput = document.getElementById('search');
-        if(searchInput){
-          searchInput.value = globalSearchInput.value;
-          searchInput.dispatchEvent(new Event('input', {bubbles:true}));
-          searchInput.focus();
-        }
-      }
-    });
-  }
-
-  const sidebarThemeBtn = document.getElementById('sidebar-theme-btn');
-  if(sidebarThemeBtn){
-    sidebarThemeBtn.addEventListener('click', ()=>{
-      const root = document.documentElement;
-      const current = root.getAttribute('data-dashboard-theme') || 'light';
-      const next = current === 'light' ? 'soft' : 'light';
-      root.setAttribute('data-dashboard-theme', next);
-      sidebarThemeBtn.querySelector('span:nth-child(2)').textContent = next === 'light' ? 'Tema chiaro' : 'Tema morbido';
-    });
-  }
-
   // ---------- Init ----------
   (async function avviaApp(){
     await inizializzaStorageFileAllAvvio();
@@ -5248,7 +5050,8 @@
     migrateWeekPlan();
     planServingsInput.value = planServings;
     updatePantryPanelSub();
-    switchView('today');
+    switchView('recipes');
+    aggiornaTopbarAlerts();
     aggiornaControlliMenuStorage();
     mostraSceltaStorageSeNecessario();
   })();

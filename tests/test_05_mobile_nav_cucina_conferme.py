@@ -35,17 +35,17 @@ async def run(page):
     hamburger = page.locator("#nav-hamburger-btn")
     check(await hamburger.is_visible(), "Il pulsante ☰ non è visibile su viewport mobile")
 
-    view_nav = page.locator("#view-nav")
-    check(not await view_nav.evaluate("el => el.classList.contains('open')"),
-          "Il menu di navigazione risulta già aperto prima del click")
+    sidebar = page.locator("#app-sidebar")
+    check(not await sidebar.evaluate("el => el.classList.contains('open')"),
+          "Il cassetto di navigazione risulta già aperto prima del click")
     await hamburger.click()
-    check(await view_nav.evaluate("el => el.classList.contains('open')"),
-          "Il menu ☰ non si apre al click")
+    check(await sidebar.evaluate("el => el.classList.contains('open')"),
+          "Il cassetto ☰ non si apre al click")
 
     await page.click("#nav-planning-btn")
     await page.wait_for_timeout(200)
-    check(not await view_nav.evaluate("el => el.classList.contains('open')"),
-          "Il menu ☰ non si chiude dopo aver scelto una vista")
+    check(not await sidebar.evaluate("el => el.classList.contains('open')"),
+          "Il cassetto ☰ non si chiude dopo aver scelto una vista")
     check(await page.locator("#planning-view").is_visible(), "La vista Pianificazione non è visibile dopo la selezione dal menu ☰")
 
     # --- Torna a viewport desktop per il resto del test ---

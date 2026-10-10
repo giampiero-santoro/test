@@ -2,6 +2,47 @@
 
 Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
+## [4.1.1] — Ricerca senza distinzione di accenti
+
+### Corretto
+- La ricerca di ricette e prodotti Dispensa (compresi i tre selettori usati in Pianificazione: cerca ricetta, cerca prodotto, "Cosa posso cucinare?" con prodotti dalla dispensa) ora ignora gli accenti, come già faceva la ricerca sugli alimenti CREA. Cercare "caffe" trova anche "Caffè", "perche" trova "perché", ecc.
+
+## [4.1.0] — Accessibilità e barra laterale su tablet
+
+### Aggiunto
+- **Navigazione da tastiera**: le card di ricette e prodotti Dispensa (e le righe nei selettori di ricetta/prodotto) ora si raggiungono con Tab e si aprono con Invio o Spazio, non solo con il click del mouse
+- **Contorno di messa a fuoco coerente** su tutti gli elementi interattivi (bottoni, link, campi, card) quando si naviga da tastiera, sia in tema chiaro sia scuro
+- **Barra laterale "a sole icone" su tablet** (schermi tra 761px e 1000px, anche in orizzontale): invece di restare larga 252px togliendo spazio al contenuto, si restringe a una colonna di sole icone con il nome di ogni voce disponibile al passaggio del mouse e per chi usa un lettore di schermo. Sotto i 760px resta il cassetto a comparsa di prima, sopra i 1000px resta la barra larga con le etichette
+
+## [4.0.2] — Altre due correzioni dalla nuova veste grafica
+
+### Corretto
+- **Modalità cucina**: lo sfondo era rimasto un gradiente marrone della veste precedente e il testo del passaggio quasi invisibile (colore chiaro/scuro che si invertiva con il tema, finendo a volte scuro su sfondo scuro). Ora la modalità cucina ha un proprio sfondo scuro fisso e testo sempre chiaro, leggibile con qualunque tema scelto per il resto del sito — comodo visto che in cucina può restare accesa a schermo intero anche con le mani sporche
+- **Checkbox "Si congela bene"** nel modulo ricetta: veniva allargata al 100% della larghezza del campo, spingendo il testo dell'etichetta a capo sotto invece che restare accanto al quadratino
+
+## [4.0.1] — Correzione tema scuro
+
+### Corretto
+- La scheda di una ricetta (e qualche altro pannello: menu a tendina, card del giorno in Pianificazione, badge di tempo/impostazioni robot) aveva ancora uno sfondo chiaro fisso ereditato dalla veste precedente: con il tema scuro attivo risultava quasi illeggibile. Ora segue correttamente il tema scelto
+
+## [4.0.0] — Nuova veste grafica: barra laterale e tema chiaro/scuro
+
+### Cambiato
+- **Navigazione spostata in una barra laterale** a sinistra, sempre visibile su schermo grande, con marchio in cima e interruttore del tema in fondo. Su telefono diventa un cassetto a comparsa aperto dal pulsante **"☰"** in una barra sottile sempre in vista, con uno sfondo scurito dietro per chiuderlo toccando fuori
+- **Nuova barra in cima al contenuto**, con la ricerca ricette sempre a portata di mano, una campanella **🔔** con il conteggio di prodotti in esaurimento/scadenza in Dispensa (porta dritto in Dispensa) e una scorciatoia **🧑‍🍳** verso "Come funziona"
+- I **5 temi grafici** (Originale, Mediterranea, Bosco d'autunno, Trattoria moderna, Cantina) sono sostituiti da un'unica veste chiara e luminosa, in stile "pannello di controllo", con un solo interruttore **"🌙 Tema scuro"** per passare alla variante scura. Tipografia sans-serif (Inter) al posto dei font decorativi
+- Le card delle ricette, i pannelli e i pulsanti hanno una nuova resa "a scheda": sfondo bianco (o grigio scuro in tema scuro), bordi sottili, ombre leggere, accento blu al posto dell'oro
+- La vista **"☀️ Oggi"** si aggiorna alla nuova veste e guadagna quattro scorciatoie colorate verso "Cosa posso cucinare?", Dispensa, Lista della spesa e Pianificazione, oltre alle tre card già esistenti (pasti di oggi, scadenze, lista della spesa)
+
+## [3.46.0] — Rifinitura visiva
+
+### Aggiunto
+- Le card delle ricette **senza foto** mostrano ora un'illustrazione al posto del vuoto: un riquadro sfumato nel colore della categoria con un piccolo simbolo (🍝 Primi, 🍖 Secondi, 🥣 Zuppe, 🍞 Impasti & Pane, 🫙 Salse & Sughi, 🍰 Dolci, 🍵 Infusi & Tisane, 🍽️ Altro), così l'elenco resta curato anche prima di aver caricato immagini
+- La stellina dei preferiti nelle card ha ora un piccolo sfondo scuro semitrasparente, per restare leggibile sopra qualunque foto o colore
+- Due piccoli angoli dorati sul pannello principale ("il libro"), come su una pagina miniata
+- Grana sottilissima sullo sfondo della pagina, per una resa meno piatta
+- Un piccolo simbolo ✦ sopra i messaggi "nessun risultato" (elenco ricette e dispensa vuoti)
+
 ## [3.45.0] — Suite di test automatici
 
 ### Aggiunto
@@ -584,12 +625,3 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 - Ricerca per nome/ingrediente e filtro per categoria
 - Set di 12 ricette tradizionali laziali/ciociare importabili con un click
 - Salvataggio locale tramite `localStorage`, nessun account o server richiesto
-## 4.0 Alpha 2 — Dashboard Oggi
-- Ridisegnata completamente la schermata Oggi come dashboard operativa.
-- Aggiunti pasti del giorno con foto, disponibilità ingredienti e accesso diretto alla ricetta.
-- Aggiunte scadenze della Dispensa, azioni rapide, suggerimenti ricette, riepilogo Dispensa e nutrizione giornaliera.
-- Layout responsive dedicato a tablet e smartphone.
-- La nuova dashboard usa le funzioni e i dati già presenti senza modificare il modello di salvataggio.
-
-
-- 4.0 Alpha 4: dashboard Dispensa intelligente, priorita prodotti in scadenza, aggiunta rapida prodotto e collegamento ai suggerimenti.

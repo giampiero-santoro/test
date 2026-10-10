@@ -1,45 +1,48 @@
 :root{
     color-scheme: light;
-    --wood-dark:#241610;
-    --wood:#3a2718;
-    --wood-deep:#160d07;
-    --parchment:#f3e8cd;
-    --parchment-light:#fbf4e1;
-    --ink:#2b1f13;
-    --ink-soft:#6b5942;
-    --gold:#b8892c;
-    --gold-bright:#e2b45a;
-    --gold-deep:#8c6a2f;
-    --brass:#8c6a2f;
-    --line:#d3c298;
-    --shadow: rgba(18,10,4,0.45);
-    --green:#4f8a3d;
-    --orange:#cf7a2c;
-    --red:#9c3434;
+    /* Tema predefinito "Moderna": dashboard chiara con barra laterale,
+       al posto dell'originale pergamena/noce (ancora selezionabile come
+       variante cromatica dal menu "🎨 Aspetto" non è più presente: questo
+       è ora l'unico punto di partenza). I nomi delle variabili restano gli
+       stessi di prima — riusati con nuovi valori — così il resto del CSS,
+       scritto ovunque con var(--...), si aggiorna senza doverlo riscrivere. */
+    --wood-dark:#0F172A;
+    --wood:#1D4ED8;
+    --wood-deep:#0B1220;
+    --parchment:#F1F5F9;
+    --parchment-light:#FFFFFF;
+    --ink:#0F172A;
+    --ink-soft:#64748B;
+    --gold:#2563EB;
+    --gold-bright:#3B82F6;
+    --gold-deep:#1D4ED8;
+    --brass:#2563EB;
+    --line:#E2E8F0;
+    --shadow: rgba(15,23,42,0.12);
+    --green:#16A34A;
+    --orange:#D97706;
+    --red:#DC2626;
 
     /* Variabili tema aggiuntive: font, sfondo pagina, testata/navigazione,
-       texture della "pergamena". Il tema predefinito (nessun data-tema,
-       o data-tema="osteria") riprende esattamente l'aspetto originale. */
-    --font-titoli:'Cormorant Garamond', serif;
-    --font-testo:'Crimson Pro', serif;
-    --font-script:'Great Vibes', cursive;
-    --page-bg:
-      radial-gradient(1100px 520px at 50% -8%, rgba(226,180,90,0.16), transparent 60%),
-      radial-gradient(ellipse at top, #523923 0%, var(--wood-dark) 55%, var(--wood-deep) 100%);
-    --masthead-text:var(--parchment-light);
-    --masthead-eyebrow:var(--gold-bright);
-    --sub-color:#e8d3a3;
-    --h1-grad-1:#f9ecc8; --h1-grad-2:#e9c06a; --h1-grad-3:#b8892c;
-    --h1-shadow: rgba(0,0,0,.4);
-    --nav-bg: rgba(250,243,224,0.07);
-    --nav-border: rgba(226,180,90,0.35);
-    --nav-text:#e8d6ae;
-    --nav-hover-bg: rgba(250,243,224,0.16);
-    --nav-active-text:#2c1d0d;
-    --nav-active-shadow: rgba(184,137,44,0.45);
-    --shadow-2: rgba(18,10,4,0.30);
-    --paper-glow: rgba(160,120,60,0.12);
-    --paper-line: rgba(160,120,60,0.035);
+       texture dei pannelli. */
+    --font-titoli:'Inter', sans-serif;
+    --font-testo:'Inter', sans-serif;
+    --font-script:'Inter', sans-serif;
+    --page-bg:#EEF2F8;
+    --masthead-text:#F8FAFC;
+    --masthead-eyebrow:#93C5FD;
+    --sub-color:#94A3B8;
+    --h1-grad-1:#F8FAFC; --h1-grad-2:#F8FAFC; --h1-grad-3:#F8FAFC;
+    --h1-shadow: rgba(0,0,0,0);
+    --nav-bg: transparent;
+    --nav-border: transparent;
+    --nav-text:#CBD5E1;
+    --nav-hover-bg: rgba(255,255,255,0.06);
+    --nav-active-text:#FFFFFF;
+    --nav-active-shadow: rgba(37,99,235,0.45);
+    --shadow-2: rgba(15,23,42,0.06);
+    --paper-glow: rgba(37,99,235,0);
+    --paper-line: rgba(15,23,42,0);
 
     /* Dimensioni dei testi piccoli (etichette, note, righe di dettaglio).
        Definite qui in un punto solo così da poterle ingrandire tutte
@@ -50,68 +53,24 @@
     --fs-md: 13px;
   }
 
-  /* ============ TEMI ALTERNATIVI ============
-     Stesse variabili di :root, valori diversi: tutto il resto del CSS
-     (già scritto con var(--...) ovunque) si aggiorna da solo. */
-
-  :root[data-tema="mediterranea"]{
-    --wood-dark:#F5E9D8; --wood:#8B3A1F; --wood-deep:#F5E9D8;
-    --parchment:#FAF3E8; --parchment-light:#FFFBF3;
-    --ink:#3A2E26; --ink-soft:#7A6A5C;
-    --gold:#D9713C; --gold-bright:#E68A54; --gold-deep:#B85A2C; --brass:#B85A2C;
-    --line:#EEDFC5; --shadow: rgba(120,80,40,0.18);
-    --font-titoli:'Fraunces', serif; --font-testo:'Karla', sans-serif; --font-script:'Fraunces', serif;
-    --page-bg: radial-gradient(1200px 600px at 50% -10%, rgba(217,113,60,0.07), transparent 60%), #FAF3E8;
-    --masthead-text:#3A2E26; --masthead-eyebrow:#C1651F; --sub-color:#8B5E3C;
-    --h1-grad-1:#B85A2C; --h1-grad-2:#D9713C; --h1-grad-3:#8B3A1F; --h1-shadow: rgba(139,58,31,0.15);
-    --nav-bg:#FFFFFF; --nav-border:#E3D5BF; --nav-text:#3A2E26; --nav-hover-bg:#FFF6EA;
-    --nav-active-text:#FFFFFF; --nav-active-shadow: rgba(217,113,60,0.35);
-    --shadow-2: rgba(139,58,31,0.12); --paper-glow: rgba(217,113,60,0.08); --paper-line: rgba(217,113,60,0.03);
-  }
-
-  :root[data-tema="bosco"]{
-    --wood-dark:#2A3D2C; --wood:#1F3320; --wood-deep:#0D160E;
-    --parchment:#F3E9D2; --parchment-light:#FAF3E0;
-    --ink:#2B2418; --ink-soft:#6B6350;
-    --gold:#C1571B; --gold-bright:#D9713C; --gold-deep:#9C4515; --brass:#9C4515;
-    --line:#E3D5B0; --shadow: rgba(20,30,15,0.35);
-    --font-titoli:'Bitter', serif; --font-testo:'Mulish', sans-serif; --font-script:'Bitter', serif;
-    --page-bg: radial-gradient(1100px 520px at 50% -8%, rgba(217,164,65,0.10), transparent 60%), radial-gradient(ellipse at top, #2A3D2C 0%, #1B2A1C 55%, #0D160E 100%);
-    --masthead-text:#F3E9D2; --masthead-eyebrow:#D9A441; --sub-color:#D9C9A0;
-    --h1-grad-1:#F3E0B0; --h1-grad-2:#D9A441; --h1-grad-3:#9C4515; --h1-shadow: rgba(0,0,0,.4);
-    --nav-bg: rgba(243,233,210,0.07); --nav-border: rgba(217,164,65,0.35); --nav-text:#E3D9C0; --nav-hover-bg: rgba(243,233,210,0.14);
-    --nav-active-text:#2B1A08; --nav-active-shadow: rgba(193,87,27,0.45);
-    --shadow-2: rgba(13,22,14,0.25); --paper-glow: rgba(217,164,65,0.10); --paper-line: rgba(43,74,46,0.04);
-  }
-
-  :root[data-tema="trattoria"]{
-    --wood-dark:#F7F5F0; --wood:#2B2B2B; --wood-deep:#F7F5F0;
-    --parchment:#F7F5F0; --parchment-light:#FFFFFF;
-    --ink:#2B2B2B; --ink-soft:#767268;
-    --gold:#C1432A; --gold-bright:#D65C3F; --gold-deep:#9C351F; --brass:#9C351F;
-    --line:#EAE6DD; --shadow: rgba(40,35,25,0.10);
-    --font-titoli:'DM Serif Display', serif; --font-testo:'DM Sans', sans-serif; --font-script:'DM Serif Display', serif;
-    --page-bg: #F7F5F0;
-    --masthead-text:#2B2B2B; --masthead-eyebrow:#C1432A; --sub-color:#767268;
-    --h1-grad-1:#3A3530; --h1-grad-2:#2B2B2B; --h1-grad-3:#C1432A; --h1-shadow: rgba(0,0,0,0.08);
-    --nav-bg:#FFFFFF; --nav-border:#E3DFD5; --nav-text:#2B2B2B; --nav-hover-bg:#FAF8F3;
-    --nav-active-text:#FFFFFF; --nav-active-shadow: rgba(193,67,42,0.3);
-    --shadow-2: rgba(40,35,25,0.06); --paper-glow: rgba(193,67,42,0.04); --paper-line: rgba(40,35,25,0.02);
-  }
-
-  :root[data-tema="cantina"]{
-    --wood-dark:#4A1B2C; --wood:#6B1E2C; --wood-deep:#12070C;
-    --parchment:#F0E4CE; --parchment-light:#F8F0DE;
-    --ink:#2A1220; --ink-soft:#6B4A56;
-    --gold:#C9A24B; --gold-bright:#E2B45A; --gold-deep:#8C6A2F; --brass:#8C6A2F;
-    --line:#D9C9A8; --shadow: rgba(20,5,12,0.45);
-    --font-titoli:'Cormorant Garamond', serif; --font-testo:'Crimson Pro', serif; --font-script:'Great Vibes', cursive;
-    --page-bg: radial-gradient(1100px 520px at 50% -8%, rgba(226,180,90,0.14), transparent 60%), radial-gradient(ellipse at top, #4A1B2C 0%, #2A1220 55%, #12070C 100%);
-    --masthead-text:#F0E4CE; --masthead-eyebrow:#E2B45A; --sub-color:#E0C9A0;
-    --h1-grad-1:#F9ECC8; --h1-grad-2:#E2B45A; --h1-grad-3:#8C6A2F; --h1-shadow: rgba(0,0,0,.4);
-    --nav-bg: rgba(240,228,206,0.07); --nav-border: rgba(226,180,90,0.35); --nav-text:#E8D6C8; --nav-hover-bg: rgba(240,228,206,0.14);
-    --nav-active-text:#2A1220; --nav-active-shadow: rgba(201,162,75,0.45);
-    --shadow-2: rgba(18,5,12,0.30); --paper-glow: rgba(226,180,90,0.10); --paper-line: rgba(122,35,51,0.04);
+  /* ============ TEMA SCURO ============
+     Unica variante oltre al chiaro predefinito, attivata dall'interruttore
+     "Tema scuro" in fondo alla barra laterale (non più un menu di temi
+     cromatici: stesse variabili di :root, valori diversi, il resto del
+     CSS si aggiorna da solo. */
+  :root[data-tema="scuro"]{
+    --wood-dark:#0B1220; --wood:#2563EB; --wood-deep:#060a13;
+    --parchment:#111827; --parchment-light:#1A2333;
+    --ink:#E5E9F0; --ink-soft:#94A3B8;
+    --gold:#3B82F6; --gold-bright:#60A5FA; --gold-deep:#2563EB; --brass:#3B82F6;
+    --line:#293548; --shadow: rgba(0,0,0,0.45);
+    --font-titoli:'Inter', sans-serif; --font-testo:'Inter', sans-serif; --font-script:'Inter', sans-serif;
+    --page-bg:#0B1220;
+    --masthead-text:#F8FAFC; --masthead-eyebrow:#60A5FA; --sub-color:#8291A8;
+    --h1-grad-1:#F8FAFC; --h1-grad-2:#F8FAFC; --h1-grad-3:#F8FAFC; --h1-shadow: rgba(0,0,0,0);
+    --nav-bg: transparent; --nav-border: transparent; --nav-text:#AEB9CC; --nav-hover-bg: rgba(255,255,255,0.06);
+    --nav-active-text:#FFFFFF; --nav-active-shadow: rgba(59,130,246,0.45);
+    --shadow-2: rgba(0,0,0,0.3); --paper-glow: rgba(37,99,235,0); --paper-line: rgba(15,23,42,0);
   }
 
   *{box-sizing:border-box;}
@@ -121,7 +80,7 @@
     min-height:100vh;
     font-family:var(--font-testo);
     color:var(--ink);
-    padding:36px 16px 90px;
+    padding:0;
   }
   /* Sfondo su pseudo-elemento fisso invece che background-attachment:fixed
      sul body: su Safari iOS, background-attachment:fixed può bloccare o
@@ -134,88 +93,217 @@
     z-index:-1;
     background: var(--page-bg);
   }
+  /* Grana sottilissima sopra lo sfondo, per dare un po' di materia alla
+     pagina invece di un colore/gradiente piatto. Volutamente minima: si
+     nota solo da vicino. */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    opacity:.5;
+    background-image:radial-gradient(rgba(0,0,0,.5) 1px, transparent 1px);
+    background-size:3px 3px;
+    mix-blend-mode:overlay;
+  }
   h1,h2,h3,.display{font-family:var(--font-titoli);}
 
-  ::selection{background:var(--gold-bright); color:#2c1d0d;}
+  ::selection{background:var(--gold-bright); color:var(--nav-active-text);}
   ::-webkit-scrollbar{width:10px;height:10px;}
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));border-radius:8px;border:2px solid var(--parchment);}
 
+  /* ---------- Contorno di messa a fuoco da tastiera ----------
+     Un unico stile coerente per ogni elemento interattivo (bottoni, link,
+     campi, card cliccabili), così navigare con Tab resta sempre leggibile
+     sia in tema chiaro sia scuro. :focus-visible lo mostra solo quando si
+     naviga da tastiera, non al semplice click del mouse. */
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+  textarea:focus-visible, [tabindex]:focus-visible, summary:focus-visible{
+    outline:2px solid var(--gold-bright); outline-offset:2px; border-radius:6px;
+  }
+  .card[tabindex]:focus-visible, .recipe-picker-item[tabindex]:focus-visible{
+    outline:2px solid var(--gold-bright); outline-offset:-2px;
+  }
+
+  /* ---------- Impalcatura: barra laterale + area principale ---------- */
+  .app-shell{display:flex;align-items:flex-start;min-height:100vh;}
+  .app-sidebar{
+    position:sticky; top:0; align-self:flex-start;
+    width:252px; flex:0 0 252px; min-height:100vh;
+    background:var(--wood-dark);
+    display:flex; flex-direction:column; gap:4px;
+    padding:26px 16px 18px;
+    box-shadow:2px 0 0 rgba(0,0,0,.04), 8px 0 24px var(--shadow-2);
+    z-index:40;
+  }
+  .sidebar-footnote{
+    padding-top:16px; color:var(--nav-text); opacity:.55;
+    font-size:var(--fs-xs); line-height:1.5; text-align:left;
+  }
+  .app-main{flex:1 1 auto; min-width:0; padding:30px 34px 60px;}
+
+  /* ---------- Interruttore tema chiaro/scuro ---------- */
+  .theme-toggle-row{
+    margin-top:auto; padding-top:16px; margin-bottom:-2px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    cursor:pointer; user-select:none;
+  }
+  .theme-toggle-label{
+    display:flex; align-items:center; gap:7px;
+    font-size:var(--fs-sm); font-weight:600; color:var(--nav-text);
+  }
+  .switch{position:relative; display:inline-block; width:38px; height:21px; flex:0 0 auto;}
+  .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; z-index:1;}
+  .switch-track{
+    position:absolute; inset:0; border-radius:20px;
+    background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.14);
+    transition:background .18s ease;
+  }
+  .switch-track::before{
+    content:""; position:absolute; top:2px; left:2px; width:15px; height:15px;
+    border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
+    transition:transform .18s ease;
+  }
+  .switch input:checked + .switch-track{background:var(--gold-bright);}
+  .switch input:checked + .switch-track::before{transform:translateX(17px);}
+  .switch input:focus-visible + .switch-track{outline:2px solid var(--gold-bright); outline-offset:2px;}
+
+  /* ---------- Barra superiore ---------- */
+  .app-topbar{
+    display:flex; align-items:center; gap:14px; justify-content:space-between;
+    margin:0 0 20px;
+  }
+  .topbar-search{
+    flex:1 1 auto; max-width:420px; position:relative; display:flex; align-items:center;
+  }
+  .topbar-search-icon{position:absolute; left:14px; font-size:14px; opacity:.55; pointer-events:none;}
+  .topbar-search input{
+    width:100%; padding:11px 14px 11px 38px; border-radius:12px;
+    border:1px solid var(--line); background:var(--parchment-light); color:var(--ink);
+    font-size:var(--fs-md); box-shadow:0 1px 2px var(--shadow-2);
+  }
+  .topbar-actions{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+  .topbar-icon-btn{
+    position:relative; width:40px; height:40px; border-radius:50%;
+    background:var(--parchment-light); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+    box-shadow:0 1px 2px var(--shadow-2); transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .topbar-icon-btn:hover{transform:translateY(-1px); box-shadow:0 4px 10px var(--shadow-2);}
+  .topbar-avatar{background:linear-gradient(155deg,var(--gold-bright),var(--gold-deep)); color:#fff; border-color:transparent;}
+  .topbar-badge{
+    position:absolute; top:-3px; right:-3px; min-width:17px; height:17px; padding:0 4px;
+    border-radius:10px; background:var(--red); color:#fff; font-size:10px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+    box-shadow:0 0 0 2px var(--parchment-light);
+  }
+  @media (max-width:760px){
+    .app-topbar{margin:0 0 14px;}
+    .topbar-search{max-width:none;}
+  }
+
   /* ---------- Intestazione ---------- */
-  .masthead{max-width:960px;margin:0 auto 22px;text-align:center;color:var(--masthead-text);}
-  .masthead .eyebrow{letter-spacing:.42em;text-transform:uppercase;font-size:var(--fs-xs);color:var(--masthead-eyebrow);margin-bottom:8px;text-shadow:0 1px 4px var(--h1-shadow);}
+  .masthead{display:flex;align-items:center;gap:11px;margin:0 0 22px;color:var(--masthead-text);padding:0 4px;}
+  .masthead-logo{
+    flex:0 0 auto;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:19px;background:linear-gradient(155deg,var(--gold-bright),var(--gold-deep));
+    box-shadow:0 3px 10px rgba(0,0,0,.25);
+  }
   .masthead h1{
     font-family:var(--font-titoli);
-    font-size:56px;font-weight:700;margin:0 0 6px;letter-spacing:.04em;line-height:1;
-    background:linear-gradient(180deg,var(--h1-grad-1) 0%,var(--h1-grad-2) 55%,var(--h1-grad-3) 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 3px 8px var(--h1-shadow));
+    font-size:18px;font-weight:700;margin:0;letter-spacing:-.01em;line-height:1.2;
+    color:var(--masthead-text);
   }
-  .masthead-ornament{display:flex;align-items:center;justify-content:center;gap:14px;color:var(--masthead-eyebrow);font-size:var(--fs-md);margin:4px 0 8px;text-shadow:0 0 10px var(--paper-glow);}
-  .masthead-ornament span{display:block;height:1px;width:100px;}
-  .masthead-ornament span:first-child{background:linear-gradient(90deg,transparent,var(--masthead-eyebrow));}
-  .masthead-ornament span:last-child{background:linear-gradient(90deg,var(--masthead-eyebrow),transparent);}
-  .masthead .sub{font-family:var(--font-script);font-style:italic;font-size:27px;color:var(--sub-color);text-shadow:0 2px 6px var(--h1-shadow);}
+  .masthead .sub{display:block;font-family:var(--font-testo);font-style:normal;font-size:11.5px;color:var(--sub-color);margin-top:1px;}
 
   /* ---------- Navigazione viste ---------- */
-  /* Barra con il pulsante "hamburger": nascosta di default, compare solo sotto i 760px
-     (vedi media query più sotto), dove sostituisce la fila di pulsanti con un menu a tendina. */
-  .mobile-nav-bar{display:none;}
-  .mobile-nav-bar button{
-    width:100%; text-align:left; font-family:var(--font-testo); font-weight:600; font-size:16px;
+  /* Barra sottile sempre visibile sotto i 760px, con il pulsante "☰" che apre
+     l'intera barra laterale come cassetto a comparsa (vedi media query più sotto). */
+  .mobile-topbar{display:none;}
+  .mobile-topbar button{
+    font-family:var(--font-testo); font-weight:700; font-size:19px; line-height:1;
     background:var(--nav-bg); border:1px solid var(--nav-border); color:var(--nav-text);
-    border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:8px;
+    border-radius:9px; padding:9px 13px; display:flex; align-items:center; justify-content:center;
   }
-  .view-nav{display:flex;gap:10px;justify-content:center;max-width:960px;margin:0 auto 26px;flex-wrap:wrap;}
+  .sidebar-backdrop{display:none;}
+  .view-nav{display:flex;flex-direction:column;gap:3px;margin:6px 0 0;}
   .view-nav-btn{
     font-family:var(--font-testo);
     background:var(--nav-bg);
     border:1px solid var(--nav-border);
     color:var(--nav-text);
-    border-radius:24px; padding:9px 22px; font-size:14px; font-weight:600;
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    transition:background .18s ease, transform .18s ease, box-shadow .18s ease, color .18s ease;
+    border-radius:9px; padding:10px 12px; font-size:14px; font-weight:600;
+    display:flex; align-items:center; gap:11px; text-align:left; white-space:normal;
+    transition:background .16s ease, color .16s ease, box-shadow .16s ease;
   }
-  .view-nav-btn:hover{background:var(--nav-hover-bg); transform:translateY(-1px);}
+  .view-nav-btn .nav-ico{font-size:16px;flex:0 0 auto;line-height:1;}
+  .view-nav-btn:hover{background:var(--nav-hover-bg);}
   .view-nav-btn.active{
-    background:linear-gradient(180deg,var(--gold-bright),var(--gold) 60%,var(--gold-deep));
+    background:var(--gold);
     color:var(--nav-active-text); border-color:transparent;
-    box-shadow:0 6px 18px var(--nav-active-shadow), inset 0 1px 0 rgba(255,255,255,0.4);
+    box-shadow:0 4px 14px var(--nav-active-shadow);
   }
-  /* Sotto i 760px: la fila di 7 pulsanti (uno molto lungo) occuperebbe troppo spazio in
-     verticale e sarebbe scomoda da scorrere col pollice. Si passa a un pulsante "☰" che apre
-     un menu a tendina a tutta larghezza, con lo stesso elenco di destinazioni ma impilate e
-     con un'area di tocco più generosa. */
+  /* Tra 761px e 1000px (tablet, anche in orizzontale): la barra laterale
+     fissa si restringe a sole icone invece di restare larga 252px e portare
+     via spazio prezioso al contenuto. Il nome di ogni vista resta comunque
+     disponibile come aria-label/title per chi usa lettore schermo o mouse. */
+  @media (min-width:761px) and (max-width:1000px){
+    .app-sidebar{width:76px; flex:0 0 76px; padding:22px 10px 16px; align-items:center;}
+    .masthead{justify-content:center; padding:0;}
+    .masthead h1, .masthead .sub{display:none;}
+    .view-nav{align-items:stretch; width:100%;}
+    .view-nav-btn{justify-content:center; padding:11px 0;}
+    .nav-label{display:none;}
+    .theme-toggle-row{flex-direction:column; gap:7px; padding-top:14px;}
+    .theme-toggle-text{display:none;}
+    .sidebar-footnote{display:none;}
+    .app-main{padding:28px 20px 60px;}
+  }
+  /* Sotto i 760px: la barra laterale diventa un cassetto a comparsa, nascosto di
+     lato finché non si preme "☰" nella barra sottile sempre visibile in cima
+     alla pagina. Si apre sopra il resto del contenuto, con uno sfondo scuro
+     dietro per chiuderlo toccando fuori. */
   @media (max-width:760px){
-    .mobile-nav-bar{display:block; max-width:960px; margin:0 auto 14px;}
-    /* In flusso normale, subito sotto il pulsante ☰ (di cui è "fratello" nel markup):
-       niente overlay/posizionamento assoluto, resta semplice e non copre altro contenuto. */
-    .view-nav{
-      display:none; flex-direction:column; gap:8px; justify-content:flex-start;
-      max-width:960px; background:var(--parchment); border:1px solid var(--line);
-      border-radius:12px; padding:10px; box-shadow:0 8px 20px rgba(0,0,0,0.12); margin:0 auto 20px;
+    .app-shell{display:block;min-height:0;}
+    .app-sidebar{
+      position:fixed; top:0; left:0; height:100vh; width:278px; max-width:84vw;
+      transform:translateX(-100%); transition:transform .22s ease;
+      box-shadow:10px 0 32px rgba(0,0,0,.35);
+      z-index:120; overflow-y:auto;
     }
-    .view-nav.open{display:flex;}
-    .view-nav-btn{width:100%; text-align:left; border-radius:8px; padding:13px 16px; font-size:16px;}
+    .app-sidebar.open{transform:translateX(0);}
+    .app-main{padding:0 14px 50px;}
+    .mobile-topbar{
+      display:flex; align-items:center; gap:12px; margin:14px 0 14px;
+      padding:9px 12px; background:var(--wood-dark); border-radius:10px;
+      color:var(--nav-text); font-weight:700; font-size:15px;
+      box-shadow:0 2px 8px var(--shadow-2);
+    }
+    .sidebar-backdrop{
+      display:none; position:fixed; inset:0; background:rgba(10,8,5,.5);
+      z-index:110;
+    }
+    .sidebar-backdrop.open{display:block;}
   }
 
-  /* ---------- Libro / pergamena ---------- */
+  /* ---------- Area contenuto principale ---------- */
+  /* Il nome della classe ("book") resta dai tempi del tema a pergamena, ma
+     ora è solo la card bianca che contiene la vista corrente: bordo e
+     ombra leggeri, in stile dashboard, niente più texture/cornici dorate. */
   .book{
-    max-width:960px;margin:0 auto;background:var(--parchment);
-    border:1px solid var(--line);border-radius:14px;
-    box-shadow:
-      0 40px 80px var(--shadow),
-      0 10px 26px var(--shadow-2),
-      inset 0 0 0 6px var(--parchment-light),
-      inset 0 0 70px var(--paper-glow);
-    padding:30px;
-    background-image:repeating-linear-gradient(0deg, var(--paper-line) 0px, var(--paper-line) 1px, transparent 1px, transparent 26px);
+    position:relative;
+    max-width:1180px;margin:0;background:var(--parchment-light);
+    border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 1px 2px var(--shadow-2), 0 10px 26px var(--shadow-2);
+    padding:28px 30px;
   }
 
   /* ---------- Pannelli ---------- */
   .panel{
-    background:linear-gradient(180deg, rgba(226,180,90,0.15), rgba(226,180,90,0.05));
-    border:1px solid rgba(184,137,44,0.45);
+    background:linear-gradient(180deg, color-mix(in srgb, var(--gold-bright) 15%, transparent), color-mix(in srgb, var(--gold-bright) 5%, transparent));
+    border:1px solid color-mix(in srgb, var(--gold) 45%, transparent);
     border-left:4px solid var(--gold);
     border-radius:8px;
     padding:16px 18px;
@@ -237,9 +325,19 @@
   .today-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 18px;}
   .today-heading h2{margin:0;color:var(--ink);font-size:30px;}
   .today-heading p{margin:3px 0 0;color:var(--ink-soft);font-size:var(--fs-md);}
-  .today-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
-  .today-card{background:rgba(255,255,255,.24);border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:10px;padding:14px;min-width:0;}
-  .today-card h3{margin:0 0 10px;color:var(--ink);font-size:20px;}
+  .today-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px;}
+  .today-card{
+    background:var(--parchment-light);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0;
+    box-shadow:0 1px 2px var(--shadow-2), 0 10px 22px var(--shadow-2);
+  }
+  .today-card h3{margin:0 0 12px;color:var(--ink);font-size:16px;display:flex;align-items:center;gap:10px;}
+  .today-card .today-icon{
+    display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;
+    font-size:15px;flex:0 0 auto;background:var(--ic-bg,color-mix(in srgb, var(--gold) 14%, transparent));
+  }
+  .today-card:nth-child(1) .today-icon{--ic-bg:color-mix(in srgb, #2563EB 14%, transparent);}
+  .today-card:nth-child(2) .today-icon{--ic-bg:color-mix(in srgb, #D97706 14%, transparent);}
+  .today-card:nth-child(3) .today-icon{--ic-bg:color-mix(in srgb, #16A34A 14%, transparent);}
   .today-list{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;list-style:none;}
   .today-list li{padding:7px 0;border-bottom:1px dashed var(--line);font-size:var(--fs-md);}
   .today-list li:last-child{border-bottom:0;}
@@ -249,6 +347,23 @@
   .today-expiry-soon{color:#a5641f;font-weight:600;}
   .today-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
   @media (max-width:760px){.today-grid{grid-template-columns:1fr;}.today-heading h2{font-size:27px;}}
+
+  /* ---------- Scorciatoie colorate "Oggi" ---------- */
+  .today-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
+  @media (max-width:900px){.today-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .today-quick-card{
+    display:block;text-align:left;border-radius:12px;padding:18px;border:1px solid transparent;
+    background:color-mix(in srgb, var(--qc-color) 10%, var(--parchment-light));
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .today-quick-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px var(--shadow-2);}
+  .today-quick-card .today-icon{
+    display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;
+    font-size:17px;margin-bottom:12px;background:color-mix(in srgb, var(--qc-color) 20%, transparent);
+  }
+  .today-quick-card h4{margin:0 0 4px;font-size:15px;color:var(--ink);}
+  .today-quick-card p{margin:0;font-size:var(--fs-sm);color:var(--ink-soft);line-height:1.4;}
+  .today-quick-card .today-quick-arrow{display:inline-block;margin-top:10px;font-size:var(--fs-sm);font-weight:700;color:var(--qc-color);}
 
   /* ---------- Toolbar ---------- */
   .toolbar{
@@ -264,7 +379,7 @@
   .menu-wrap{position:relative;display:inline-block;}
   .menu-dropdown{
     display:none;flex-direction:column;gap:2px;position:absolute;top:100%;left:0;margin-top:8px;
-    background:linear-gradient(180deg,var(--parchment-light),#f4ead0);
+    background:linear-gradient(180deg,var(--parchment-light),var(--parchment));
     border:1px solid var(--brass);border-radius:10px;
     box-shadow:0 14px 34px rgba(44,29,13,0.30);min-width:210px;z-index:60;padding:6px;
     animation:modalIn .18s ease;
@@ -290,19 +405,19 @@
 
   /* ---------- Campi ---------- */
   input[type="text"], select, textarea, input[type="number"], input[type="date"]{
-    font-family:var(--font-testo);background:#fffdf4;
+    font-family:var(--font-testo);background:var(--parchment-light);
     border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:15px;color:var(--ink);
     transition:border-color .15s ease, box-shadow .15s ease;
   }
   input[type="time"]{
-    font-family:var(--font-testo);background:#fffdf4;
+    font-family:var(--font-testo);background:var(--parchment-light);
     border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:15px;color:var(--ink);
     -webkit-appearance:none;appearance:none;
     transition:border-color .15s ease, box-shadow .15s ease;
   }
   input:focus, select:focus, textarea:focus{
     outline:none;border-color:var(--gold);
-    box-shadow:0 0 0 3px rgba(226,180,90,0.28);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--gold-bright) 28%, transparent);
   }
   #search{width:100%;}
   #category-filter{min-width:170px;}
@@ -314,12 +429,12 @@
     transition:transform .15s ease, filter .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
   }
   .btn-gold{
-    background:linear-gradient(180deg,#eec573, var(--gold) 60%, var(--gold-deep));
-    color:#2c1d0d;font-weight:600;
-    box-shadow:0 3px 0 var(--gold-deep), 0 8px 18px rgba(184,137,44,0.35), inset 0 1px 0 rgba(255,255,255,0.45);
+    background:linear-gradient(180deg,var(--gold-bright), var(--gold) 60%, var(--gold-deep));
+    color:var(--nav-active-text);font-weight:600;
+    box-shadow:0 3px 0 var(--gold-deep), 0 8px 18px color-mix(in srgb, var(--gold) 35%, transparent), inset 0 1px 0 rgba(255,255,255,0.45);
   }
   .btn-gold:hover{transform:translateY(-1px); filter:brightness(1.06);}
-  .btn-gold:active{transform:translateY(1px); box-shadow:0 1px 0 var(--gold-deep), 0 4px 10px rgba(184,137,44,0.30);}
+  .btn-gold:active{transform:translateY(1px); box-shadow:0 1px 0 var(--gold-deep), 0 4px 10px color-mix(in srgb, var(--gold) 30%, transparent);}
   .btn-ghost{background:transparent;border:1px solid var(--ink-soft);color:var(--ink-soft);}
   .btn-ghost:hover{background:rgba(0,0,0,0.05); transform:translateY(-1px);}
   .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);}
@@ -330,7 +445,7 @@
   /* ---------- Lista ricette / card ---------- */
   #recipe-list{display:grid;grid-template-columns:repeat(auto-fill, minmax(235px,1fr));gap:18px;}
   .card{
-    background:linear-gradient(180deg,#fdf8ea, var(--parchment-light));
+    background:linear-gradient(180deg,var(--parchment-light),var(--parchment));
     border:1px solid var(--line);
     border-left:5px solid var(--cat-color, var(--brass));border-radius:10px;
     padding:16px;position:relative;cursor:pointer;
@@ -342,6 +457,17 @@
   .card .thumb{
     width:100%;height:110px;object-fit:cover;border-radius:6px;margin-bottom:8px;border:1px solid var(--line);
     box-shadow:0 3px 8px rgba(44,29,13,.10);
+  }
+  /* Illustrazione al posto della foto quando la ricetta non ne ha una: un
+     rettangolo nel colore della categoria con un piccolo simbolo, così le
+     card restano curate anche senza immagini caricate dall'utente. */
+  .card .thumb-placeholder{
+    display:flex;align-items:center;justify-content:center;
+    font-size:34px;line-height:1;
+    background:
+      radial-gradient(120% 160% at 18% 15%, rgba(255,255,255,.38), transparent 55%),
+      linear-gradient(155deg, color-mix(in srgb, var(--cat-color, var(--brass)) 55%, white) 0%, var(--cat-color, var(--brass)) 100%);
+    text-shadow:0 2px 3px rgba(0,0,0,.25);
   }
   .card .cat-tag, .crea-menu-dettaglio .cat-tag{
     display:inline-block;font-size:var(--fs-xxs);letter-spacing:.12em;text-transform:uppercase;color:#fff;
@@ -362,11 +488,15 @@
   .dispensa-low-stock{background:rgba(207,122,44,.15);color:#a5641f;font-weight:600;border-radius:5px;padding:5px 8px;margin-top:6px;font-size:var(--fs-sm);}
   .dispensa-notes{font-size:var(--fs-sm);color:var(--ink-soft);font-style:italic;margin-top:6px;}
   .card .star{
-    position:absolute;top:12px;right:12px;font-size:18px;background:none;border:none;padding:2px;
-    color:var(--line); transition:transform .15s ease, color .15s ease;
+    position:absolute;top:10px;right:10px;font-size:17px;border:none;padding:3px;
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:rgba(20,13,6,.28); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+    color:#fff2d6; transition:transform .15s ease, color .15s ease, background .15s ease;
+    z-index:3;
   }
-  .card .star:hover{transform:scale(1.25);}
-  .card .star.active{color:var(--gold-bright); text-shadow:0 0 10px rgba(226,180,90,.65);}
+  .card .star:hover{transform:scale(1.2);background:rgba(20,13,6,.4);}
+  .card .star.active{color:var(--gold-bright); text-shadow:0 0 10px color-mix(in srgb, var(--gold-bright) 65%, transparent);}
   /* Selezione multipla: la casella prende il posto della stellina */
   .card .card-select-box{position:absolute;top:10px;right:12px;font-size:20px;line-height:1;}
   .card.selezionata{box-shadow:0 0 0 2px var(--gold), 0 8px 20px var(--shadow-2);}
@@ -376,10 +506,14 @@
   .card .meta{font-size:var(--fs-sm);color:var(--ink-soft);display:flex;gap:10px;flex-wrap:wrap;}
   .card .last-made{
     display:inline-block;font-size:var(--fs-xs);color:var(--brass);margin-top:8px;font-style:italic;
-    background:rgba(184,137,44,0.10); border:1px solid rgba(184,137,44,0.25);
+    background:color-mix(in srgb, var(--gold) 10%, transparent); border:1px solid color-mix(in srgb, var(--gold) 25%, transparent);
     border-radius:12px; padding:2px 10px;
   }
   .empty-state{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--ink-soft);font-style:italic;font-size:16px;}
+  .empty-state::before{
+    content:"✦";display:block;font-style:normal;font-size:22px;margin-bottom:10px;
+    color:var(--gold); opacity:.65;
+  }
   .recipe-picker-list{max-height:55vh;overflow-y:auto;margin-top:6px;border-top:1px solid var(--line);}
   .recipe-picker-item{
     display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer;
@@ -415,9 +549,9 @@
   }
   .overlay.active{display:flex; animation:fadeIn .2s ease;}
   .modal{
-    background:linear-gradient(180deg,#fdf8ea, var(--parchment-light));
+    background:linear-gradient(180deg,var(--parchment-light),var(--parchment));
     max-width:680px;width:100%;border-radius:12px;border:1px solid var(--line);
-    box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(226,180,90,.20);
+    box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 1px color-mix(in srgb, var(--gold-bright) 20%, transparent);
     padding:28px;position:relative;
     animation:modalIn .25s ease;
   }
@@ -429,7 +563,14 @@
   .confirm-modal .btn-gold.btn-danger-action{background:linear-gradient(180deg,#c96a5a,var(--red) 60%,#8c3030);border:1px solid #8c3030;color:#fff;box-shadow:0 3px 0 #8c3030, 0 8px 18px rgba(156,52,52,0.35);}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:var(--fs-sm);text-transform:uppercase;letter-spacing:.08em;color:var(--brass);margin-bottom:5px;font-weight:600;}
-  .field input, .field select, .field textarea{width:100%;}
+  .field input:not([type="checkbox"]):not([type="radio"]), .field select, .field textarea{width:100%;}
+  /* Una checkbox dentro un campo (es. "Si congela bene") non deve essere
+     stirata al 100%: altrimenti il testo dell'etichetta va a capo sotto,
+     invece di restare accanto al quadratino. */
+  .field input[type="checkbox"], .field input[type="radio"]{width:auto;flex:0 0 auto;}
+  .field label:has(input[type="checkbox"]), .field label:has(input[type="radio"]){
+    display:flex;align-items:center;gap:7px;text-transform:none;
+  }
   .row{display:flex;gap:12px;}
   .row > .field{flex:1;}
   textarea{resize:vertical;min-height:70px;line-height:1.5;}
@@ -465,7 +606,7 @@
     padding:6px 8px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;
     gap:10px;align-items:baseline;font-size:var(--fs-md);
   }
-  .crea-autocomplete-item:hover{background:rgba(184,137,44,0.16);}
+  .crea-autocomplete-item:hover{background:color-mix(in srgb, var(--gold) 16%, transparent);}
   .crea-autocomplete-nome{font-family:var(--font-testo);font-weight:500;color:var(--ink);}
   .crea-autocomplete-dettagli{font-size:var(--fs-xs);color:var(--ink-soft);white-space:nowrap;}
 
@@ -487,7 +628,7 @@
     border-bottom:1px solid var(--line);padding-bottom:4px;
   }
   .crea-scheda-tabella{width:100%;border-collapse:collapse;font-size:14px;}
-  .crea-scheda-tabella tr:nth-child(odd){background:rgba(184,137,44,0.06);}
+  .crea-scheda-tabella tr:nth-child(odd){background:color-mix(in srgb, var(--gold) 6%, transparent);}
   .crea-scheda-tabella td{padding:3px 8px;}
   .crea-scheda-tabella td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;}
   .crea-scheda-fonte{
@@ -511,7 +652,7 @@
     display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--line);
     cursor:pointer;
   }
-  .crea-elenco-riga:hover{background:rgba(184,137,44,0.08);}
+  .crea-elenco-riga:hover{background:color-mix(in srgb, var(--gold) 8%, transparent);}
   .crea-elenco-riga .cat-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;box-shadow:0 1px 3px rgba(44,29,13,.3);}
   .crea-elenco-riga .nome{flex:1;font-family:var(--font-titoli);font-size:18px;color:var(--ink);}
   .crea-elenco-riga .meta{font-size:var(--fs-sm);color:var(--ink-soft);white-space:nowrap;}
@@ -528,7 +669,7 @@
   .crea-menu-dettaglio .crea-menu-prep{white-space:pre-wrap;line-height:1.5;}
   .nutrition-summary{
     margin:14px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;
-    background:linear-gradient(180deg,rgba(226,180,90,0.10),rgba(226,180,90,0.03));
+    background:linear-gradient(180deg,color-mix(in srgb, var(--gold-bright) 10%, transparent),color-mix(in srgb, var(--gold-bright) 3%, transparent));
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);
   }
   .nutrition-summary h4{margin:0 0 8px;font-family:var(--font-titoli);font-size:17px;color:var(--wood);}
@@ -578,11 +719,11 @@
   /* ---------- Vista ricetta ---------- */
   #view-modal .servings-control{
     display:flex;align-items:center;gap:10px;
-    background:linear-gradient(180deg,rgba(226,180,90,0.16),rgba(226,180,90,0.06));
+    background:linear-gradient(180deg,color-mix(in srgb, var(--gold-bright) 16%, transparent),color-mix(in srgb, var(--gold-bright) 6%, transparent));
     border:1px solid var(--gold);border-radius:24px;padding:8px 14px;margin:14px 0 14px;width:fit-content;
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);
   }
-  .servings-control button{width:28px;height:28px;padding:0;border-radius:50%;background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));color:#2c1d0d;font-weight:700;box-shadow:0 2px 5px rgba(44,29,13,.2);}
+  .servings-control button{width:28px;height:28px;padding:0;border-radius:50%;background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));color:var(--nav-active-text);font-weight:700;box-shadow:0 2px 5px rgba(44,29,13,.2);}
   .servings-control button:hover{transform:scale(1.1);}
   .servings-control .count{font-weight:600;min-width:70px;text-align:center;}
 
@@ -600,12 +741,12 @@
     background:linear-gradient(180deg,#4a3320,#2b1d14);
     color:var(--gold-bright);
     display:flex;align-items:center;justify-content:center;font-family:var(--font-titoli);font-weight:700;font-size:15px;
-    box-shadow:0 2px 6px rgba(44,29,13,.3), inset 0 1px 0 rgba(226,180,90,.35);
+    box-shadow:0 2px 6px rgba(44,29,13,.3), inset 0 1px 0 color-mix(in srgb, var(--gold-bright) 35%, transparent);
   }
   .view-step .txt{flex:1;padding-top:2px;}
   .step-meta{
     display:inline-flex;gap:10px;margin-top:6px;font-size:var(--fs-sm);color:var(--wood);
-    background:linear-gradient(180deg,#f7edd4,#f0e2bd);
+    background:linear-gradient(180deg,color-mix(in srgb, var(--gold) 14%, var(--parchment-light)),color-mix(in srgb, var(--gold) 24%, var(--parchment-light)));
     border:1px solid var(--brass);border-radius:20px;padding:4px 12px;align-items:center;flex-wrap:wrap;
     box-shadow:0 1px 3px rgba(44,29,13,.08);
   }
@@ -619,25 +760,29 @@
   .close-x{position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;color:var(--ink-soft);padding:4px 8px;border-radius:6px;line-height:1;}
   .close-x:hover{background:rgba(0,0,0,0.06); color:var(--ink);}
 
-  footer{text-align:center;color:#a08a5f;font-size:var(--fs-sm);margin-top:28px;font-style:italic;}
+  footer{text-align:center;color:var(--ink-soft);font-size:var(--fs-sm);margin-top:28px;font-style:italic;}
 
   /* ---------- Modalità cucina guidata ---------- */
+  /* La modalità cucina resta sempre scura (schermo pensato per la cucina,
+     più leggibile da lontano/con le mani sporche), indipendentemente dal
+     tema chiaro/scuro scelto per il resto del sito: colori fissi, non
+     legati a --wood/--parchment che cambiano significato tra i due temi. */
   .cook-overlay{
     position:fixed;inset:0;z-index:80;display:none;
     background:
-      radial-gradient(1000px 480px at 50% 0%, rgba(226,180,90,0.14), transparent 60%),
-      linear-gradient(180deg,#2c1c11, var(--wood-deep));
-    flex-direction:column;align-items:center;justify-content:center;padding:30px 16px;color:var(--parchment-light);
+      radial-gradient(1000px 480px at 50% 0%, color-mix(in srgb, var(--gold-bright) 16%, transparent), transparent 60%),
+      linear-gradient(180deg,#1E293B, #0B1220);
+    flex-direction:column;align-items:center;justify-content:center;padding:30px 16px;color:#F1F5F9;
     text-align:center;
   }
   .cook-overlay.active{display:flex; animation:fadeIn .25s ease;}
   .cook-overlay .cook-progress{font-size:var(--fs-md);letter-spacing:.18em;text-transform:uppercase;color:var(--gold-bright);margin-bottom:14px;}
-  .cook-overlay .cook-wakelock-note{font-size:var(--fs-xs);font-style:italic;color:#d9b36a;margin:-8px 0 14px;max-width:420px;}
-  .cook-overlay .cook-step-text{font-size:clamp(22px,4vw,34px);max-width:760px;line-height:1.35;margin-bottom:22px;font-family:var(--font-titoli);}
+  .cook-overlay .cook-wakelock-note{font-size:var(--fs-xs);font-style:italic;color:var(--gold-bright);margin:-8px 0 14px;max-width:420px;}
+  .cook-overlay .cook-step-text{font-size:clamp(22px,4vw,34px);max-width:760px;line-height:1.35;margin-bottom:22px;font-family:var(--font-titoli);color:#F8FAFC;}
   .cook-overlay .cook-dial{
-    font-size:16px;color:var(--parchment);
+    font-size:16px;color:#E2E8F0;
     background:rgba(255,255,255,0.07);
-    border:1px solid rgba(226,180,90,0.5);border-radius:24px;padding:8px 20px;margin-bottom:24px;
+    border:1px solid color-mix(in srgb, var(--gold-bright) 50%, transparent);border-radius:24px;padding:8px 20px;margin-bottom:24px;
     display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
   }
@@ -645,10 +790,10 @@
   .cook-nav button{padding:12px 22px;font-size:15px;}
   .cook-release-row{display:flex;align-items:center;gap:16px;justify-content:center;margin:6px 0 14px;}
   .cook-timer-small{font-size:26px;margin-bottom:0;}
-  .cook-timer{font-size:44px;font-weight:700;color:var(--gold-bright);margin-bottom:10px;font-family:var(--font-titoli);text-shadow:0 0 24px rgba(226,180,90,.35);}
+  .cook-timer{font-size:44px;font-weight:700;color:var(--gold-bright);margin-bottom:10px;font-family:var(--font-titoli);text-shadow:0 0 24px color-mix(in srgb, var(--gold-bright) 35%, transparent);}
   .cook-exit{
     position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.06);
-    border:1px solid rgba(242,230,201,0.6);color:var(--parchment-light);
+    border:1px solid rgba(241,245,249,0.35);color:#F1F5F9;
     border-radius:20px;padding:6px 16px;font-size:var(--fs-md);
   }
   .cook-exit:hover{background:rgba(255,255,255,0.14);}
@@ -658,7 +803,7 @@
   .planning-header h2{margin:0 0 2px;font-size:27px;color:var(--ink);}
 
   .plan-day-card{
-    background:linear-gradient(180deg,#fdf8ea, var(--parchment-light));
+    background:linear-gradient(180deg,var(--parchment-light),var(--parchment));
     border:1px solid var(--line);border-radius:12px;padding:20px 22px;
     box-shadow:0 6px 18px rgba(44,29,13,0.10);
     animation:cardIn .3s ease both;
@@ -688,7 +833,7 @@
   .week-totals-day-values{color:var(--ink-soft);text-align:right;}
   .plan-entry-time{
     font-weight:700;color:var(--brass);font-size:var(--fs-xs);
-    background:linear-gradient(180deg,#f7edd4,#f0e2bd);
+    background:linear-gradient(180deg,color-mix(in srgb, var(--gold) 14%, var(--parchment-light)),color-mix(in srgb, var(--gold) 24%, var(--parchment-light)));
     border:1px solid var(--line);border-radius:10px;padding:1px 8px;flex:0 0 auto;
   }
   .plan-entry-name{flex:1;cursor:pointer;}
@@ -716,7 +861,7 @@
   .plan-day-tab.active{
     background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));
     color:#fff;border-color:transparent;
-    box-shadow:0 4px 12px rgba(184,137,44,0.40);
+    box-shadow:0 4px 12px color-mix(in srgb, var(--gold) 40%, transparent);
   }
   .plan-day-nav-arrow{
     flex:0 0 auto;background:rgba(255,255,255,0.35);border:1px solid var(--line);color:var(--brass);
@@ -731,7 +876,7 @@
   .tag-filter-chip.active{background:var(--brass);color:#fff;}
   .filter-section-label{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:7px;font-weight:600;}
   .view-tag-chip{
-    display:inline-block;background:linear-gradient(180deg,#f7edd4,#f0e2bd);
+    display:inline-block;background:linear-gradient(180deg,color-mix(in srgb, var(--gold) 14%, var(--parchment-light)),color-mix(in srgb, var(--gold) 24%, var(--parchment-light)));
     border:1px solid var(--brass);color:var(--brass);border-radius:12px;padding:2px 10px;font-size:var(--fs-xs);margin-right:6px;
     box-shadow:0 1px 3px rgba(44,29,13,.08);
   }
@@ -794,431 +939,3 @@
     .card,.modal,.menu-dropdown,.plan-day-card{animation:none; transition:none;}
     .card{transition:none;}
   }
-
-/* ============================================================
-   IL MIO RICETTARIO 4.0 — NAVIGAZIONE / APP SHELL
-   Primo passaggio: migliora gerarchia e usabilità senza
-   modificare gli ID usati da app.js e dai test automatici.
-   ============================================================ */
-@media (min-width:761px){
-  .masthead{max-width:1100px;margin-bottom:18px;}
-  .masthead h1{font-size:52px;}
-  .view-nav{
-    max-width:1100px;
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:8px;
-    padding:7px;
-    border:1px solid var(--nav-border);
-    border-radius:16px;
-    background:rgba(0,0,0,.10);
-    box-shadow:0 10px 28px rgba(0,0,0,.14);
-    margin-bottom:22px;
-  }
-  .view-nav-btn{width:100%;padding:10px 12px;border-radius:10px;font-size:14px;white-space:nowrap;}
-  .view-nav-btn:nth-child(n+5){font-size:13px;opacity:.92;}
-  .view-nav-btn:nth-child(5){grid-column:1 / 2;}
-  .view-nav-btn:nth-child(6){grid-column:2 / 3;}
-  .view-nav-btn:nth-child(7){grid-column:3 / 4;}
-  .book{max-width:1100px;}
-}
-
-/* Il menu secondario resta visivamente subordinato al percorso principale. */
-.view-nav-btn:nth-child(n+5){border-style:dashed;}
-
-/* Toolbar più ordinata nella 4.0. */
-.toolbar{gap:8px;padding-bottom:14px;margin-bottom:18px;}
-.toolbar-group{gap:8px;}
-.toolbar .btn-gold,.toolbar .btn-ghost{min-height:40px;}
-
-/* La pagina deve sembrare un'app, non una pagina con tanti pannelli isolati. */
-.panel,.today-card,.plan-day-card,.dispensa-section,.crea-section{border-radius:14px;}
-
-@media (max-width:760px){
-  body{padding:18px 10px 82px;}
-  .masthead{margin-bottom:12px;}
-  .masthead h1{font-size:36px;}
-  .masthead .sub{font-size:20px;}
-  .mobile-nav-bar{margin-bottom:10px;}
-  .mobile-nav-bar button{min-height:48px;border-radius:12px;box-shadow:0 6px 16px rgba(0,0,0,.12);}
-  .view-nav{border-radius:14px;padding:8px;box-shadow:0 12px 28px rgba(0,0,0,.16);}
-  .view-nav-btn{min-height:48px;}
-  .view-nav-btn:nth-child(n+5){border-style:dashed;}
-  .book{padding:18px 12px;border-radius:12px;}
-}
-
-/* Focus tastiera più evidente, senza alterare i colori dei temi. */
-.view-nav-btn:focus-visible,.mobile-nav-bar button:focus-visible,
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
-  outline:3px solid var(--gold-bright);
-  outline-offset:2px;
-}
-
-
-/* Ricettario 4.0 — motivazione dei suggerimenti */
-.today-suggestion-body { display:flex; flex-direction:column; }
-.today-suggestion-reason { display:block; margin:7px 0 10px; color:var(--muted-text, #667085); font-size:.82rem; line-height:1.3; min-height:2.1em; }
-.today-availability.expiry { background:rgba(245,158,11,.14); color:#a16207; border:1px solid rgba(245,158,11,.25); }
-.today-suggestion-body .btn-outline { margin-top:auto; }
-@media (max-width:700px){ .today-suggestion-reason{min-height:0;} }
-
-
-/* Versione 4.0 Alpha 4 — Dispensa intelligente nella dashboard */
-.today-section-head-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.today-pantry-total small{display:block;margin-top:5px;color:var(--ink-soft);font-size:11px}
-.today-pantry-priority-wrap{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
-.today-subhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
-.today-pantry-priority-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.today-pantry-priority{display:flex;align-items:center;gap:9px;text-align:left;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;color:inherit;min-width:0}
-.today-pantry-priority:hover{border-color:var(--accent);transform:translateY(-1px)}
-.today-pantry-priority-icon{font-size:22px;flex:0 0 auto}.today-pantry-priority b,.today-pantry-priority small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today-pantry-priority small{margin-top:3px;color:var(--danger);font-size:11px}.today-pantry-empty{padding:12px;border:1px dashed var(--line);border-radius:12px;color:var(--ink-soft)}
-@media(max-width:760px){.today-pantry-priority-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.today-section-head-actions{width:100%;justify-content:flex-start}.today-subhead{align-items:flex-start;flex-direction:column;gap:5px}}
-
-/* ---------- Lista spesa 4.0: quantità nette ---------- */
-.shopping-auto-note{color:var(--ink-soft);}
-.shopping-list-items li.covered{opacity:.72;background:rgba(61,140,91,.045);border-radius:8px;padding-left:8px;padding-right:8px;}
-.shopping-list-items li.covered .amt{color:#3d8c5b;}
-
-/* ================= Pianificazione 4.0 ================= */
-.planning-week-overview{margin:18px 0 16px;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(250,247,240,.75));box-shadow:0 8px 24px rgba(30,25,15,.06)}
-.planning-week-overview-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:14px}
-.planning-week-overview-head h3{margin:2px 0 0;font-size:20px}
-.planning-week-overview-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--ink-soft)}
-.planning-week-overview-legend span{display:inline-flex;align-items:center;gap:5px}
-.planning-week-overview-grid{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px;overflow-x:auto}
-.planning-week-day{appearance:none;border:1px solid var(--line);background:var(--surface,#fff);border-radius:15px;padding:12px;text-align:left;min-height:145px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;position:relative;color:inherit}
-.planning-week-day:hover{transform:translateY(-2px);box-shadow:0 7px 18px rgba(30,25,15,.08)}
-.planning-week-day.active{border-color:var(--gold,#b88a2b);box-shadow:0 0 0 2px rgba(184,138,43,.12)}
-.planning-week-day.today{background:linear-gradient(180deg,rgba(184,138,43,.08),rgba(255,255,255,.95))}
-.planning-week-day-top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:9px}
-.planning-week-day-name{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
-.planning-week-day-badge{font-size:10px;border-radius:999px;padding:3px 6px;background:rgba(40,130,80,.1);color:#267548;white-space:nowrap}
-.planning-week-day-badge.empty{background:rgba(190,140,35,.12);color:#916d16}
-.planning-week-meal{display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid rgba(0,0,0,.06)}
-.planning-week-meal:first-of-type{border-top:0}
-.planning-week-meal-icon{width:18px;flex:0 0 18px}
-.planning-week-meal-text{font-size:11px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.planning-week-meal-text strong{display:block;font-size:9px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
-.planning-week-empty{font-size:11px;color:var(--ink-soft);font-style:italic;margin-top:12px}
-@media(max-width:1050px){.planning-week-overview-grid{grid-template-columns:repeat(7,145px);padding-bottom:4px}.planning-week-overview{overflow:hidden}}
-@media(max-width:760px){.planning-week-overview{padding:14px;margin-top:12px}.planning-week-overview-head{align-items:flex-start}.planning-week-overview-legend{display:none}.planning-week-overview-grid{grid-template-columns:repeat(7,132px);gap:8px}.planning-week-day{min-height:132px;padding:10px}.planning-week-day-name{font-size:11px}.planning-week-meal-text{font-size:10px}.planning-week-day-badge{font-size:9px}.planning-week-overview-head h3{font-size:17px}}
-
-
-/* ============================================================
-   DASHBOARD UI — riferimento grafico fornito dall'utente
-   ============================================================ */
-:root{
-  --ui-blue:#1d78dc;
-  --ui-blue-dark:#173455;
-  --ui-blue-soft:#edf6ff;
-  --ui-bg:#f5f8fc;
-  --ui-card:#ffffff;
-  --ui-border:#dce8f4;
-  --ui-text:#17324f;
-  --ui-muted:#6c7f94;
-  --ui-green:#22a06b;
-  --ui-orange:#f4aa22;
-  --ui-red:#ef5363;
-  --ui-purple:#8159d9;
-}
-html[data-dashboard-theme="soft"]{
-  --ui-bg:#eef4f8;
-}
-body{
-  padding:0 0 40px 246px !important;
-  background:var(--ui-bg) !important;
-  color:var(--ui-text);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-body::before{background:linear-gradient(180deg,#f8fbff 0%,var(--ui-bg) 100%) !important;}
-.masthead{display:none !important;}
-.mobile-nav-bar{display:none !important;}
-
-.app-sidebar{
-  position:fixed;left:0;top:0;bottom:0;width:246px;z-index:50;
-  background:linear-gradient(180deg,#193451 0%,#12263f 100%);
-  color:#fff;padding:18px 12px 14px;display:flex;flex-direction:column;
-  box-shadow:8px 0 24px rgba(18,44,70,.12);
-}
-.sidebar-brand{display:flex;align-items:center;gap:11px;padding:2px 7px 16px;}
-.sidebar-brand-mark{width:37px;height:37px;border-radius:11px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:23px;}
-.sidebar-brand strong{display:block;font-size:16px;line-height:1.15;letter-spacing:.1px;}
-.sidebar-brand small{display:block;margin-top:4px;font-size:9px;color:#c7d8ea;white-space:nowrap;}
-.sidebar-divider{height:1px;background:rgba(255,255,255,.14);margin:0 8px 12px;}
-.view-nav{display:flex !important;flex-direction:column;gap:4px !important;margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important;max-width:none !important;}
-.view-nav-btn{
-  width:100% !important;height:43px;padding:0 13px !important;border:0 !important;border-radius:9px !important;
-  background:transparent !important;color:#e7f0fa !important;display:flex !important;align-items:center;gap:13px;
-  font-family:inherit !important;font-size:13px !important;font-weight:600 !important;text-align:left !important;
-  box-shadow:none !important;transform:none !important;opacity:1 !important;
-}
-.view-nav-btn:hover{background:rgba(255,255,255,.08) !important;color:#fff !important;}
-.view-nav-btn.active{background:linear-gradient(90deg,#1d78dc,#287fdf) !important;color:#fff !important;box-shadow:0 7px 18px rgba(29,120,220,.26) !important;}
-.view-nav-btn:nth-child(n+5){border-style:none !important;}
-.nav-icon{width:20px;display:inline-grid;place-items:center;font-size:20px;line-height:1;font-weight:700;color:#d8e8f8;}
-.view-nav-btn.active .nav-icon{color:#fff;}
-.sidebar-section-label{font-size:9px;font-weight:800;letter-spacing:.13em;color:#8da9c4;padding:18px 13px 6px;}
-.sidebar-footer{margin-top:auto;padding:14px 4px 0;border-top:1px solid rgba(255,255,255,.12);}
-.sidebar-footer>small{display:block;color:#829ab1;text-align:center;margin-top:12px;font-size:9px;}
-.sidebar-theme{width:100%;height:39px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(255,255,255,.04);color:#dce9f5;display:flex;align-items:center;gap:9px;padding:0 11px;font:600 11px inherit;}
-.sidebar-theme span:first-child{font-size:18px;}
-.sidebar-theme i{margin-left:auto;width:30px;height:16px;border-radius:999px;background:#2b8ae8;position:relative;}
-.sidebar-theme i::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;right:2px;top:2px;box-shadow:0 1px 3px rgba(0,0,0,.25);}
-
-.app-topbar{
-  height:68px;background:rgba(255,255,255,.92);border-bottom:1px solid #e1eaf3;
-  display:flex;align-items:center;gap:18px;padding:0 22px;position:sticky;top:0;z-index:30;
-  backdrop-filter:blur(10px);
-}
-.global-search{height:39px;max-width:530px;flex:1;border:1px solid #d7e4f1;border-radius:20px;background:#fff;display:flex;align-items:center;padding:0 14px;box-shadow:0 2px 8px rgba(38,78,113,.03);}
-.global-search>span{font-size:25px;color:#7991aa;line-height:1;transform:rotate(-20deg);margin-right:10px;}
-.global-search input{border:0 !important;outline:0 !important;box-shadow:none !important;background:transparent !important;padding:0 !important;margin:0 !important;width:100%;font:500 13px inherit;color:var(--ui-text);}
-.global-search input::placeholder{color:#8da1b7;}
-.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:18px;}
-.topbar-icon,.topbar-avatar{border:0;background:transparent;color:#193957;position:relative;cursor:pointer;}
-.topbar-icon{font-size:24px;line-height:1;}
-.topbar-icon b{position:absolute;right:-5px;top:-7px;background:#e95064;color:#fff;border-radius:99px;font:700 9px/17px inherit;width:17px;height:17px;text-align:center;}
-.topbar-avatar{width:34px;height:34px;border-radius:50%;background:#4b8fc9;color:#fff;font-size:14px;font-weight:800;box-shadow:0 2px 6px rgba(31,88,139,.25);}
-
-.book{max-width:none !important;margin:0 !important;padding:16px 22px 36px !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;background:transparent !important;background-image:none !important;}
-.panel,.today-card,.plan-day-card,.dispensa-section,.crea-section{border-radius:12px;}
-
-/* Dashboard Oggi */
-.today-dashboard{max-width:1120px;margin:0 auto;}
-.today-hero{min-height:100px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 22px;margin-bottom:16px;border:1px solid #dce9f5;border-radius:11px;background:linear-gradient(90deg,#eef7ff,#f7fbff);box-shadow:0 4px 14px rgba(42,91,135,.05);}
-.today-hero-copy{padding-left:68px;position:relative;}
-.today-hero-copy::before{content:"☀";position:absolute;left:0;top:0;color:#ffb516;font-size:54px;line-height:1;}
-.today-kicker{display:block;font-size:12px;font-weight:700;color:#7389a1;margin-bottom:4px;}
-.today-hero h1{margin:0;font-family:inherit;font-size:21px;font-weight:800;color:#173554;}
-.today-hero p{margin:5px 0 0;font-size:12px;color:#59718a;}
-.today-hero-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
-.today-hero-actions .btn-primary,.today-hero-actions .btn-ghost{border-radius:8px;padding:9px 12px;font-size:11px;}
-.today-section{background:var(--ui-card);border:1px solid var(--ui-border);border-radius:11px;padding:12px;box-shadow:0 3px 12px rgba(33,79,117,.035);}
-.today-section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px;padding:0 2px;}
-.today-section-head h2{margin:1px 0 0;font-family:inherit;font-size:15px;color:#173554;font-weight:800;}
-.today-section-kicker{font-size:8px;letter-spacing:.08em;font-weight:800;color:#6d8aa4;}
-.today-link{border:0;background:none;color:#1773d0;font-size:10px;font-weight:700;cursor:pointer;padding:2px;}
-.today-main-section{margin-bottom:12px;}
-.today-meals-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
-.today-meal-card{overflow:hidden;border:1px solid #dbe8f4;border-radius:11px;background:#fff;}
-.today-meal-card.breakfast{background:#f3f8ff;border-color:#d8e7f7;}
-.today-meal-card.lunch{background:#effbf6;border-color:#d0eee1;}
-.today-meal-card.dinner{background:#f7f2ff;border-color:#e2d8f7;}
-.today-meal-top{display:flex;justify-content:space-between;align-items:center;padding:9px 11px 7px;font-size:10px;font-weight:800;color:#35526e;}
-.today-meal-top time{font-size:9px;font-weight:700;color:#516b84;}
-.today-meal-image{height:102px;background:#eaf1f7;overflow:hidden;}
-.today-meal-image img{width:100%;height:100%;display:block;object-fit:cover;}
-.today-meal-placeholder{height:100%;display:grid;place-items:center;font-size:30px;color:#7d97ae;}
-.today-meal-body{padding:9px 11px 5px;}
-.today-meal-body h3{margin:0 0 7px;font-family:inherit;font-size:11px;font-weight:800;color:#173554;}
-.today-status{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;}
-.today-status.ready{color:#199761;}.today-status.missing{color:#e99c0b;}.today-status.neutral{color:#72869a;}
-.today-card-actions{padding:7px 11px 11px;}
-.today-card-actions .btn-primary,.today-card-actions .btn-ghost{width:100%;border-radius:7px;padding:8px 10px;font-size:10px;}
-.today-two-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.today-expiry-list{list-style:none;margin:0;padding:0;}
-.today-expiry-list li{display:flex;align-items:center;gap:9px;padding:8px 2px;border-bottom:1px solid #edf2f6;font-size:10px;color:#334f6b;}
-.today-expiry-list li:last-child{border-bottom:0;}
-.today-pantry-icon{font-size:22px;width:27px;text-align:center;}.today-pantry-name{flex:1}.today-pantry-name b{display:block;font-size:10px;color:#1c3854}.today-pantry-name small{display:block;color:#7890a7;margin-top:2px;font-size:8px;}
-.today-pill{font-size:8px;font-weight:800;padding:4px 7px;border-radius:999px;background:#edf7ff;color:#2876bc;white-space:nowrap;}.today-pill:nth-last-child(1){}
-.today-action-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
-.today-action-card{min-height:94px;text-align:left;border:1px solid #dce8f4;border-radius:10px;padding:10px;background:#fff;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;}
-.today-action-card:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(29,91,140,.08);}
-.today-action-card>span{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;font-size:17px;background:#edf6ff;}.today-action-card b{font-size:11px;color:#183752;}.today-action-card small{font-size:8px;line-height:1.3;color:#72879b;}
-.today-action-card.cook{background:#fff4f6;border-color:#f5dce2}.today-action-card.pantry{background:#eef7ff}.today-action-card.shopping{background:#effbf5;border-color:#d5eee0}.today-action-card.planning{background:#f5f1ff;border-color:#e2d9f7}
-.today-suggestions-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;}
-.today-suggestion-card{border:1px solid #dfe9f2;border-radius:9px;overflow:hidden;background:#fff;display:flex;flex-direction:column;min-width:0;}
-.today-suggestion-image{height:82px;background:#edf2f6;position:relative;overflow:hidden}.today-suggestion-image img{width:100%;height:100%;object-fit:cover;display:block;}.today-favorite{position:absolute;right:7px;top:6px;width:24px;height:24px;border:1px solid #dbe6ef;border-radius:50%;background:rgba(255,255,255,.92);color:#5c7690;}
-.today-suggestion-body{padding:8px 8px 9px;}.today-suggestion-body h3{margin:0 0 4px;font-family:inherit;font-size:10px;color:#183752;}.today-meta{font-size:8px;color:#71879b;margin-bottom:5px;}.today-availability{display:inline-block;border-radius:999px;padding:3px 6px;background:#dff6e8;color:#168653;font-size:8px;font-weight:800;}.today-availability.expiry{background:#fff1d7;color:#a66c00;border:0;}.today-suggestion-reason{font-size:8px;min-height:25px;margin:5px 0;color:#74899d;}.today-suggestion-body .btn-outline{margin-top:auto;width:100%;font-size:9px;border-radius:7px;padding:6px;}
-.today-bottom-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;margin-top:12px;}
-.today-pantry-summary{display:flex;gap:18px;align-items:center;padding:5px 0 10px;}.today-pantry-total strong{display:block;font-size:25px;color:#173b5d;line-height:1}.today-pantry-total span{font-size:9px;color:#71869b}.today-pantry-total small{font-size:8px;color:#6d8196;}.today-pantry-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;flex:1}.today-pantry-stats span{font-size:8px;color:#587088}.today-pantry-stats b{float:right;color:#173b5d}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}.dot.good{background:#3bb47b}.dot.warn{background:#f5ad20}.dot.soon{background:#4d9ddd}.dot.bad{background:#ed4d61}
-.today-pantry-priority-wrap{margin-top:5px;padding-top:9px;border-top:1px solid #edf2f6;}.today-subhead{margin-bottom:7px;}.today-subhead b{font-size:9px;color:#29455f}.today-pantry-priority-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.today-pantry-priority{padding:7px;border-radius:8px;background:#f9fbfd;border-color:#e1eaf2;}.today-pantry-priority-icon{font-size:18px}.today-pantry-priority b{font-size:8px}.today-pantry-priority small{font-size:7px;}
-.today-nutrition-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;}.today-nutri-card{border:1px solid #dce8f4;border-radius:8px;padding:9px;background:#f7fbff;display:flex;align-items:center;gap:7px}.today-nutri-card>span{font-size:18px}.today-nutri-card small{display:block;font-size:8px;color:#6f859a}.today-nutri-card strong{display:block;font-size:11px;color:#173b5d;margin-top:2px}.today-nutri-card.today-nutri-kcal{background:#fff3f5;border-color:#f2d8df}.today-nutri-card.today-nutri-protein{background:#eff7ff}.today-nutri-card.today-nutri-carbs{background:#fff9e9}.today-nutri-card.today-nutri-fat{background:#eefaf4}
-.today-tip{margin-top:12px;border:1px solid #dbe8f4;border-radius:10px;background:#f5fbff;padding:10px 12px;display:flex;align-items:center;gap:10px}.today-tip-icon{font-size:22px}.today-tip strong{font-size:10px;color:#173b5d}.today-tip p{font-size:8px;color:#6b8298;margin:3px 0 0}.today-tip .btn-outline{margin-left:auto;white-space:nowrap;font-size:9px;padding:7px 9px;border-radius:7px;}
-
-/* viste interne: stessa estetica chiara della dashboard */
-#recipes-view,#planning-view,#dispensa-view,#crea-alimenti-view,#crea-menu-view,#info-view{max-width:1120px;margin:0 auto;}
-#recipes-view .panel,#recipes-view .toolbar,#planning-view .panel,#dispensa-view .panel,.modal{background:#fff;border-color:var(--ui-border);}
-.btn-gold,.btn-primary{background:linear-gradient(180deg,#2c86e5,#1975d3) !important;color:#fff !important;border:0 !important;border-radius:8px !important;box-shadow:0 4px 10px rgba(29,120,220,.18) !important;}
-.btn-ghost,.btn-outline{background:#fff !important;color:#1d72c6 !important;border:1px solid #cfe0ef !important;border-radius:8px !important;}
-input,select,textarea{background:#fff !important;border:1px solid #d6e3ef !important;border-radius:8px !important;color:#24415d !important;}
-
-@media(max-width:760px){
-  body{padding:0 0 70px !important;}
-  .app-sidebar{display:none;}
-  .mobile-nav-bar{display:block !important;position:sticky;top:0;z-index:55;margin:0 !important;padding:8px;background:#193451;}
-  .mobile-nav-bar button{background:#214566 !important;color:#fff !important;border:1px solid rgba(255,255,255,.15) !important;box-shadow:none !important;}
-  .app-topbar{height:58px;padding:0 10px;position:sticky;top:56px;}
-  .app-topbar .topbar-actions{display:none;}
-  .book{padding:10px 10px 28px !important;}
-  .today-hero{align-items:flex-start;flex-direction:column;padding:15px;}.today-hero-copy{padding-left:52px}.today-hero-copy::before{font-size:42px}.today-hero-actions{width:100%;justify-content:flex-start}
-  .today-meals-grid,.today-two-columns,.today-bottom-grid{grid-template-columns:1fr;}.today-action-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.today-suggestions-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.today-nutrition-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.today-tip{align-items:flex-start;flex-wrap:wrap}.today-tip .btn-outline{margin-left:0;width:100%;}
-}
-
-/* ============================================================
-   GRAFICA DASHBOARD — rifinitura completa V2
-   Obiettivo: uniformare tutte le viste allo stile della schermata
-   di riferimento, mantenendo intatti ID, classi funzionali e JS.
-   ============================================================ */
-:root{
-  --ui-bg:#f4f7fb;
-  --ui-card:#ffffff;
-  --ui-border:#dbe7f2;
-  --ui-text:#183653;
-  --ui-muted:#71869b;
-  --ui-blue:#1976d2;
-  --ui-blue-2:#2d88e8;
-  --ui-green:#28a56f;
-  --ui-orange:#f4aa22;
-  --ui-red:#eb5264;
-  --ui-purple:#805bd7;
-  --ui-shadow:0 5px 18px rgba(31,78,119,.055);
-}
-
-html,body{background:#f4f7fb !important;}
-body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;color:var(--ui-text) !important;}
-body::before{background:linear-gradient(180deg,#f8fbff 0%,#f2f6fa 100%) !important;}
-
-/* Shell */
-.app-sidebar{width:246px !important;background:linear-gradient(180deg,#193554 0%,#12263f 100%) !important;box-shadow:5px 0 20px rgba(15,43,70,.10) !important;}
-.sidebar-brand{padding:2px 8px 16px !important;}
-.sidebar-brand-mark{background:transparent !important;border-radius:0 !important;font-size:31px !important;width:36px !important;height:36px !important;}
-.sidebar-brand strong{font-size:16px !important;}
-.sidebar-brand small{font-size:9px !important;color:#c9d9e9 !important;}
-.sidebar-divider{margin:0 8px 12px !important;background:rgba(255,255,255,.13) !important;}
-.view-nav-btn{height:42px !important;border-radius:9px !important;font-size:13px !important;}
-.view-nav-btn.active{background:linear-gradient(90deg,#1d78dc,#2c83e3) !important;box-shadow:0 6px 15px rgba(29,120,220,.24) !important;}
-.sidebar-section-label{color:#8fa9c1 !important;}
-.sidebar-footer{padding-top:13px !important;}
-
-.app-topbar{height:68px !important;background:rgba(255,255,255,.95) !important;border-bottom:1px solid #e0e9f2 !important;box-shadow:0 1px 6px rgba(24,59,92,.025) !important;}
-.global-search{height:40px !important;max-width:530px !important;border-color:#d5e2ee !important;box-shadow:0 2px 8px rgba(38,78,113,.035) !important;}
-.global-search>span{color:#8299b0 !important;}
-.global-search input{font-size:13px !important;color:#294760 !important;}
-.topbar-icon{color:#193957 !important;}
-.topbar-avatar{background:#4c90ca !important;}
-.book{padding:16px 22px 38px !important;}
-
-/* Common cards and controls */
-.panel,.card,.today-section,.planning-week-overview,.plan-day-card,.dispensa-section,.crea-section,.toolbar,.nutrition-summary,.week-totals-day,.plan-meal-block,.recipe-picker-item{background:#fff !important;border:1px solid var(--ui-border) !important;box-shadow:var(--ui-shadow) !important;border-radius:12px !important;}
-.panel{border-left:1px solid var(--ui-border) !important;padding:15px !important;}
-.panel-header{margin-bottom:12px !important;}
-.panel-icon{background:#eaf4ff !important;color:#1976d2 !important;border-radius:9px !important;}
-.panel-header h3{font-family:inherit !important;color:#173554 !important;font-size:16px !important;font-weight:800 !important;}
-.panel-sub{color:#71869b !important;font-size:11px !important;}
-.toolbar{padding:11px !important;margin-bottom:14px !important;}
-.toolbar-group{display:flex;align-items:center;flex-wrap:wrap;gap:8px !important;}
-.btn-gold,.btn-primary{background:linear-gradient(180deg,#2c86e5,#1975d3) !important;color:#fff !important;border:0 !important;border-radius:8px !important;box-shadow:0 4px 10px rgba(29,120,220,.18) !important;font-weight:700 !important;}
-.btn-ghost,.btn-outline{background:#fff !important;color:#1d72c6 !important;border:1px solid #cfe0ef !important;border-radius:8px !important;box-shadow:none !important;font-weight:700 !important;}
-.btn-danger{border-radius:8px !important;}
-input,select,textarea{background:#fff !important;border:1px solid #d5e2ee !important;border-radius:8px !important;color:#294760 !important;box-shadow:none !important;}
-input::placeholder,textarea::placeholder{color:#91a3b5 !important;}
-input:focus,select:focus,textarea:focus{border-color:#6da8df !important;box-shadow:0 0 0 3px rgba(35,126,214,.10) !important;}
-
-/* Ricette */
-#recipes-view .toolbar:first-of-type{background:transparent !important;border:0 !important;box-shadow:none !important;padding:0 0 8px !important;}
-#recipes-view .toolbar:first-of-type .toolbar-group{justify-content:flex-start;}
-#recipes-view .search-wrap{flex:1 1 270px !important;}
-#recipes-view .search-wrap input{width:100% !important;min-height:40px !important;}
-#recipe-list{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px !important;align-items:stretch;}
-#recipe-list .card{position:relative !important;min-width:0 !important;padding:13px !important;cursor:pointer !important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease !important;}
-#recipe-list .card:hover{transform:translateY(-2px) !important;box-shadow:0 9px 22px rgba(31,78,119,.10) !important;border-color:#c7dced !important;}
-#recipe-list .card .thumb{width:calc(100% + 26px) !important;height:145px !important;object-fit:cover !important;margin:-13px -13px 10px !important;border-radius:11px 11px 0 0 !important;}
-#recipe-list .card h3{font-family:inherit !important;font-size:14px !important;line-height:1.25 !important;color:#173554 !important;margin:6px 0 !important;font-weight:800 !important;}
-#recipe-list .card .meta{font-size:10px !important;color:#758a9f !important;}
-#recipe-list .card .cat-tag{background:#edf6ff !important;color:#2775b7 !important;border:0 !important;border-radius:999px !important;font-size:9px !important;padding:4px 7px !important;}
-#recipe-list .card .star{width:28px !important;height:28px !important;border-radius:50% !important;background:rgba(255,255,255,.94) !important;border:1px solid #d9e5ef !important;color:#607d98 !important;z-index:3;}
-#recipe-list .card .star.active{color:#f0a51c !important;}
-.match-badge.ready{background:#ddf5e7 !important;color:#168653 !important;border-radius:999px !important;}
-.match-badge.missing{background:#fff1d7 !important;color:#a76d05 !important;border-radius:999px !important;}
-.empty-state{background:#fff !important;border:1px dashed #cdddea !important;border-radius:12px !important;color:#70869b !important;padding:28px !important;}
-
-/* Pianificazione */
-.planning-header{background:linear-gradient(90deg,#eef7ff,#f8fbff) !important;border:1px solid #dce9f5 !important;border-radius:12px !important;padding:16px !important;box-shadow:var(--ui-shadow) !important;}
-.planning-header h2,.planning-header h1{color:#173554 !important;}
-.planning-week-overview{padding:14px !important;margin:14px 0 !important;background:#fff !important;}
-.planning-week-overview-head h3{font-family:inherit !important;color:#173554 !important;font-size:16px !important;}
-.planning-week-day{background:#fbfdff !important;border-color:#dbe7f2 !important;border-radius:10px !important;min-height:138px !important;}
-.planning-week-day.today{background:#f1f8ff !important;border-color:#cfe3f5 !important;}
-.planning-week-day.active{border-color:#2a82dc !important;box-shadow:0 0 0 2px rgba(42,130,220,.10) !important;}
-.planning-week-day-name{color:#36536d !important;}
-.planning-week-day-badge{background:#def4e7 !important;color:#20835b !important;}
-.planning-week-day-badge.empty{background:#fff1d7 !important;color:#9b6b10 !important;}
-.planning-week-meal{border-color:#edf2f6 !important;}
-.planning-week-meal-text{color:#36536d !important;}
-#planning-days{margin-top:12px !important;}
-.plan-day-card{padding:16px !important;}
-.plan-day-card>h3{font-family:inherit !important;color:#173554 !important;font-size:18px !important;}
-.plan-meal-block{box-shadow:none !important;border-color:#e0eaf3 !important;margin:10px 0 !important;padding:11px !important;}
-.plan-meal-header{color:#173554 !important;}
-.plan-entry{background:#f8fbfe !important;border:1px solid #e2ebf3 !important;border-radius:8px !important;margin:5px 0 !important;}
-.plan-entry-name{color:#244760 !important;font-weight:700 !important;}
-.plan-entry-nutrition{color:#71869b !important;}
-.plan-day-total,.plan-meal-total{background:#edf7ff !important;border-color:#d7e8f6 !important;color:#42617a !important;border-radius:8px !important;}
-
-/* Dispensa */
-#dispensa-view .panel-header h3{font-size:16px !important;}
-#dispensa-list{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px !important;}
-#dispensa-list .card{padding:14px !important;min-height:150px !important;cursor:pointer !important;transition:transform .16s ease,box-shadow .16s ease !important;}
-#dispensa-list .card:hover{transform:translateY(-2px) !important;box-shadow:0 9px 22px rgba(31,78,119,.10) !important;}
-#dispensa-list .card h3{font-family:inherit !important;color:#173554 !important;font-size:15px !important;font-weight:800 !important;}
-#dispensa-list .cat-tag{background:#edf6ff !important;color:#2775b7 !important;border-radius:999px !important;border:0 !important;font-size:9px !important;padding:4px 7px !important;}
-.dispensa-qty{color:#4f6b84 !important;font-weight:700 !important;font-size:11px !important;}
-.dispensa-expiry{display:inline-block !important;background:#e7f7ef !important;color:#21845d !important;border-radius:999px !important;padding:4px 7px !important;font-size:9px !important;font-weight:700 !important;}
-.dispensa-expiry.soon{background:#fff1d7 !important;color:#a56d05 !important;}
-.dispensa-expiry.expired{background:#ffe5e8 !important;color:#c0394d !important;}
-.dispensa-low-stock{background:#fff5df !important;color:#a66c05 !important;border-radius:7px !important;padding:6px 8px !important;font-size:10px !important;}
-
-/* CREA / informazioni / pannelli secondari */
-#crea-alimenti-view,#crea-menu-view,#info-view{background:transparent !important;}
-#crea-alimenti-view .panel,#crea-menu-view .panel,#info-view .panel{background:#fff !important;}
-
-/* Overlay e finestre */
-.overlay{background:rgba(18,38,63,.42) !important;backdrop-filter:blur(3px) !important;}
-.modal{background:#fff !important;border:1px solid #d8e5f0 !important;border-radius:14px !important;box-shadow:0 24px 70px rgba(14,43,69,.22) !important;}
-.modal h2,.modal h3{font-family:inherit !important;color:#173554 !important;}
-.close-x{border-radius:50% !important;background:#f2f6fa !important;color:#55718b !important;border:1px solid #dce7f0 !important;}
-
-/* Responsive */
-@media(max-width:1050px){
-  #recipe-list,#dispensa-list{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
-}
-@media(max-width:760px){
-  body{padding:0 0 72px !important;}
-  .book{padding:10px !important;}
-  .app-topbar{top:56px !important;}
-  #recipe-list,#dispensa-list{grid-template-columns:1fr !important;}
-  .toolbar,.toolbar-group{width:100%;}
-  #recipes-view .search-wrap{flex-basis:100% !important;}
-  .panel{padding:12px !important;}
-  .planning-header{padding:13px !important;}
-  .planning-week-overview-grid{grid-template-columns:repeat(7,132px) !important;}
-}
-
-/* ============================================================
-   ROADMAP 4.0 — Alpha 7: modalità dedicata "Cosa posso cucinare?"
-   ============================================================ */
-.cook-mode-hero{display:none;}
-#recipes-view.cook-mode-active .cook-mode-hero{display:flex;align-items:center;gap:16px;margin:0 0 14px;padding:18px 20px;border:1px solid #d9e8f5;border-radius:13px;background:linear-gradient(100deg,#eef7ff 0%,#f8fbff 70%,#f2f8ff 100%);box-shadow:var(--ui-shadow);}
-.cook-mode-hero-icon{width:50px;height:50px;flex:0 0 50px;border-radius:13px;background:#fff0f3;display:grid;place-items:center;font-size:28px;box-shadow:inset 0 0 0 1px #f3d8df;}
-.cook-mode-hero-copy{flex:1;min-width:0;}
-.cook-mode-hero-copy>span{font-size:9px;letter-spacing:.1em;font-weight:800;color:#6d8aa4;}
-.cook-mode-hero-copy h1{margin:3px 0 4px;font-family:inherit;font-size:21px;color:#173554;font-weight:800;}
-.cook-mode-hero-copy p{margin:0;color:#667e95;font-size:11px;line-height:1.45;max-width:720px;}
-.cook-mode-back{white-space:nowrap;}
-#recipes-view.cook-mode-active > .toolbar:not(:has(#pantry-input)),
-#recipes-view.cook-mode-active > #selection-bar,
-#recipes-view.cook-mode-active > .toolbar:not(:first-of-type){display:none !important;}
-#recipes-view.cook-mode-active > .panel:has(#pantry-input){margin-bottom:14px;}
-#recipes-view.cook-mode-active > .panel:has(#pantry-input) .panel-header{margin-bottom:10px;}
-#recipes-view.cook-mode-active > .panel:has(#pantry-input) .panel-header h3{font-size:17px !important;}
-#recipes-view.cook-mode-active > .panel:has(#pantry-input) .panel-row{align-items:stretch;}
-#recipes-view.cook-mode-active > #recipe-list{grid-template-columns:repeat(3,minmax(0,1fr));}
-#recipes-view.cook-mode-active > #recipe-list .card{min-height:190px;}
-@media(max-width:1050px){#recipes-view.cook-mode-active > #recipe-list{grid-template-columns:repeat(2,minmax(0,1fr));}}
-@media(max-width:760px){
-  #recipes-view.cook-mode-active .cook-mode-hero{align-items:flex-start;flex-wrap:wrap;padding:14px;}
-  .cook-mode-hero-copy{flex-basis:calc(100% - 66px);}
-  .cook-mode-back{width:100%;}
-  #recipes-view.cook-mode-active > #recipe-list{grid-template-columns:1fr;}
-}

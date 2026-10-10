@@ -36,13 +36,13 @@ Questa guida spiega passo passo come usare tutte le funzioni del ricettario.
 
 ## ℹ️ Come funziona
 
-Il pulsante **"ℹ️ Come funziona"** nel menu in alto apre una pagina introduttiva pensata per chi apre il sito per la prima volta (o vuole un promemoria): spiega in breve come sono organizzate le varie viste, cos'è il **CREA** e da dove viene la banca dati nutrizionale ufficiale usata nel sito, e cos'è **Open Food Facts**, la banca dati collaborativa usata per la scansione del codice a barre in Dispensa. È solo testo informativo, non richiede alcuna configurazione.
+Il pulsante **"ℹ️ Come funziona"** nella barra laterale apre una pagina introduttiva pensata per chi apre il sito per la prima volta (o vuole un promemoria): spiega in breve come sono organizzate le varie viste, cos'è il **CREA** e da dove viene la banca dati nutrizionale ufficiale usata nel sito, e cos'è **Open Food Facts**, la banca dati collaborativa usata per la scansione del codice a barre in Dispensa. È solo testo informativo, non richiede alcuna configurazione.
 
 ## Avvio
 
 Apri il file `index.html` con un doppio click, oppure trascinalo in una finestra del browser. Non serve installare nulla né avere una connessione internet (a parte il primo caricamento dei font, che comunque non è obbligatorio per il funzionamento).
 
-Su schermo piccolo (telefono), la fila di pulsanti di navigazione in alto (Oggi, Ricettario, Pianificazione, Dispensa…) viene sostituita da un pulsante **"☰"**, che mostra sempre la vista in cui ti trovi e apre un menu a tendina con tutte le destinazioni quando lo tocchi. Il menu si chiude da solo dopo aver scelto una voce.
+La navigazione (Oggi, Ricettario, Pianificazione, Dispensa…) è una barra laterale sulla sinistra, sempre visibile su schermo grande. Su schermo piccolo (telefono) la barra laterale si nasconde e viene sostituita da una fila sottile in cima con un pulsante **"☰"**: toccandolo si apre come un cassetto a comparsa con tutte le destinazioni e l'interruttore del tema, con uno sfondo scurito dietro per poterlo chiudere toccando fuori. Il cassetto si chiude da solo dopo aver scelto una voce.
 
 ## Aggiungere una ricetta
 
@@ -108,7 +108,7 @@ Una ricetta scritta a mano senza questi valori semplicemente non mostra quella s
 
 ## 🌾 Valori Alimenti dal sito CREA
 
-Una vista dedicata (nella barra di navigazione in alto) per consultare liberamente i 900 alimenti della banca dati ufficiale CREA — indipendentemente da qualunque ricetta.
+Una vista dedicata (nella barra laterale) per consultare liberamente i 900 alimenti della banca dati ufficiale CREA — indipendentemente da qualunque ricetta.
 
 - **Cerca per nome** (es. "farro", "parmigiano", "pomodoro") o **filtra per una delle 19 categorie ufficiali CREA** (Cereali e derivati, Formaggi e latticini, Frutta...); l'elenco resta vuoto finché non fai una delle due cose, per non mostrarti 900 righe tutte insieme
 - I risultati si fermano ai primi 200 per volta: se ce ne sono altri, un avviso in fondo te lo segnala — affina la ricerca per restringerli
@@ -185,7 +185,7 @@ Mentre la modalità cucina è aperta, il sito prova a **impedire allo schermo di
 
 ## Pianificazione settimanale
 
-La pianificazione è una vista separata dal ricettario: premi **"📅 Pianificazione"** in alto per aprirla. Da qui puoi saltare subito alla Dispensa con il pulsante **"🥫 Dispensa"** in cima alla pagina (e viceversa, dalla Dispensa, **"📅 Pianificazione"** riporta qui), senza dover passare dal menu di navigazione in alto — comodo mentre decidi cosa cucinare e vuoi controllare al volo cosa hai già in casa.
+La pianificazione è una vista separata dal ricettario: premi **"📅 Pianificazione"** nella barra laterale per aprirla. Da qui puoi saltare subito alla Dispensa con il pulsante **"🥫 Dispensa"** in cima alla pagina (e viceversa, dalla Dispensa, **"📅 Pianificazione"** riporta qui), senza dover passare dalla barra laterale — comodo mentre decidi cosa cucinare e vuoi controllare al volo cosa hai già in casa.
 
 Puoi anche saltare la ricerca e pianificare al volo mentre guardi una ricetta: nella sua scheda, premi **"📅 Pianifica"** per scegliere giorno, fascia e orario facoltativo senza uscire dalla vista. Il pannello resta aperto dopo ogni aggiunta, così puoi assegnare la stessa ricetta a più giorni di seguito.
 
@@ -270,7 +270,7 @@ Per ritrovarla, premi **"📦 Mostra archiviate"** nella barra dei filtri: l'ele
 
 ## Dispensa
 
-La Dispensa è una sezione separata dal ricettario, per tenere traccia di quello che hai in casa — non ricette, ma prodotti veri e propri come frutta, verdura, salumi, yogurt: premi **"🥫 Dispensa"** in alto per aprirla.
+La Dispensa è una sezione separata dal ricettario, per tenere traccia di quello che hai in casa — non ricette, ma prodotti veri e propri come frutta, verdura, salumi, yogurt: premi **"🥫 Dispensa"** nella barra laterale per aprirla.
 
 1. Premi **"+ Nuovo prodotto"**
 2. Scrivi il nome e scegli una categoria tra quelle disponibili: dai freschi (Frutta, Verdura, Uova, Salumi, Latticini e pronti) ai Surgelati, fino alla dispensa vera e propria (Pasta/riso e cereali, Legumi, Farine/zucchero e lieviti, Conserve e scatolame, Spezie e condimenti, Oli/aceti e grassi, Bevande, Snack e dolciumi), oppure Altro per tutto il resto
@@ -303,15 +303,7 @@ Questo riconoscimento resta comunque limitato alle unità elencate sopra (più q
 
 ## Tema grafico
 
-Dal menu **"🎨 Aspetto"** puoi scegliere tra 5 temi grafici per tutto il sito:
-
-- **Originale (noce e oro)** — l'aspetto di sempre: legno scuro, pergamena, oro
-- **Mediterranea** — chiaro e luminoso, terracotta e blu mare
-- **Bosco d'autunno** — verde bosco profondo, crema, ruggine
-- **Trattoria moderna** — minimal, crema chiarissimo con un solo accento rosso pomodoro
-- **Cantina** — scuro come l'originale, ma con toni di vino e bordeaux al posto del legno
-
-La scelta si applica subito a tutto il sito (testata, pulsanti, ricette, dispensa, pianificazione...) e resta salvata per le prossime visite. I primi 3 temi (tutti tranne l'Originale e la Cantina, che riusano gli stessi font già presenti) scaricano i loro font la prima volta che li scegli: un attimo di attesa, poi restano disponibili subito alle volte successive.
+Il sito ha un'unica impostazione grafica — barra laterale, card chiare, accento blu — con un interruttore **"🌙 Tema scuro"** in fondo alla barra laterale (nel cassetto ☰ su telefono) per passare dallo sfondo chiaro a uno scuro, mantenendo la stessa impostazione. La scelta si applica subito a tutto il sito e resta salvata per le prossime visite.
 
 ## Salvataggio dei dati
 
