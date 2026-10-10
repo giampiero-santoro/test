@@ -295,6 +295,24 @@ const CreaRicette = (() => {
   }
 
   /**
+   * La "preparazione" del CREA arriva come un unico paragrafo discorsivo,
+   * senza numerazione né a capo (es. "Lavare i pomodorini... Versare
+   * l'olio... Cuocere per pochi minuti..."). La spezziamo una frase per
+   * passaggio, così la ricetta importata mostra gli stessi passaggi
+   * numerati di una scritta a mano, invece di un solo blocco di testo.
+   * Lo split avviene dopo ogni punto/punto esclamativo/punto interrogativo
+   * seguito da uno spazio: nei testi CREA non compaiono abbreviazioni o
+   * numeri decimali con il punto che potrebbero spezzare la frase nel
+   * posto sbagliato (verificato su tutte le 56 ricette incluse).
+   */
+  function splitPreparazioneInPassaggi(testo) {
+    const pulito = (testo || '').trim();
+    if (!pulito) return [{ text: '' }];
+    const frasi = pulito.split(/(?<=[.!?])\s+/).map(f => f.trim()).filter(Boolean);
+    return (frasi.length ? frasi : [pulito]).map(text => ({ text }));
+  }
+
+  /**
    * Converte una ricetta CREA nel formato dati usato da "Il Mio Ricettario".
    * I valori nutrizionali NON vengono più calcolati sommando gli ingredienti
    * crudi (la cottura li altera in modo imprevedibile): la ricetta importata
@@ -317,7 +335,7 @@ const CreaRicette = (() => {
         unit: ing.unita || '',
       })),
       nutrizioneCrea: ricettaCrea.valori_nutrizionali_100g_piatto || null,
-      steps: [{ text: ricettaCrea.preparazione || '' }],
+      steps: splitPreparazioneInPassaggi(ricettaCrea.preparazione),
       notes: [
         ricettaCrea.porzioni_testo ? `Porzioni indicate dalla fonte: ${ricettaCrea.porzioni_testo}` : '',
         ricettaCrea.tempo_cottura ? `Tempo di cottura: ${ricettaCrea.tempo_cottura}` : '',

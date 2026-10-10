@@ -2,7 +2,7 @@
 
 Elenco di tutti i file che devono essere caricati insieme su GitHub perché il sito funzioni correttamente. Non tiene uno storico delle versioni precedenti — la cronologia delle modifiche è già in [CHANGELOG.md](CHANGELOG.md); questo file mostra solo **la situazione attuale**, e va sovrascritto ogni volta che cambia l'elenco dei file coinvolti.
 
-**Versione corrente: 4.1.2**
+**Versione corrente: 4.1.3**
 
 ## File essenziali (senza uno di questi il sito non parte, o parte con funzioni mancanti)
 

@@ -2,6 +2,11 @@
 
 Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
+## [4.1.3] — Passaggi separati per le ricette importate da CREA
+
+### Corretto
+- Importando una ricetta da CREA (sia dalla lista "CREA Menù" sia dal pulsante "Importa nel Ricettario" nel dettaglio di una ricetta CREA), il procedimento arrivava come un unico passaggio enorme con tutto il testo attaccato. Ora viene suddiviso automaticamente in più passaggi numerati, uno per ogni frase del testo originale, così come appaiono nel sito CREA.
+
 ## [4.1.2] — Il contenuto ora riempie tutta la pagina
 
 ### Corretto
