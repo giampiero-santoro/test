@@ -93,19 +93,20 @@
     z-index:-1;
     background: var(--page-bg);
   }
-  /* Grana sottilissima sopra lo sfondo, per dare un po' di materia alla
-     pagina invece di un colore/gradiente piatto. Volutamente minima: si
-     nota solo da vicino. */
+  /* Trama a quadretti sottilissima sopra lo sfondo, ispirata a una tovaglia
+     da cucina, per dare un po' di materia alla pagina invece di un colore
+     piatto. Tinta con --gold così si adatta da sola al tema chiaro/scuro.
+     Volutamente minima: si nota solo da vicino. */
   body::after{
     content:"";
     position:fixed;
     inset:0;
     z-index:-1;
     pointer-events:none;
-    opacity:.5;
-    background-image:radial-gradient(rgba(0,0,0,.5) 1px, transparent 1px);
-    background-size:3px 3px;
-    mix-blend-mode:overlay;
+    background-image:
+      repeating-linear-gradient(0deg, color-mix(in srgb, var(--gold) 60%, transparent) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(90deg, color-mix(in srgb, var(--gold) 60%, transparent) 0 1px, transparent 1px 24px);
+    opacity:.1;
   }
   h1,h2,h3,.display{font-family:var(--font-titoli);}
 

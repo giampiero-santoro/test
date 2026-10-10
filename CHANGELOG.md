@@ -2,6 +2,16 @@
 
 Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
+## [4.1.5] — Testo del bottone "Seleziona"
+
+### Cambiato
+- Nel Ricettario, il bottone "Seleziona" ora si chiama "Elimina ricette", coerente con quello che effettivamente fa: entrando in quella modalità l'unica azione possibile sulle ricette scelte è eliminarle.
+
+## [4.1.4] — Sfondo a quadretti
+
+### Cambiato
+- Lo sfondo della pagina ora ha una leggerissima trama a quadretti (stile tovaglia da cucina), al posto della grana a puntini di prima. È tinta con lo stesso colore delle parti evidenziate del sito, quindi si adatta da sola sia al tema chiaro sia a quello scuro.
+
 ## [4.1.3] — Passaggi separati per le ricette importate da CREA
 
 ### Corretto
