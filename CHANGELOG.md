@@ -2,6 +2,85 @@
 
 Tutte le modifiche rilevanti al progetto sono documentate in questo file.
 
+## [4.3.1] — Filtri nell'esportazione PDF del ricettario
+
+### Aggiunto
+- Nella finestra "Esporta ricettario in PDF" è ora possibile restringere l'elenco da cui scegliere con gli stessi filtri già disponibili nella vista Ricettario: metodo di cottura (pentola a pressione, robot, friggitrice ad aria, tradizionale), tag dietetici ed esclusione per allergeni. I filtri si possono combinare tra loro.
+- Nuovo pulsante "Seleziona tutte (visibili)": seleziona solo le ricette che corrispondono ai filtri e alla ricerca attuali, non l'intero ricettario.
+- Le ricette selezionate restano nella selezione anche cambiando o cancellando un filtro: un filtro serve solo a restringere cosa si vede nell'elenco, non fa sparire dalla selezione finale una ricetta scelta in precedenza.
+
+## [4.3.0] — L'app si può installare sulla schermata Home
+
+### Aggiunto
+- **Il Mio Ricettario è ora installabile come un'app**, su telefono, tablet o computer: da Chrome/Edge/Safari compare la voce "Aggiungi a Home"/"Installa app", e una volta installata l'icona apre il sito a schermo intero, senza barra degli indirizzi, con la sua icona in home e nello switcher delle app.
+- Aggiunta una nuova icona dedicata (la stessa pentola 🍲 su sfondo sfumato già presente in cima alla barra laterale, per restare coerenti con il resto dell'app), generata in più dimensioni: icona normale per Android/desktop, variante "adaptive" per Android (si adatta alla forma — tonda, squadrata, a goccia — scelta dal telefono) e icona dedicata per la schermata Home di iPhone/iPad.
+- Aggiunta un'icona anche per la scheda del browser (favicon), che prima mancava.
+- La barra di navigazione resta quella attuale (menu "☰" a comparsa): questa modifica riguarda solo l'installazione e l'icona, nessun'altra schermata è cambiata.
+
+### File nuovi da caricare
+- `manifest.json`
+- `img/icon-192.png`, `img/icon-512.png`, `img/icon-maskable-192.png`, `img/icon-maskable-512.png`, `img/apple-touch-icon.png`, `img/favicon-32.png`, `img/favicon-16.png`
+
+## [4.2.4] — Correzioni minori emerse da un controllo generale
+
+### Corretto
+- **Bug**: esportando le ricette in CSV e poi reimportandole, le impostazioni della friggitrice ad aria sui passaggi andavano perse silenziosamente (non venivano rilette in fase di importazione). Ora il giro esporta→importa conserva correttamente temperatura e preriscaldamento, anche per un passaggio che usa solo la friggitrice ad aria senza robot né pentola a pressione.
+- Rimossa una regola di stile non più usata, rimasta dalla card Dispensa prima della sua recente semplificazione.
+
+### Aggiunto
+- I pulsanti della barra di navigazione laterale segnalano ora anche alla tecnologia assistiva (lettori di schermo) quale pagina è quella aperta al momento (attributo `aria-current`), non solo visivamente.
+
+## [4.2.3] — "Oggi" come pagina iniziale, più dettagli in "Da consumare prima"
+
+### Cambiato
+- La pagina iniziale del sito è ora **☀️ Oggi** (prima si apriva sempre sul Ricettario).
+- La card "Da consumare prima" nella pagina Oggi ora mostra, per ogni prodotto in scadenza: il pallino colorato della categoria, la quantità che ne hai, e quando scade in modo discorsivo ("Scade oggi", "Scade domani", "Scade tra N giorni") oltre alla data, con un colore più acceso per chi scade oggi o domani. Se i prodotti in scadenza sono più di 4 ora lo dice esplicitamente ("+ altri N prodotti…") invece di ometterli in silenzio.
+- Aggiunto il pulsante "🧑‍🍳 Trova ricette" nella stessa card: porta dritto al Ricettario in modalità "Cosa posso cucinare?" già filtrata sui prodotti in scadenza, così da trovare subito una ricetta che li usi.
+
+## [4.2.2] — Corretto il contrasto col tema scuro in alcuni riquadri
+
+### Corretto
+- I riquadri "Valori nutrizionali" (sia della scheda prodotto in Dispensa sia degli ingredienti in Ricetta), i riquadri dei passaggi di preparazione (compresi quelli con le impostazioni robot/pentola a pressione/friggitrice ad aria) e il campo note dei pasti in Pianificazione avevano uno sfondo chiaro fisso che, col tema scuro, diventava un grigio poco leggibile su testo anch'esso grigio chiaro. Ora lo sfondo di questi riquadri segue il tema come il resto del sito.
+
+## [4.2.1] — Card Dispensa in stile ricetta, quadrate
+
+### Cambiato
+- Le card della Dispensa ora usano la stessa griglia a riquadri delle card Ricettario (prima erano un elenco a tutta larghezza): stessa illustrazione segnaposto colorata per categoria (o la foto del prodotto se trovata su Open Food Facts), stessa etichetta categoria, stesso stile del titolo.
+- Per mantenere le card compatte e quadrate come quelle delle ricette, i dettagli più corposi (valori nutrizionali per 100 g, scheda ufficiale CREA, note) non compaiono più direttamente sulla card ma restano a un click di distanza, aprendo la scheda del prodotto come sempre.
+- La card continua a mostrare a colpo d'occhio quantità, eventuale avviso "in esaurimento" e scadenza.
+
+## [4.2.0] — Friggitrice ad aria come nuovo metodo di cottura
+
+### Aggiunto
+- Nuovo metodo di cottura "🌀 Friggitrice ad aria", al pari di robot e pentola a pressione: ogni passaggio della ricetta può ora avere temperatura (fino a 230°C) e preriscaldamento.
+- Nuovo badge 🌀 sulle card e nella scheda ricetta, nuovo filtro "🌀 Friggitrice ad aria" tra i filtri avanzati, e comparsa automatica nella riga "Cottura:" dei PDF (anche in combinazione con altri metodi, es. "Robot da cucina + Friggitrice ad aria").
+- Il dettaglio di temperatura/preriscaldamento compare anche nel testo del passaggio esportato (PDF e CSV).
+- Una ricetta è ora "🔥 Tradizionale" solo se non usa robot, pentola a pressione né friggitrice ad aria.
+
+## [4.1.9] — Tipo di cottura nel PDF delle ricette
+
+### Aggiunto
+- Nel PDF di ogni ricetta (sia l'export della singola ricetta sia il ricettario completo) ora compare la riga "Cottura: …" con il metodo rilevato automaticamente dai passaggi della ricetta: 🔥 Tradizionale, 🤖 Robot da cucina, 🍲 Pentola a pressione, oppure la combinazione di più metodi se la ricetta li usa entrambi (es. "Robot da cucina + Pentola a pressione"). Prima questa informazione era visibile solo come badge a schermo, non nella stampa.
+
+## [4.1.8] — Logo e firma dell'autore nei PDF
+
+### Aggiunto
+- Il logo "Clan Destino" e la firma "Giampiero Santoro" (già presenti in fondo alla barra laterale del sito) ora compaiono anche in calce a ogni pagina di tutti i PDF esportati: la singola ricetta, il ricettario completo, la lista della spesa e la pianificazione settimanale.
+
+## [4.1.7] — Categorie nel PDF e ricette ripetute nel sottotitolo
+
+### Corretto
+- Esportando la lista della spesa in PDF, le intestazioni di reparto (es. "Frutta", "Verdura") sparivano: restava solo il pallino colorato, senza il nome. Ora compaiono correttamente, come nella lista a schermo.
+- Se la stessa ricetta era pianificata più volte nella settimana (o nello stesso giorno), il suo nome compariva ripetuto nel sottotitolo della lista della spesa. Ora compare una sola volta, con accanto in rosso quante volte è stata pianificata (es. "Carbonara risottata (x2 volte questa settimana)"); le quantità nella lista restano già sommate come prima.
+
+## [4.1.6] — Doppioni nella lista della spesa e modo per svuotarla
+
+### Corretto
+- I promemoria "dalla dispensa" nella lista della spesa (ingredienti segnalati mancanti quando pianifichi una ricetta) potevano accumularsi come doppioni nel tempo — es. "Sale" o "Olio di semi" ripetuti due volte — e non venivano ripuliti da soli. Ora, all'apertura del sito, i doppioni già presenti vengono uniti automaticamente.
+
+### Aggiunto
+- Nuovo bottone **"🗑 Svuota lista"** nella finestra della lista della spesa: toglie tutte le spunte e tutti i promemoria "dalla dispensa" accumulati, per poter ripartire puliti e rigenerare la lista in base al giorno o alla settimana che serve (le ricette pianificate restano, solo spunte e promemoria vengono azzerati).
+
 ## [4.1.5] — Testo del bottone "Seleziona"
 
 ### Cambiato

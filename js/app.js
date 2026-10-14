@@ -11,12 +11,23 @@
   const SHOPPING_EXTRA_KEY = 'mc_ricettario_spesa_extra_v1';
   const WEEK_NOTES_KEY = 'mc_ricettario_note_settimana_v1';
   const SHOPPING_CHECKED_KEY = 'mc_ricettario_spesa_spuntate_v1';
+  const WEATHER_LOCATION_KEY = 'mc_ricettario_meteo_localita_v1';
+  const WEATHER_CACHE_KEY = 'mc_ricettario_meteo_cache_v1';
   const PANTRY_CATEGORY_COLORS = {
     'Frutta': '#d17b3f', 'Verdura': '#5c8a3a', 'Uova': '#d9a94a', 'Salumi': '#a13d3d',
     'Latticini e pronti': '#c9a227', 'Surgelati': '#4f7f8b', 'Pasta, riso e cereali': '#8a6642',
     'Legumi': '#6b5b3a', 'Farine, zucchero e lieviti': '#a68a5b', 'Conserve e scatolame': '#7a5230',
     'Spezie e condimenti': '#9c4b1f', 'Oli, aceti e grassi': '#8a7a2e', 'Bevande': '#3f6e9c',
     'Snack e dolciumi': '#b83a6b', 'Altro': '#3f6e79'
+  };
+  // Icona di riserva per la card Dispensa quando il prodotto non ha una foto
+  // OFF: stessa logica delle illustrazioni-segnaposto delle card ricetta.
+  const PANTRY_CATEGORY_ICONS = {
+    'Frutta': '🍎', 'Verdura': '🥦', 'Uova': '🥚', 'Salumi': '🥓',
+    'Latticini e pronti': '🧀', 'Surgelati': '🧊', 'Pasta, riso e cereali': '🍝',
+    'Legumi': '🫘', 'Farine, zucchero e lieviti': '🌾', 'Conserve e scatolame': '🥫',
+    'Spezie e condimenti': '🧂', 'Oli, aceti e grassi': '🫒', 'Bevande': '🥤',
+    'Snack e dolciumi': '🍬', 'Altro': '🍽️'
   };
   // Mappa (euristica) dalle 19 categorie del dataset CREA alle 15 categorie
   // di Dispensa: solo un default suggerito, resta modificabile come qualsiasi
@@ -115,6 +126,7 @@
   let favoritesOnly = false;
   let pressureOnly = false;
   let robotOnly = false;
+  let airFryerOnly = false;
   let traditionalOnly = false;
   let dispensaLowStockOnly = false;
   let showArchivedOnly = false;
@@ -181,6 +193,21 @@
       const rawShoppingExtra = localStorage.getItem(SHOPPING_EXTRA_KEY);
       shoppingExtraItems = rawShoppingExtra ? JSON.parse(rawShoppingExtra) : [];
       if(!Array.isArray(shoppingExtraItems)) shoppingExtraItems = [];
+      // Ripulisce eventuali doppioni già accumulati (stesso nome e unità), rimasti da prima che
+      // l'aggiunta controllasse i duplicati: altrimenti restano per sempre nella lista della spesa.
+      const vistiExtra = new Set();
+      const senzaDoppioni = [];
+      shoppingExtraItems.forEach(x=>{
+        if(!x || !x.name) return;
+        const chiave = normalize(x.name) + '|' + normalize(x.unit || '');
+        if(vistiExtra.has(chiave)) return;
+        vistiExtra.add(chiave);
+        senzaDoppioni.push(x);
+      });
+      if(senzaDoppioni.length !== shoppingExtraItems.length){
+        shoppingExtraItems = senzaDoppioni;
+        safeStorageSet(SHOPPING_EXTRA_KEY, JSON.stringify(shoppingExtraItems));
+      }
     }catch(e){ shoppingExtraItems = []; }
     try{
       const rawNotes = localStorage.getItem(WEEK_NOTES_KEY);
@@ -619,6 +646,20 @@
   }
   function normalize(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
 
+  // Confronto "a parola intera" fra due testi gi\u00e0 normalizzati, usato dove serve riconoscere lo
+  // stesso prodotto/ingrediente (Dispensa <-> ricetta) senza i falsi positivi di un contains
+  // grezzo: "sale" non deve risultare contenuto in "insalata", n\u00e9 "pepe" in "peperone". Dopo
+  // normalize() restano solo lettere/cifre ascii, spazi e punteggiatura, quindi \b individua
+  // correttamente i confini anche per termini con pi\u00f9 parole (es. "farina 00").
+  function contieneTermineIntero(testoNorm, terminoNorm){
+    if(!testoNorm || !terminoNorm) return false;
+    if(testoNorm === terminoNorm) return true;
+    const escaped = terminoNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    try{
+      return new RegExp(`\\b${escaped}\\b`).test(testoNorm);
+    }catch(err){ return false; }
+  }
+
   // ---------- Avviso di conferma (al posto del confirm() nativo del browser, per le azioni
   // che non si possono annullare: pi\u00f9 leggibile su pi\u00f9 righe e visivamente pi\u00f9 "pesante"
   // quando danger \u00e8 true, invece di un avviso identico per qualunque tipo di conferma) ----------
@@ -694,7 +735,7 @@
 
   function ingredientCovered(recipeIngredientName, pantryList){
     const target = normalize(recipeIngredientName);
-    return pantryList.some(p=> p && (target.includes(p) || p.includes(target)));
+    return pantryList.some(p=> p && (contieneTermineIntero(target, p) || contieneTermineIntero(p, target)));
   }
   /**
    * Confronta una ricetta con quello che c'è a disposizione.
@@ -747,7 +788,7 @@
     if(esatto) return esatto;
     const simili = dispensaItems.filter(it=>{
       const nome = normalize(it.name);
-      return nome && (nome.includes(n) || n.includes(nome));
+      return nome && (contieneTermineIntero(nome, n) || contieneTermineIntero(n, nome));
     });
     return simili.length === 1 ? simili[0] : null;
   }
@@ -792,7 +833,7 @@
     if(exact) return { match: exact, isApprox: false, ambiguous: [] };
     const fuzzy = dispensaItems.filter(it=>{
       const p = normalize(it.name);
-      return p && (target.includes(p) || p.includes(target));
+      return p && (contieneTermineIntero(target, p) || contieneTermineIntero(p, target));
     });
     if(fuzzy.length === 1) return { match: fuzzy[0], isApprox: true, ambiguous: [] };
     if(fuzzy.length > 1) return { match: null, isApprox: false, ambiguous: fuzzy };
@@ -926,7 +967,7 @@
 
     const recipe = recipes.find(r => r.id === entry.recipeId);
     if(!recipe){ alert('La ricetta collegata non è più tra le tue ricette.'); return; }
-    const scale = planServings / (recipe.servings || 1);
+    const scale = entryServings(entry) / (recipe.servings || 1);
     const runningQty = new Map(); // prodotto Dispensa -> quantità via via aggiornata, per gestire più ingredienti che puntano allo stesso prodotto
     const toUpdate = [];
     const skipped = new Set();
@@ -1010,8 +1051,11 @@
   function recipeHasRobot(r){
     return (r.steps || []).some(s => !!(s.vel || s.temp || (s.mode && s.mode !== 'Normale')));
   }
+  function recipeHasAirFryer(r){
+    return (r.steps || []).some(s => !!(s.airFryerTemp || s.airFryerPreheat));
+  }
   function recipeIsTraditional(r){
-    return !recipeHasRobot(r) && !recipeHasPressure(r);
+    return !recipeHasRobot(r) && !recipeHasPressure(r) && !recipeHasAirFryer(r);
   }
 
   // ---------- Selezione multipla di ricette ----------
@@ -1085,6 +1129,7 @@
       if(favoritesOnly && !r.favorite) return false;
       if(pressureOnly && !recipeHasPressure(r)) return false;
       if(robotOnly && !recipeHasRobot(r)) return false;
+      if(airFryerOnly && !recipeHasAirFryer(r)) return false;
       if(traditionalOnly && !recipeIsTraditional(r)) return false;
       const matchesCat = !cat || r.category === cat;
       if(!matchesCat) return false;
@@ -1157,7 +1202,8 @@
           ${priorityMatches.length ? `<div class="match-badge ready" style="position:static;display:inline-block;margin:0 0 6px;">🍽 Usa prima: ${priorityMatches.map(escapeHtml).join(', ')}</div>` : ''}
           ${recipeHasPressure(r) ? '<span class="pressure-badge" title="Ha passaggi per pentola a pressione">🍲</span>' : ''}
           ${recipeHasRobot(r) ? '<span class="robot-badge" title="Ha passaggi con impostazioni robot da cucina">🤖</span>' : ''}
-          ${recipeIsTraditional(r) ? '<span class="traditional-badge" title="Ricetta tradizionale, senza robot né pentola a pressione">🔥</span>' : ''}
+          ${recipeHasAirFryer(r) ? '<span class="airfryer-badge" title="Ha passaggi per friggitrice ad aria">🌀</span>' : ''}
+          ${recipeIsTraditional(r) ? '<span class="traditional-badge" title="Ricetta tradizionale, senza robot, pentola a pressione o friggitrice ad aria">🔥</span>' : ''}
           <h3>${escapeHtml(r.name)}</h3>
           <div class="meta"><span>${r.servings} porzioni base</span>${r.time?`<span>· ${r.time} min</span>`:''}</div>
           ${!ready?`<div class="missing-list"><b>Ti manca:</b> ${match.missing.map(escapeHtml).join(', ')}</div>`:''}
@@ -1193,7 +1239,8 @@
         <span class="cat-tag">${escapeHtml(r.category)}</span>
         ${recipeHasPressure(r) ? '<span class="pressure-badge" title="Ha passaggi per pentola a pressione">🍲</span>' : ''}
         ${recipeHasRobot(r) ? '<span class="robot-badge" title="Ha passaggi con impostazioni robot da cucina">🤖</span>' : ''}
-        ${recipeIsTraditional(r) ? '<span class="traditional-badge" title="Ricetta tradizionale, senza robot né pentola a pressione">🔥</span>' : ''}
+        ${recipeHasAirFryer(r) ? '<span class="airfryer-badge" title="Ha passaggi per friggitrice ad aria">🌀</span>' : ''}
+        ${recipeIsTraditional(r) ? '<span class="traditional-badge" title="Ricetta tradizionale, senza robot, pentola a pressione o friggitrice ad aria">🔥</span>' : ''}
         <h3>${escapeHtml(r.name)}</h3>
         <div class="meta">
           <span>${r.servings} porzioni base</span>
@@ -1258,6 +1305,13 @@
   robotFilterBtn.addEventListener('click', ()=>{
     robotOnly = !robotOnly;
     robotFilterBtn.classList.toggle('active', robotOnly);
+    updateFiltersCount();
+    renderList();
+  });
+  const airFryerFilterBtn = document.getElementById('airfryer-filter-btn');
+  airFryerFilterBtn.addEventListener('click', ()=>{
+    airFryerOnly = !airFryerOnly;
+    airFryerFilterBtn.classList.toggle('active', airFryerOnly);
     updateFiltersCount();
     renderList();
   });
@@ -1447,7 +1501,7 @@
   const advFiltersToggle = document.getElementById('advanced-filters-toggle');
   const advFiltersPanel = document.getElementById('advanced-filters-panel');
   function updateFiltersCount(){
-    const count = (pressureOnly?1:0) + (robotOnly?1:0) + (traditionalOnly?1:0) + activeTagFilters.size + activeAllergenExclusions.size + (excludeItems.length?1:0);
+    const count = (pressureOnly?1:0) + (robotOnly?1:0) + (airFryerOnly?1:0) + (traditionalOnly?1:0) + activeTagFilters.size + activeAllergenExclusions.size + (excludeItems.length?1:0);
     advFiltersToggle.textContent = count ? `🔍 Filtri (${count}) ▾` : '🔍 Filtri ▾';
   }
   advFiltersToggle.addEventListener('click', ()=>{
@@ -2301,9 +2355,10 @@
   }
 
   function addStepRow(data){
-    data = data || {text:'',vel:'',temp:'',time:'',mode:'Normale',pressure:'',pressureUnit:'bar',pressureRelease:'Naturale',pressureReleaseMin:'',minLiquid:''};
+    data = data || {text:'',vel:'',temp:'',time:'',mode:'Normale',pressure:'',pressureUnit:'bar',pressureRelease:'Naturale',pressureReleaseMin:'',minLiquid:'',airFryerTemp:'',airFryerPreheat:false};
     const hasRobotData = !!(data.vel || data.temp || (data.mode && data.mode !== 'Normale'));
     const hasPressureData = !!(data.pressure || data.minLiquid || data.pressureReleaseMin || (data.pressureRelease && data.pressureRelease !== 'Naturale'));
+    const hasAirFryerData = !!(data.airFryerTemp || data.airFryerPreheat);
     const block = document.createElement('div');
     block.className = 'step-block';
     block.innerHTML = `
@@ -2312,10 +2367,11 @@
         <div class="mini">Durata (min)<input type="number" class="step-time" min="0" value="${data.time ?? ''}"></div>
         <button type="button" class="robot-toggle-btn ${hasRobotData?'active':''}">🤖 Impostazioni robot</button>
         <button type="button" class="pressure-toggle-btn ${hasPressureData?'active':''}">🍲 Impostazioni pentola a pressione</button>
+        <button type="button" class="airfryer-toggle-btn ${hasAirFryerData?'active':''}">🌀 Impostazioni friggitrice ad aria</button>
         <div style="flex:1;"></div>
         <button class="remove-row" title="Rimuovi passaggio">×</button>
       </div>
-      <div class="step-settings" style="display:${hasRobotData?'flex':'none'};">
+      <div class="step-settings robot-settings" style="display:${hasRobotData?'flex':'none'};">
         <div class="mini">Velocità<input type="number" class="step-vel" min="0" max="10" value="${data.vel ?? ''}"></div>
         <div class="mini">Temp. °C<input type="number" class="step-temp" min="0" max="130" value="${data.temp ?? ''}"></div>
         <div class="mini">Modalità
@@ -2346,16 +2402,28 @@
         <div class="mini step-release-min-wrap" style="display:${data.pressureRelease==='Rapido'?'none':'flex'};">Durata rilascio (min)<input type="number" class="step-pressure-release-min" min="0" value="${data.pressureReleaseMin ?? ''}"></div>
         <div class="mini">Liquido minimo (ml)<input type="number" class="step-min-liquid" min="0" value="${data.minLiquid ?? ''}"></div>
       </div>
+      <div class="step-settings airfryer-settings" style="display:${hasAirFryerData?'flex':'none'};">
+        <div class="mini">Temp. °C<input type="number" class="step-airfryer-temp" min="0" max="230" value="${data.airFryerTemp ?? ''}"></div>
+        <label class="mini" style="flex-direction:row;align-items:center;gap:6px;">
+          <input type="checkbox" class="step-airfryer-preheat" ${data.airFryerPreheat ? 'checked' : ''}> Preriscaldamento
+        </label>
+      </div>
     `;
     block.querySelector('.remove-row').addEventListener('click', ()=> block.remove());
     block.querySelector('.robot-toggle-btn').addEventListener('click', (e)=>{
-      const panel = block.querySelector('.step-settings:not(.pressure-settings)');
+      const panel = block.querySelector('.robot-settings');
       const showing = panel.style.display !== 'none';
       panel.style.display = showing ? 'none' : 'flex';
       e.currentTarget.classList.toggle('active', !showing);
     });
     block.querySelector('.pressure-toggle-btn').addEventListener('click', (e)=>{
       const panel = block.querySelector('.pressure-settings');
+      const showing = panel.style.display !== 'none';
+      panel.style.display = showing ? 'none' : 'flex';
+      e.currentTarget.classList.toggle('active', !showing);
+    });
+    block.querySelector('.airfryer-toggle-btn').addEventListener('click', (e)=>{
+      const panel = block.querySelector('.airfryer-settings');
       const showing = panel.style.display !== 'none';
       panel.style.display = showing ? 'none' : 'flex';
       e.currentTarget.classList.toggle('active', !showing);
@@ -2440,7 +2508,9 @@
       pressureUnit: block.querySelector('.step-pressure-unit').value,
       pressureRelease: block.querySelector('.step-pressure-release').value,
       pressureReleaseMin: block.querySelector('.step-pressure-release-min').value,
-      minLiquid: block.querySelector('.step-min-liquid').value
+      minLiquid: block.querySelector('.step-min-liquid').value,
+      airFryerTemp: block.querySelector('.step-airfryer-temp').value,
+      airFryerPreheat: block.querySelector('.step-airfryer-preheat').checked
     })).filter(s=>s.text);
 
     const tags = Array.from(fTagsWrap.querySelectorAll('input[type="checkbox"]:checked')).map(cb=>cb.value);
@@ -2579,6 +2649,7 @@
     const extraChips = [];
     if(recipeHasPressure(r)) extraChips.push('<span class="view-tag-chip">🍲 Pentola a pressione</span>');
     if(recipeHasRobot(r)) extraChips.push('<span class="view-tag-chip">🤖 Robot da cucina</span>');
+    if(recipeHasAirFryer(r)) extraChips.push('<span class="view-tag-chip">🌀 Friggitrice ad aria</span>');
     if(recipeIsTraditional(r)) extraChips.push('<span class="view-tag-chip">🔥 Tradizionale</span>');
     if(r.cookerType) extraChips.push(`<span class="view-tag-chip">${r.cookerType === 'Elettrica' ? '⚡' : '🔥'} ${escapeHtml(r.cookerType)}</span>`);
     viewTags.innerHTML = (r.tags || []).map(t=>`<span class="view-tag-chip">${escapeHtml(t)}</span>`).join('') + extraChips.join('');
@@ -2809,12 +2880,22 @@
   // di una singola ricetta rispetto a quello dell'intero ricettario) per una ricetta, alle
   // porzioni indicate. Condivisa tra l'esportazione di una singola ricetta e quella di tutto
   // il ricettario, così il contenuto di ciascuna ricetta resta identico nei due casi.
+  function recipeCookingMethodLabel(r){
+    const metodi = [];
+    if(recipeHasRobot(r)) metodi.push('Robot da cucina');
+    if(recipeHasPressure(r)) metodi.push('Pentola a pressione');
+    if(recipeHasAirFryer(r)) metodi.push('Friggitrice ad aria');
+    if(!metodi.length) metodi.push('Tradizionale');
+    return metodi.join(' + ');
+  }
+
   function recipePdfSections(r, servings){
     const scale = servings / (r.servings || 1);
     const metaLine = `${r.category} · ${servings} porzioni${r.time ? ' · circa ' + r.time + ' min' : ''}`;
+    const cotturaLine = `Cottura: ${recipeCookingMethodLabel(r)}`;
     const sections = [{
       heading: null,
-      lines: [metaLine, (r.tags && r.tags.length) ? 'Tag: ' + r.tags.join(', ') : null, (r.allergens && r.allergens.length) ? 'Allergeni: ' + r.allergens.join(', ') : null].filter(Boolean)
+      lines: [metaLine, cotturaLine, (r.tags && r.tags.length) ? 'Tag: ' + r.tags.join(', ') : null, (r.allergens && r.allergens.length) ? 'Allergeni: ' + r.allergens.join(', ') : null].filter(Boolean)
     }];
     sections.push({
       heading: 'Ingredienti',
@@ -2855,26 +2936,238 @@
     downloadPdf(pdfStr, `${safeName}.pdf`);
   });
 
-  // Esporta l'intero ricettario in un solo PDF: un indice con i nomi, poi una ricetta per pagina
-  // (alle sue porzioni base, dato che non si sta guardando una scheda precisa con porzioni
-  // scalate). Le ricette archiviate restano fuori, come dal resto del sito.
+  // Esporta il ricettario (o una selezione di categorie/ricette) in un solo PDF: un indice
+  // raggruppato per categoria, poi una pagina divisoria per ogni categoria e una ricetta per
+  // pagina (alle sue porzioni base, dato che non si sta guardando una scheda precisa con
+  // porzioni scalate). Le ricette archiviate restano sempre fuori, come dal resto del sito.
+  const exportPdfOverlay = document.getElementById('export-pdf-overlay');
+  const exportPdfList = document.getElementById('export-pdf-list');
+  const exportPdfSearch = document.getElementById('export-pdf-search');
+  const exportPdfCount = document.getElementById('export-pdf-count');
+  let exportPdfSelezionate = new Set();
+
+  // Filtri opzionali per restringere l'elenco da cui scegliere (stessa logica delle
+  // ricerca avanzata nella vista Ricettario: metodi e tag in AND, allergeni come esclusione),
+  // ma con uno stato tutto suo, separato da quello della vista principale.
+  let exportPdfPressureOnly = false;
+  let exportPdfRobotOnly = false;
+  let exportPdfAirFryerOnly = false;
+  let exportPdfTraditionalOnly = false;
+  let exportPdfTagFilters = new Set();
+  let exportPdfAllergenExclusions = new Set();
+
+  function resetExportPdfFilters(){
+    exportPdfPressureOnly = exportPdfRobotOnly = exportPdfAirFryerOnly = exportPdfTraditionalOnly = false;
+    exportPdfTagFilters = new Set();
+    exportPdfAllergenExclusions = new Set();
+    [exportPdfPressureBtn, exportPdfRobotBtn, exportPdfAirFryerBtn, exportPdfTraditionalBtn].forEach(b=>b.classList.remove('active'));
+    exportPdfTagRow.querySelectorAll('.tag-filter-chip').forEach(b=>b.classList.remove('active'));
+    exportPdfAllergenRow.querySelectorAll('.tag-filter-chip').forEach(b=>b.classList.remove('active'));
+  }
+
+  // Tutte le ricette esportabili, SENZA i filtri di cottura/tag/allergeni: è l'insieme usato
+  // per generare davvero il PDF e per "Deseleziona tutte", così una selezione fatta prima di
+  // applicare un filtro non viene mai persa silenziosamente alla conferma.
+  function exportPdfRicetteAttive(){
+    return sortRecipes(recipes.filter(r=>!r.archived));
+  }
+
+  // Sottoinsieme filtrato per metodo di cottura/tag/allergeni, usato solo per decidere
+  // cosa mostrare nell'elenco di scelta e cosa selezionare con "Seleziona tutte (visibili)".
+  function exportPdfRicetteFiltrate(){
+    return exportPdfRicetteAttive().filter(r=>{
+      if(exportPdfPressureOnly && !recipeHasPressure(r)) return false;
+      if(exportPdfRobotOnly && !recipeHasRobot(r)) return false;
+      if(exportPdfAirFryerOnly && !recipeHasAirFryer(r)) return false;
+      if(exportPdfTraditionalOnly && !recipeIsTraditional(r)) return false;
+      if(exportPdfTagFilters.size > 0){
+        const rTags = r.tags || [];
+        for(const t of exportPdfTagFilters){ if(!rTags.includes(t)) return false; }
+      }
+      if(exportPdfAllergenExclusions.size > 0){
+        const rAllergens = r.allergens || [];
+        for(const a of exportPdfAllergenExclusions){ if(rAllergens.includes(a)) return false; }
+      }
+      return true;
+    });
+  }
+
+  function renderExportPdfList(filtro){
+    const q = normalize(filtro || '');
+    const active = exportPdfRicetteFiltrate();
+    const categorie = Object.keys(CATEGORY_COLORS);
+    let html = '';
+    categorie.forEach(cat=>{
+      const filtrate = active.filter(r => r.category === cat && (!q || normalize(r.name).includes(q)));
+      if(!filtrate.length) return;
+      const tutteSelezionate = filtrate.every(r => exportPdfSelezionate.has(r.id));
+      html += `
+        <label class="export-pdf-category-header">
+          <input type="checkbox" class="export-pdf-cat-check" data-cat="${escapeAttr(cat)}" ${tutteSelezionate ? 'checked' : ''}>
+          <span class="cat-dot" style="background:${CATEGORY_COLORS[cat]}"></span>
+          <span class="cat-name">${escapeHtml(cat)}</span>
+          <span class="cat-count">${filtrate.length} ricett${filtrate.length === 1 ? 'a' : 'e'}</span>
+        </label>
+        ${filtrate.map(r => `
+          <label class="recipe-picker-item export-pdf-item">
+            <input type="checkbox" class="export-pdf-check" value="${escapeAttr(r.id)}" ${exportPdfSelezionate.has(r.id) ? 'checked' : ''}>
+            <span class="name">${escapeHtml(r.name)}</span>
+          </label>
+        `).join('')}
+      `;
+    });
+    exportPdfList.innerHTML = html || '<div class="recipe-picker-empty">Nessuna ricetta trovata.</div>';
+
+    exportPdfList.querySelectorAll('.export-pdf-check').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        if(cb.checked) exportPdfSelezionate.add(cb.value); else exportPdfSelezionate.delete(cb.value);
+        aggiornaContatoreExportPdf();
+        renderExportPdfList(exportPdfSearch.value);
+      });
+    });
+    exportPdfList.querySelectorAll('.export-pdf-cat-check').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        const cat = cb.dataset.cat;
+        const filtrate = active.filter(r => r.category === cat && (!q || normalize(r.name).includes(q)));
+        if(cb.checked) filtrate.forEach(r => exportPdfSelezionate.add(r.id));
+        else filtrate.forEach(r => exportPdfSelezionate.delete(r.id));
+        aggiornaContatoreExportPdf();
+        renderExportPdfList(exportPdfSearch.value);
+      });
+    });
+  }
+
+  function aggiornaContatoreExportPdf(){
+    const n = exportPdfSelezionate.size;
+    exportPdfCount.textContent = n === 0 ? 'Nessuna ricetta selezionata' : `${n} ricett${n === 1 ? 'a' : 'e'} selezionat${n === 1 ? 'a' : 'e'}`;
+  }
+
+  const exportPdfFiltersToggle = document.getElementById('export-pdf-filters-toggle');
+  const exportPdfFiltersPanel = document.getElementById('export-pdf-filters-panel');
+  const exportPdfPressureBtn = document.getElementById('export-pdf-pressure-btn');
+  const exportPdfRobotBtn = document.getElementById('export-pdf-robot-btn');
+  const exportPdfAirFryerBtn = document.getElementById('export-pdf-airfryer-btn');
+  const exportPdfTraditionalBtn = document.getElementById('export-pdf-traditional-btn');
+  const exportPdfTagRow = document.getElementById('export-pdf-tag-row');
+  const exportPdfAllergenRow = document.getElementById('export-pdf-allergen-row');
+
+  exportPdfTagRow.innerHTML = TAG_OPTIONS.map(t=>`<button type="button" class="tag-filter-chip" data-tag="${escapeAttr(t)}">${escapeHtml(t)}</button>`).join('');
+  exportPdfAllergenRow.innerHTML = ALLERGEN_OPTIONS.map(t=>`<button type="button" class="tag-filter-chip" data-allergen="${escapeAttr(t)}">${escapeHtml(t)}</button>`).join('');
+
+  exportPdfFiltersToggle.addEventListener('click', ()=>{
+    const aperto = exportPdfFiltersPanel.style.display !== 'none';
+    exportPdfFiltersPanel.style.display = aperto ? 'none' : 'block';
+    exportPdfFiltersToggle.textContent = aperto ? '🔍 Filtra per cottura, tag o allergeni ▾' : '🔍 Filtra per cottura, tag o allergeni ▴';
+  });
+  exportPdfPressureBtn.addEventListener('click', ()=>{
+    exportPdfPressureOnly = !exportPdfPressureOnly;
+    exportPdfPressureBtn.classList.toggle('active', exportPdfPressureOnly);
+    renderExportPdfList(exportPdfSearch.value);
+  });
+  exportPdfRobotBtn.addEventListener('click', ()=>{
+    exportPdfRobotOnly = !exportPdfRobotOnly;
+    exportPdfRobotBtn.classList.toggle('active', exportPdfRobotOnly);
+    renderExportPdfList(exportPdfSearch.value);
+  });
+  exportPdfAirFryerBtn.addEventListener('click', ()=>{
+    exportPdfAirFryerOnly = !exportPdfAirFryerOnly;
+    exportPdfAirFryerBtn.classList.toggle('active', exportPdfAirFryerOnly);
+    renderExportPdfList(exportPdfSearch.value);
+  });
+  exportPdfTraditionalBtn.addEventListener('click', ()=>{
+    exportPdfTraditionalOnly = !exportPdfTraditionalOnly;
+    exportPdfTraditionalBtn.classList.toggle('active', exportPdfTraditionalOnly);
+    renderExportPdfList(exportPdfSearch.value);
+  });
+  exportPdfTagRow.querySelectorAll('.tag-filter-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const t = btn.dataset.tag;
+      if(exportPdfTagFilters.has(t)) exportPdfTagFilters.delete(t); else exportPdfTagFilters.add(t);
+      btn.classList.toggle('active', exportPdfTagFilters.has(t));
+      renderExportPdfList(exportPdfSearch.value);
+    });
+  });
+  exportPdfAllergenRow.querySelectorAll('.tag-filter-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const a = btn.dataset.allergen;
+      if(exportPdfAllergenExclusions.has(a)) exportPdfAllergenExclusions.delete(a); else exportPdfAllergenExclusions.add(a);
+      btn.classList.toggle('active', exportPdfAllergenExclusions.has(a));
+      renderExportPdfList(exportPdfSearch.value);
+    });
+  });
+  document.getElementById('export-pdf-filters-clear-btn').addEventListener('click', ()=>{
+    resetExportPdfFilters();
+    renderExportPdfList(exportPdfSearch.value);
+  });
+
   document.getElementById('export-all-pdf-btn').addEventListener('click', ()=>{
-    const active = sortRecipes(recipes.filter(r=>!r.archived));
+    const active = exportPdfRicetteAttive();
     if(!active.length){
       alert('Non hai ancora nessuna ricetta da esportare (quelle archiviate restano escluse).');
       return;
     }
-    const sections = [{
-      heading: 'Indice',
-      lines: active.map(r=>`- ${r.name}`)
-    }];
-    active.forEach(r=>{
-      const recipeSections = recipePdfSections(r, r.servings || 1);
-      recipeSections[0] = { ...recipeSections[0], heading: r.name, headingSize: 16, pageBreakBefore: true };
-      sections.push(...recipeSections);
+    exportPdfSelezionate = new Set(active.map(r=>r.id)); // di default parte con tutto selezionato
+    exportPdfSearch.value = '';
+    resetExportPdfFilters();
+    exportPdfFiltersPanel.style.display = 'none';
+    exportPdfFiltersToggle.textContent = '🔍 Filtra per cottura, tag o allergeni ▾';
+    renderExportPdfList('');
+    aggiornaContatoreExportPdf();
+    exportPdfOverlay.classList.add('active');
+  });
+  document.getElementById('export-pdf-close').addEventListener('click', ()=> exportPdfOverlay.classList.remove('active'));
+  exportPdfSearch.addEventListener('input', ()=> renderExportPdfList(exportPdfSearch.value));
+  document.getElementById('export-pdf-all-btn').addEventListener('click', ()=>{
+    // Seleziona solo le ricette attualmente visibili (dopo filtri e ricerca), non tutto il ricettario.
+    const q = normalize(exportPdfSearch.value || '');
+    exportPdfRicetteFiltrate().filter(r => !q || normalize(r.name).includes(q)).forEach(r => exportPdfSelezionate.add(r.id));
+    aggiornaContatoreExportPdf();
+    renderExportPdfList(exportPdfSearch.value);
+  });
+  document.getElementById('export-pdf-none-btn').addEventListener('click', ()=>{
+    exportPdfSelezionate.clear();
+    aggiornaContatoreExportPdf();
+    renderExportPdfList(exportPdfSearch.value);
+  });
+
+  document.getElementById('export-pdf-confirm-btn').addEventListener('click', ()=>{
+    const active = exportPdfRicetteAttive();
+    const selezionate = active.filter(r => exportPdfSelezionate.has(r.id));
+    if(!selezionate.length){
+      alert('Seleziona almeno una ricetta da esportare.');
+      return;
+    }
+    const categorie = Object.keys(CATEGORY_COLORS).filter(cat => selezionate.some(r => r.category === cat));
+
+    const indiceLines = [];
+    categorie.forEach(cat=>{
+      indiceLines.push(cat);
+      selezionate.filter(r => r.category === cat).forEach(r => indiceLines.push(`- ${r.name}`));
     });
+    const sections = [{ heading: 'Indice', lines: indiceLines }];
+
+    categorie.forEach(cat=>{
+      const ricetteCategoria = selezionate.filter(r => r.category === cat);
+      sections.push({
+        heading: cat,
+        headingSize: 20,
+        pageBreakBefore: true,
+        lines: [`${ricetteCategoria.length} ricett${ricetteCategoria.length === 1 ? 'a' : 'e'}`]
+      });
+      ricetteCategoria.forEach(r=>{
+        const recipeSections = recipePdfSections(r, r.servings || 1);
+        recipeSections[0] = { ...recipeSections[0], heading: r.name, headingSize: 16, pageBreakBefore: true };
+        sections.push(...recipeSections);
+      });
+    });
+
+    const tutte = selezionate.length === active.length;
     const pdfStr = buildPdfFromSections('Il Mio Ricettario', sections);
-    downloadPdf(pdfStr, `ricettario-completo-${new Date().toISOString().slice(0,10)}.pdf`);
+    const filename = tutte
+      ? `ricettario-completo-${new Date().toISOString().slice(0,10)}.pdf`
+      : `ricettario-selezione-${new Date().toISOString().slice(0,10)}.pdf`;
+    downloadPdf(pdfStr, filename);
+    exportPdfOverlay.classList.remove('active');
   });
 
   document.getElementById('export-recipe-json-btn').addEventListener('click', ()=>{
@@ -2956,7 +3249,7 @@
     }
     const r = recipes.find(x=>x.id === e.recipeId);
     if(!r || !r.nutrizioneUtente) return null;
-    const fattore = planServings; // quante porzioni si stanno pianificando questa settimana
+    const fattore = e.servings || planServings; // porzioni di questo pasto, o il valore generale della settimana se non personalizzato
     const risultato = {};
     let almenoUno = false;
     for(const [k, v] of Object.entries(r.nutrizioneUtente)){
@@ -2964,6 +3257,23 @@
       else{ risultato[k] = null; }
     }
     return almenoUno ? risultato : null;
+  }
+
+  /** Porzioni effettive di un pasto pianificato: quelle personalizzate per
+   * quel pasto se presenti, altrimenti il valore generale della settimana
+   * impostato in alto nella pianificazione. */
+  function entryServings(e){
+    return e.servings || planServings;
+  }
+
+  /** Collega una voce pianificata (entry) alla sua ricetta e calcola il
+   * fattore di scala ingredienti/porzioni da usare per la lista della spesa
+   * e per i PDF, tenendo conto delle porzioni personalizzate per quel
+   * pasto. Ritorna null se la ricetta collegata non esiste più. */
+  function entryRecipePair(e){
+    const r = recipes.find(x=>x.id === e.recipeId);
+    if(!r) return null;
+    return { recipe: r, scale: entryServings(e) / (r.servings || 1), entry: e };
   }
 
   /** Somma una lista di oggetti nutrizionali (uscita di nutrizionePerEntry,
@@ -3056,11 +3366,10 @@
   function computeWeekPlanData(){
     const days = DAYS.map(day=>{
       const entries = (weekPlan[day] || []).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
-      return { day, entries: entries.map(e=>({ time: e.time || '', mealType: e.mealType, name: planEntryName(e) })) };
+      return { day, entries: entries.map(e=>({ time: e.time || '', mealType: e.mealType, name: planEntryName(e), servings: entryServings(e) })) };
     });
     const allEntries = DAYS.flatMap(day => weekPlan[day] || []);
-    const plannedRecipes = allEntries.map(e=>recipes.find(r=>r.id===e.recipeId)).filter(Boolean);
-    const pairs = plannedRecipes.map(r=>({ recipe: r, scale: planServings / (r.servings || 1) }));
+    const pairs = allEntries.map(entryRecipePair).filter(Boolean);
     const shoppingItems = buildAggregatedShoppingItems(pairs);
     return { days, shoppingItems };
   }
@@ -3069,7 +3378,12 @@
     return `${i.name}${i.qty ? ' — ' + formatQtyForUnit(i.qty, i.unit) : ''}${i.unit ? ' ' + i.unit : ''}`;
   }
 
-  // ---------- Generatore PDF minimale (solo testo, multipagina, nessuna libreria esterna) ----------
+  // ---------- Generatore PDF minimale (testo + un piccolo logo in calce a ogni pagina, nessuna libreria esterna) ----------
+  // Logo "Clan Destino" (JPEG 140x140, sfondo bianco) incorporato come base64: nessun file
+  // esterno da scaricare al volo, il PDF resta generabile offline come il resto del sito.
+  const PDF_LOGO_JPEG_B64 = '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';
+  const PDF_LOGO_W = 140, PDF_LOGO_H = 140;
+
   function pdfSanitizeText(str){
     const map = {'’':"'", '‘':"'", '“':'"', '”':'"', '–':'-', '—':'-', '…':'...', '☐':'-'};
     let out = '';
@@ -3176,6 +3490,7 @@
 
     const fontObjId = 3, pagesObjId = 2, catalogObjId = 1;
     let objId = 4;
+    const logoObjId = objId++;
     const pageObjIds = [], contentObjIds = [];
     pages.forEach(()=>{ pageObjIds.push(objId++); contentObjIds.push(objId++); });
 
@@ -3183,16 +3498,36 @@
     objects[catalogObjId] = `<< /Type /Catalog /Pages ${pagesObjId} 0 R >>`;
     objects[pagesObjId] = `<< /Type /Pages /Kids [${pageObjIds.map(n=>n+' 0 R').join(' ')}] /Count ${pages.length} >>`;
     objects[fontObjId] = `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>`;
+    // Logo incorporato come immagine JPEG grezza (filtro DCTDecode: i byte del file restano
+    // quelli, nessuna ricompressione) — atob() restituisce già una "stringa binaria" con un
+    // carattere per byte, lo stesso formato che downloadPdf si aspetta per l'intero PDF.
+    objects[logoObjId] = {
+      isStream: true,
+      extra: `/Type /XObject /Subtype /Image /Width ${PDF_LOGO_W} /Height ${PDF_LOGO_H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode`,
+      data: atob(PDF_LOGO_JPEG_B64)
+    };
 
     pages.forEach((pageCmds, i)=>{
       const pageId = pageObjIds[i], contentId = contentObjIds[i];
-      objects[pageId] = `<< /Type /Page /Parent ${pagesObjId} 0 R /Resources << /Font << /F1 ${fontObjId} 0 R >> >> /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Contents ${contentId} 0 R >>`;
+      objects[pageId] = `<< /Type /Page /Parent ${pagesObjId} 0 R /Resources << /Font << /F1 ${fontObjId} 0 R >> /XObject << /LogoCD ${logoObjId} 0 R >> >> /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Contents ${contentId} 0 R >>`;
       const streamLines = ['BT'];
       pageCmds.forEach(c=>{
         streamLines.push(`/F1 ${c.size} Tf`);
         streamLines.push(`1 0 0 1 ${(c.x !== undefined ? c.x : MARGIN_X).toFixed(2)} ${c.y.toFixed(2)} Tm`);
         streamLines.push(`(${pdfSanitizeText(c.text)}) Tj`);
       });
+      streamLines.push('ET');
+      // Logo "Clan Destino" + firma dell'autore in calce, identici su ogni pagina (il disegno
+      // di un'immagine con l'operatore "Do" deve stare fuori dal blocco di testo BT/ET).
+      const footerSize = 20, footerX = MARGIN_X, footerY = 20;
+      streamLines.push('q');
+      streamLines.push(`${footerSize} 0 0 ${footerSize} ${footerX} ${footerY} cm`);
+      streamLines.push('/LogoCD Do');
+      streamLines.push('Q');
+      streamLines.push('BT');
+      streamLines.push('/F1 7.5 Tf');
+      streamLines.push(`1 0 0 1 ${(footerX + footerSize + 6).toFixed(2)} ${(footerY + footerSize / 2 - 3).toFixed(2)} Tm`);
+      streamLines.push(`(${pdfSanitizeText('Clan Destino - Giampiero Santoro')}) Tj`);
       streamLines.push('ET');
       objects[contentId] = { isStream:true, data: streamLines.join('\n') };
     });
@@ -3207,7 +3542,8 @@
       if(typeof obj === 'string'){
         out += `${n} 0 obj\n${obj}\nendobj\n`;
       }else if(obj.isStream){
-        out += `${n} 0 obj\n<< /Length ${obj.data.length} >>\nstream\n${obj.data}\nendstream\nendobj\n`;
+        const dict = obj.extra ? `<< ${obj.extra} /Length ${obj.data.length} >>` : `<< /Length ${obj.data.length} >>`;
+        out += `${n} 0 obj\n${dict}\nstream\n${obj.data}\nendstream\nendobj\n`;
       }
     }
     const xrefStart = out.length;
@@ -3274,7 +3610,7 @@
     const sections = [{ heading: `Per ${planServings} persone`, lines: [] }];
     days.forEach(({day, entries})=>{
       const lines = entries.length
-        ? entries.map(e => `${e.time ? e.time + ' — ' : ''}${e.mealType}: ${e.name}`)
+        ? entries.map(e => `${e.time ? e.time + ' — ' : ''}${e.mealType}: ${e.name}${e.servings !== planServings ? ` (${e.servings} porzioni)` : ''}`)
         : ['Nessuna ricetta'];
       sections.push({ heading: day, lines });
     });
@@ -3426,14 +3762,26 @@
     if(s.vel) parts.push(`vel ${s.vel}`);
     if(s.temp) parts.push(`${s.temp}°C`);
     if(s.mode && s.mode !== 'Normale') parts.push(s.mode);
+    if(s.airFryerTemp) parts.push(`friggitrice ad aria ${s.airFryerTemp}°C${s.airFryerPreheat ? ', preriscaldata' : ''}`);
+    else if(s.airFryerPreheat) parts.push('friggitrice ad aria preriscaldata');
     return parts.length ? `${s.text} (${parts.join(', ')})` : s.text;
   }
   function csvStepTextToStep(raw){
     const m = /^(.*?)\s*\(([^()]*)\)\s*$/.exec(raw.trim());
     let text = raw.trim(), timeVal = '', velVal = '', tempVal = '', modeVal = 'Normale';
+    let airFryerTempVal = '', airFryerPreheatVal = false;
     if(m){
       text = m[1].trim();
-      const inner = m[2];
+      let inner = m[2];
+      // La parte "friggitrice ad aria …" va estratta e tolta dal resto PRIMA delle
+      // altre regex: altrimenti la sua temperatura verrebbe scambiata per quella
+      // del robot da cucina (entrambe scritte come "NNN°C" nello stesso testo).
+      const airFryerMatch = /friggitrice ad aria(?:\s+([\d.,]+)\s*°?C)?(,?\s*preriscaldata)?/i.exec(inner);
+      if(airFryerMatch){
+        if(airFryerMatch[1]) airFryerTempVal = airFryerMatch[1].replace(',','.');
+        if(airFryerMatch[2]) airFryerPreheatVal = true;
+        inner = inner.slice(0, airFryerMatch.index) + inner.slice(airFryerMatch.index + airFryerMatch[0].length);
+      }
       const timeMatch = /([\d.,]+)\s*min/i.exec(inner);
       if(timeMatch) timeVal = timeMatch[1].replace(',','.');
       const velMatch = /vel\.?\s*([\d.,]+)/i.exec(inner);
@@ -3443,7 +3791,7 @@
       const modeMatch = /(Reverse|Turbo|Vapore|Normale)/i.exec(inner);
       if(modeMatch) modeVal = modeMatch[1][0].toUpperCase() + modeMatch[1].slice(1).toLowerCase();
     }
-    return {text, vel:velVal, temp:tempVal, time:timeVal, mode:modeVal};
+    return {text, vel:velVal, temp:tempVal, time:timeVal, mode:modeVal, airFryerTemp:airFryerTempVal, airFryerPreheat:airFryerPreheatVal};
   }
 
   document.getElementById('export-csv-btn').addEventListener('click', ()=>{
@@ -3897,6 +4245,263 @@
     return DAYS[jsDay === 0 ? 6 : jsDay - 1];
   }
 
+  // ---------- Meteo (vista "Oggi") ----------
+  // Fonte dati: Open-Meteo (open-meteo.com), un servizio gratuito che non richiede
+  // chiave API e che aggrega le previsioni dei servizi meteorologici nazionali
+  // ufficiali (per l'Italia, in buona parte dati del DWD/ECMWF e di ICON — lo stesso
+  // tipo di modelli usati dai siti meteo "seri"), quindi affidabile e senza account.
+  // Nessun dato dell'utente viene inviato: solo latitudine/longitudine della
+  // località scelta.
+  const WMO_WEATHER_MAP = {
+    0: { icon: '☀️', label: 'Cielo sereno' },
+    1: { icon: '🌤️', label: 'Prevalentemente sereno' },
+    2: { icon: '⛅', label: 'Parzialmente nuvoloso' },
+    3: { icon: '☁️', label: 'Coperto' },
+    45: { icon: '🌫️', label: 'Nebbia' },
+    48: { icon: '🌫️', label: 'Nebbia con brina' },
+    51: { icon: '🌦️', label: 'Pioggerella leggera' },
+    53: { icon: '🌦️', label: 'Pioggerella moderata' },
+    55: { icon: '🌧️', label: 'Pioggerella intensa' },
+    56: { icon: '🌧️', label: 'Pioggerella gelata leggera' },
+    57: { icon: '🌧️', label: 'Pioggerella gelata intensa' },
+    61: { icon: '🌦️', label: 'Pioggia debole' },
+    63: { icon: '🌧️', label: 'Pioggia moderata' },
+    65: { icon: '🌧️', label: 'Pioggia forte' },
+    66: { icon: '🌧️', label: 'Pioggia gelata debole' },
+    67: { icon: '🌧️', label: 'Pioggia gelata forte' },
+    71: { icon: '🌨️', label: 'Neve debole' },
+    73: { icon: '🌨️', label: 'Neve moderata' },
+    75: { icon: '❄️', label: 'Neve forte' },
+    77: { icon: '❄️', label: 'Granelli di neve' },
+    80: { icon: '🌦️', label: 'Rovesci di pioggia deboli' },
+    81: { icon: '🌧️', label: 'Rovesci di pioggia moderati' },
+    82: { icon: '⛈️', label: 'Rovesci di pioggia violenti' },
+    85: { icon: '🌨️', label: 'Rovesci di neve deboli' },
+    86: { icon: '❄️', label: 'Rovesci di neve forti' },
+    95: { icon: '⛈️', label: 'Temporale' },
+    96: { icon: '⛈️', label: 'Temporale con grandine debole' },
+    99: { icon: '⛈️', label: 'Temporale con grandine forte' },
+  };
+  function meteoDaCodice(code){
+    return WMO_WEATHER_MAP[code] || { icon: '🌡️', label: 'Condizioni non disponibili' };
+  }
+
+  function loadWeatherLocation(){
+    try{
+      const raw = localStorage.getItem(WEATHER_LOCATION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(err){ return null; }
+  }
+  function saveWeatherLocation(loc){
+    safeStorageSet(WEATHER_LOCATION_KEY, JSON.stringify(loc));
+  }
+  function clearWeatherLocation(){
+    try{ localStorage.removeItem(WEATHER_LOCATION_KEY); }catch(err){}
+    try{ localStorage.removeItem(WEATHER_CACHE_KEY); }catch(err){}
+  }
+  function loadWeatherCache(){
+    try{
+      const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(err){ return null; }
+  }
+  function saveWeatherCache(cache){
+    safeStorageSet(WEATHER_CACHE_KEY, JSON.stringify(cache));
+  }
+
+  const WEATHER_CACHE_MINUTI = 30;
+
+  // Interroga il geocoder di Open-Meteo per trasformare un nome di città nelle
+  // coordinate necessarie alla richiesta meteo. Nessuna chiave richiesta.
+  async function cercaLocalitaMeteo(nome){
+    const q = (nome || '').trim();
+    if(q.length < 2) return [];
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=it&format=json`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(`Geocoding non raggiungibile (${res.status})`);
+    const data = await res.json();
+    return (data.results || []).map(r => ({
+      nome: r.name,
+      admin1: r.admin1 || '',
+      paese: r.country || '',
+      lat: r.latitude,
+      lon: r.longitude,
+    }));
+  }
+
+  async function scaricaMeteo(lat, lon){
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+      `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max` +
+      `&timezone=auto&forecast_days=1`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(`Servizio meteo non raggiungibile (${res.status})`);
+    const data = await res.json();
+    return {
+      temp: data.current?.temperature_2m,
+      umidita: data.current?.relative_humidity_2m,
+      vento: data.current?.wind_speed_10m,
+      codice: data.current?.weather_code,
+      max: data.daily?.temperature_2m_max?.[0],
+      min: data.daily?.temperature_2m_min?.[0],
+      pioggiaProb: data.daily?.precipitation_probability_max?.[0],
+      aggiornatoIl: Date.now(),
+    };
+  }
+
+  function weatherCardHtml({ stato, localita, dati, errore }){
+    if(stato === 'senza-localita'){
+      return `
+        <h3><span class="today-icon">⛅</span> Meteo</h3>
+        <p class="today-empty">Imposta una località per vedere le previsioni di oggi.</p>
+        <div class="today-weather-setup">
+          <button type="button" class="btn-ghost btn-small" id="weather-geo-btn">📍 Usa la mia posizione</button>
+          <div class="today-weather-search">
+            <input type="text" id="weather-city-input" placeholder="…oppure cerca una città">
+            <button type="button" class="btn-ghost btn-small" id="weather-city-search-btn">Cerca</button>
+          </div>
+          <div id="weather-city-results" class="today-weather-results"></div>
+        </div>
+        <p class="nutrition-note">Dati forniti da Open-Meteo, gratuito e senza registrazione.</p>
+      `;
+    }
+    if(stato === 'caricamento'){
+      return `
+        <h3><span class="today-icon">⛅</span> Meteo</h3>
+        <p class="today-empty">Caricamento previsioni${localita ? ` per ${escapeHtml(localita.nome)}` : ''}…</p>
+      `;
+    }
+    if(stato === 'errore'){
+      return `
+        <h3><span class="today-icon">⛅</span> Meteo</h3>
+        <p class="today-empty">${escapeHtml(errore || 'Meteo non disponibile al momento.')}</p>
+        <div class="today-actions">
+          <button type="button" class="btn-ghost btn-small" id="weather-retry-btn">🔄 Riprova</button>
+          <button type="button" class="btn-ghost btn-small" id="weather-change-btn">📍 Cambia località</button>
+        </div>
+      `;
+    }
+    // stato === 'ok'
+    const m = meteoDaCodice(dati.codice);
+    const ora = new Date(dati.aggiornatoIl).toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+    const localitaLabel = [localita.nome, localita.admin1].filter(Boolean).join(', ');
+    return `
+      <h3><span class="today-icon">${m.icon}</span> Meteo a ${escapeHtml(localitaLabel)}</h3>
+      <div class="today-weather-main">
+        <span class="today-weather-temp">${Math.round(dati.temp)}°</span>
+        <div class="today-weather-desc">
+          <div>${m.label}</div>
+          <div class="today-meal">Min ${Math.round(dati.min)}° · Max ${Math.round(dati.max)}°</div>
+        </div>
+      </div>
+      <div class="today-meal">💧 Umidità ${Math.round(dati.umidita)}% · 🌬 Vento ${Math.round(dati.vento)} km/h${dati.pioggiaProb !== undefined && dati.pioggiaProb !== null ? ` · ☔ ${Math.round(dati.pioggiaProb)}% probabilità pioggia` : ''}</div>
+      <div class="today-actions">
+        <button type="button" class="btn-ghost btn-small" id="weather-retry-btn">🔄 Aggiornato alle ${ora}</button>
+        <button type="button" class="btn-ghost btn-small" id="weather-change-btn">📍 Cambia località</button>
+      </div>
+      <p class="nutrition-note">Dati: Open-Meteo.</p>
+    `;
+  }
+
+  function renderWeatherResults(container, risultati, onScegli){
+    if(!risultati.length){
+      container.innerHTML = '<p class="today-empty">Nessuna località trovata. Prova con un altro nome.</p>';
+      return;
+    }
+    container.innerHTML = risultati.map((r, idx) => `
+      <button type="button" class="recipe-picker-item today-weather-result-item" data-idx="${idx}">
+        <span class="name">${escapeHtml(r.nome)}</span>
+        <span class="meta">${escapeHtml([r.admin1, r.paese].filter(Boolean).join(', '))}</span>
+      </button>
+    `).join('');
+    container.querySelectorAll('.today-weather-result-item').forEach(btn=>{
+      btn.addEventListener('click', ()=> onScegli(risultati[parseInt(btn.dataset.idx, 10)]));
+    });
+  }
+
+  async function caricaEMostraMeteo(cardEl, localita, forzaRicarica){
+    cardEl.innerHTML = weatherCardHtml({ stato: 'caricamento', localita });
+    const cache = !forzaRicarica && loadWeatherCache();
+    const cacheValida = cache && cache.lat === localita.lat && cache.lon === localita.lon
+      && (Date.now() - cache.dati.aggiornatoIl) < WEATHER_CACHE_MINUTI * 60 * 1000;
+    try{
+      const dati = cacheValida ? cache.dati : await scaricaMeteo(localita.lat, localita.lon);
+      if(!cacheValida) saveWeatherCache({ lat: localita.lat, lon: localita.lon, dati });
+      cardEl.innerHTML = weatherCardHtml({ stato: 'ok', localita, dati });
+      collegaAzioniWeatherCard(cardEl, localita);
+    }catch(err){
+      cardEl.innerHTML = weatherCardHtml({ stato: 'errore', localita, errore: 'Meteo non disponibile al momento: verifica la connessione e riprova.' });
+      collegaAzioniWeatherCard(cardEl, localita);
+    }
+  }
+
+  function collegaAzioniWeatherCard(cardEl, localita){
+    const retryBtn = cardEl.querySelector('#weather-retry-btn');
+    if(retryBtn) retryBtn.addEventListener('click', ()=> caricaEMostraMeteo(cardEl, localita, true));
+    const changeBtn = cardEl.querySelector('#weather-change-btn');
+    if(changeBtn) changeBtn.addEventListener('click', ()=>{
+      clearWeatherLocation();
+      cardEl.innerHTML = weatherCardHtml({ stato: 'senza-localita' });
+      collegaSetupWeatherCard(cardEl);
+    });
+  }
+
+  function collegaSetupWeatherCard(cardEl){
+    const geoBtn = cardEl.querySelector('#weather-geo-btn');
+    const cityInput = cardEl.querySelector('#weather-city-input');
+    const searchBtn = cardEl.querySelector('#weather-city-search-btn');
+    const resultsEl = cardEl.querySelector('#weather-city-results');
+
+    function sceltaLocalita(loc){
+      saveWeatherLocation(loc);
+      caricaEMostraMeteo(cardEl, loc, true);
+    }
+
+    if(geoBtn) geoBtn.addEventListener('click', ()=>{
+      if(!navigator.geolocation){
+        resultsEl.innerHTML = '<p class="today-empty">Geolocalizzazione non supportata da questo browser: usa la ricerca per città.</p>';
+        return;
+      }
+      geoBtn.disabled = true;
+      geoBtn.textContent = 'Individuazione in corso…';
+      navigator.geolocation.getCurrentPosition(
+        pos => sceltaLocalita({ nome: 'La tua posizione', admin1: '', lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        () => {
+          geoBtn.disabled = false;
+          geoBtn.textContent = '📍 Usa la mia posizione';
+          resultsEl.innerHTML = '<p class="today-empty">Posizione non disponibile (permesso negato o non supportata): usa la ricerca per città qui sotto.</p>';
+        },
+        { timeout: 10000 }
+      );
+    });
+
+    async function esegueRicercaCitta(){
+      const q = cityInput.value;
+      if(q.trim().length < 2) return;
+      resultsEl.innerHTML = '<p class="today-empty">Ricerca in corso…</p>';
+      try{
+        const risultati = await cercaLocalitaMeteo(q);
+        renderWeatherResults(resultsEl, risultati, sceltaLocalita);
+      }catch(err){
+        resultsEl.innerHTML = '<p class="today-empty">Ricerca non riuscita: verifica la connessione e riprova.</p>';
+      }
+    }
+    if(searchBtn) searchBtn.addEventListener('click', esegueRicercaCitta);
+    if(cityInput) cityInput.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); esegueRicercaCitta(); } });
+  }
+
+  function initWeatherCard(){
+    const cardEl = document.getElementById('today-weather-card');
+    if(!cardEl) return;
+    const localita = loadWeatherLocation();
+    if(localita){
+      caricaEMostraMeteo(cardEl, localita, false);
+    }else{
+      cardEl.innerHTML = weatherCardHtml({ stato: 'senza-localita' });
+      collegaSetupWeatherCard(cardEl);
+    }
+  }
+
   function renderToday(){
     aggiornaTopbarAlerts();
     const content = document.getElementById('today-content');
@@ -3908,19 +4513,32 @@
       .filter(it => it.expiry && it.expiry >= today && it.expiry <= soonLimit)
       .sort((a,b)=>a.expiry.localeCompare(b.expiry));
     const weekEntries = DAYS.flatMap(d=>weekPlan[d] || []);
-    const plannedRecipes = weekEntries.map(e=>recipes.find(r=>r.id===e.recipeId)).filter(Boolean);
     const shoppingCount = buildAggregatedShoppingItems(
-      plannedRecipes.map(r=>({recipe:r, scale:planServings / (r.servings || 1)}))
+      weekEntries.map(entryRecipePair).filter(Boolean)
     ).length;
     const dateLabel = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
     const mealsHtml = entries.length ? entries.map(e=>{
       const name = escapeHtml(planEntryName(e));
       return `<li><span class="today-time">${escapeHtml(e.time || '—')}</span><b>${name}</b> <span class="today-meal">· ${escapeHtml(e.mealType || 'Pasto')}</span></li>`;
     }).join('') : '<p class="today-empty">Nessun pasto pianificato per oggi.</p>';
-    const expiryHtml = expiring.length ? expiring.slice(0,4).map(it=>{
-      const date = new Date(it.expiry + 'T00:00:00').toLocaleDateString('it-IT', {day:'numeric', month:'short'});
-      return `<li><b>${escapeHtml(it.name)}</b> <span class="today-expiry-soon">· scade ${date}</span></li>`;
-    }).join('') : '<p class="today-empty">Nessun prodotto in scadenza nei prossimi 3 giorni.</p>';
+    const MAX_SCADENZE_MOSTRATE = 4;
+    const expiryHtml = expiring.length ? [
+      expiring.slice(0, MAX_SCADENZE_MOSTRATE).map(it=>{
+        const date = new Date(it.expiry + 'T00:00:00').toLocaleDateString('it-IT', {day:'numeric', month:'short'});
+        const giorni = Math.round((new Date(it.expiry + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
+        const quando = giorni <= 0 ? 'Scade oggi' : giorni === 1 ? 'Scade domani' : `Scade tra ${giorni} giorni`;
+        const urgente = giorni <= 1;
+        const qtyLabel = (it.qty || it.unit) ? ` · ${`${it.qty ? roundNice(it.qty) : ''} ${escapeHtml(it.unit||'')}`.trim()}` : '';
+        return `<li>
+          <span class="cat-dot" style="background:${PANTRY_CATEGORY_COLORS[it.category] || '#8c6a2f'}"></span>
+          <b>${escapeHtml(it.name)}</b>${qtyLabel}
+          <span class="${urgente ? 'today-expiry-urgent' : 'today-expiry-soon'}"> · ${quando} (${date})</span>
+        </li>`;
+      }).join(''),
+      expiring.length > MAX_SCADENZE_MOSTRATE
+        ? `<li class="today-expiry-more">+ altri ${expiring.length - MAX_SCADENZE_MOSTRATE} prodotti in scadenza entro 3 giorni</li>`
+        : ''
+    ].join('') : '<p class="today-empty">Nessun prodotto in scadenza nei prossimi 3 giorni.</p>';
     const shoppingText = shoppingCount
       ? `${shoppingCount} voci da verificare per i pasti pianificati.`
       : (shoppingExtraItems.length ? `${shoppingExtraItems.length} promemoria dalla Dispensa.` : 'Nessuna lista della spesa da preparare.');
@@ -3930,8 +4548,9 @@
         <button type="button" class="btn-gold" id="today-plan-btn">📅 Organizza la settimana</button>
       </div>
       <div class="today-grid">
+        <section class="today-card today-weather-card" id="today-weather-card"></section>
         <section class="today-card"><h3><span class="today-icon">🍽</span> I pasti di oggi</h3><ul class="today-list">${mealsHtml}</ul><div class="today-actions"><button type="button" class="btn-ghost btn-small" id="today-meals-btn">Apri pianificazione</button></div></section>
-        <section class="today-card"><h3><span class="today-icon">🥫</span> Da consumare prima</h3><ul class="today-list">${expiryHtml}</ul><div class="today-actions"><button type="button" class="btn-ghost btn-small" id="today-expiry-btn">Apri Dispensa</button></div></section>
+        <section class="today-card"><h3><span class="today-icon">🥫</span> Da consumare prima</h3><ul class="today-list">${expiryHtml}</ul><div class="today-actions"><button type="button" class="btn-ghost btn-small" id="today-expiry-btn">Apri Dispensa</button>${expiring.length ? `<button type="button" class="btn-ghost btn-small" id="today-expiry-recipes-btn">🧑‍🍳 Trova ricette</button>` : ''}</div></section>
         <section class="today-card"><h3><span class="today-icon">🛒</span> Lista della spesa</h3><p class="today-empty">${escapeHtml(shoppingText)}</p><div class="today-actions"><button type="button" class="btn-ghost btn-small" id="today-shopping-btn">Apri lista</button><button type="button" class="btn-ghost btn-small" id="today-recipes-btn">Cerca ricette</button></div></section>
       </div>
       <div class="today-quick-grid">
@@ -3951,12 +4570,17 @@
     document.getElementById('today-plan-btn').addEventListener('click', ()=>switchView('planning'));
     document.getElementById('today-meals-btn').addEventListener('click', ()=>switchView('planning'));
     document.getElementById('today-expiry-btn').addEventListener('click', ()=>switchView('dispensa'));
+    const todayExpiryRecipesBtn = document.getElementById('today-expiry-recipes-btn');
+    if(todayExpiryRecipesBtn) todayExpiryRecipesBtn.addEventListener('click', ()=>{
+      attivaRicercaConScadenza(expiring.map(it=>it.name));
+    });
     document.getElementById('today-recipes-btn').addEventListener('click', ()=>switchView('recipes'));
     document.getElementById('today-shopping-btn').addEventListener('click', ()=>document.getElementById('generate-shopping-btn').click());
     document.getElementById('today-quick-pantry-btn').addEventListener('click', ()=>switchView('recipes'));
     document.getElementById('today-quick-dispensa-btn').addEventListener('click', ()=>switchView('dispensa'));
     document.getElementById('today-quick-shopping-btn').addEventListener('click', ()=>switchView('planning'));
     document.getElementById('today-quick-planning-btn').addEventListener('click', ()=>switchView('planning'));
+    initWeatherCard();
   }
 
   // Etichetta breve mostrata nella barra ☰ su schermo piccolo, per vista corrente.
@@ -3973,13 +4597,18 @@
     document.getElementById('crea-alimenti-view').style.display = view === 'crea-alimenti' ? '' : 'none';
     document.getElementById('crea-menu-view').style.display = view === 'crea-menu' ? '' : 'none';
     document.getElementById('info-view').style.display = view === 'info' ? '' : 'none';
-    document.getElementById('nav-today-btn').classList.toggle('active', view === 'today');
-    document.getElementById('nav-recipes-btn').classList.toggle('active', view === 'recipes');
-    document.getElementById('nav-planning-btn').classList.toggle('active', view === 'planning');
-    document.getElementById('nav-dispensa-btn').classList.toggle('active', view === 'dispensa');
-    document.getElementById('nav-crea-alimenti-btn').classList.toggle('active', view === 'crea-alimenti');
-    document.getElementById('nav-crea-menu-btn').classList.toggle('active', view === 'crea-menu');
-    document.getElementById('nav-info-btn').classList.toggle('active', view === 'info');
+    [
+      ['nav-today-btn', 'today'], ['nav-recipes-btn', 'recipes'], ['nav-planning-btn', 'planning'],
+      ['nav-dispensa-btn', 'dispensa'], ['nav-crea-alimenti-btn', 'crea-alimenti'],
+      ['nav-crea-menu-btn', 'crea-menu'], ['nav-info-btn', 'info'],
+    ].forEach(([id, v])=>{
+      const btn = document.getElementById(id);
+      const attiva = view === v;
+      btn.classList.toggle('active', attiva);
+      // aria-current segnala alla tecnologia assistiva quale voce di navigazione
+      // corrisponde alla pagina mostrata, oltre al solo indizio visivo della classe.
+      if(attiva) btn.setAttribute('aria-current', 'page'); else btn.removeAttribute('aria-current');
+    });
     if(view === 'today') renderToday();
     if(view === 'recipes') renderList();
     if(view === 'planning') renderPlanningDays();
@@ -4027,7 +4656,7 @@
     let count = 0;
     dispensaItems.forEach(it=>{
       const qty = parseFloat(it.qty), minQty = parseFloat(it.minQty);
-      const basso = !isNaN(qty) && !isNaN(minQty) && qty <= minQty;
+      const basso = !isNaN(qty) && (qty <= 0 || (!isNaN(minQty) && qty <= minQty));
       const inScadenza = it.expiry && it.expiry >= today && it.expiry <= soonLimit;
       if(basso || inScadenza) count++;
     });
@@ -4214,10 +4843,14 @@
         .map(f => `${f.label} ${roundNice(nutrizione[f.key])}${f.unit}`)
         .join(' · ')
     }</div>` : '';
+    const servingsControl = e.dispensaItemId ? '' : `<span class="plan-entry-servings" title="Porzioni per questo pasto (di default il valore impostato in alto)">
+      <input type="number" class="plan-entry-servings-input" min="1" data-entry-id="${escapeAttr(e.id)}" value="${entryServings(e)}">
+    </span>`;
     return `<div class="plan-entry">
       <div class="plan-entry-main">
         ${e.time ? `<span class="plan-entry-time">${escapeHtml(e.time)}</span>` : ''}
         <span class="plan-entry-name" ${nameAttr}>${name}</span>
+        ${servingsControl}
         ${consumeControl}
         <button class="icon-btn plan-entry-remove" data-entry-id="${escapeAttr(e.id)}" title="Rimuovi">×</button>
       </div>
@@ -4228,16 +4861,17 @@
   // Genera e apre la lista della spesa per le sole ricette pianificate in un giorno specifico
   // (i pasti "dalla dispensa" sono esclusi, dato che non richiedono acquisti).
   function openDayShoppingList(day){
-    const dayRecipes = (weekPlan[day] || [])
-      .map(e => recipes.find(r => r.id === e.recipeId))
-      .filter(Boolean);
+    const dayPairs = (weekPlan[day] || []).map(entryRecipePair).filter(Boolean);
+    const dayRecipes = dayPairs.map(p => p.recipe);
     if(dayRecipes.length === 0){
       alert(`Nessuna ricetta pianificata per ${day}.`);
       return;
     }
-    const pairs = dayRecipes.map(r => ({ recipe: r, scale: planServings / (r.servings || 1) }));
-    const items = buildAggregatedShoppingItems(pairs, false);
-    openShoppingListOverlay(items, `Per ${planServings} persone — ${day}: ${dayRecipes.map(r=>r.name).join(', ')}`);
+    const items = buildAggregatedShoppingItems(dayPairs, false);
+    const porzioniLabel = dayPairs.every(p => entryServings(p.entry) === entryServings(dayPairs[0].entry))
+      ? `Per ${entryServings(dayPairs[0].entry)} persone — `
+      : '';
+    openShoppingListOverlay(items, `${porzioniLabel}${escapeHtml(day)}: ${formatRicetteSubtitle(dayRecipes, 'volte in questo giorno')}`);
   }
 
   function openWeekTotalsOverlay(){
@@ -4372,6 +5006,25 @@
         openDispensaPicker(day, mealType, timeInput.value);
       });
     });
+    planningDaysEl.querySelectorAll('.plan-entry-servings-input').forEach(input=>{
+      input.addEventListener('change', ()=>{
+        const entryId = input.dataset.entryId;
+        let entry = null;
+        for(const d of DAYS){
+          const found = (weekPlan[d] || []).find(x=>x.id === entryId);
+          if(found){ entry = found; break; }
+        }
+        if(!entry) return;
+        const val = parseInt(input.value, 10);
+        if(!val || val < 1){ input.value = entryServings(entry); return; }
+        // Se il valore coincide con quello generale della settimana, non si salva una
+        // personalizzazione: così il pasto continua a seguire il valore "in alto" anche
+        // se viene cambiato in futuro, invece di restare fissato a quel numero.
+        entry.servings = (val === planServings) ? undefined : val;
+        saveWeek();
+        renderPlanningDays();
+      });
+    });
     planningDaysEl.querySelectorAll('.plan-entry-consume').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const entryId = btn.dataset.entryId;
@@ -4457,8 +5110,7 @@
     const badge = document.getElementById('planning-shopping-count');
     if(!badge) return;
     const allEntries = DAYS.flatMap(d => weekPlan[d] || []);
-    const plannedRecipes = allEntries.map(e=>recipes.find(r=>r.id===e.recipeId)).filter(Boolean);
-    const pairs = plannedRecipes.map(r=>({ recipe: r, scale: planServings / (r.servings || 1) }));
+    const pairs = allEntries.map(entryRecipePair).filter(Boolean);
     const count = buildAggregatedShoppingItems(pairs).length;
     if(count > 0){ badge.textContent = ` · ${count}`; badge.style.display = 'inline'; }
     else { badge.textContent = ''; badge.style.display = 'none'; }
@@ -4482,6 +5134,22 @@
     return d.toISOString().slice(0,10);
   }
 
+  // Passa al Ricettario in modalità "Cosa posso cucinare?" con i nomi passati già
+  // impostati come priorità ("Usa prima"): condivisa tra il pulsante in Dispensa e
+  // quello nella card "Da consumare prima" della pagina Oggi.
+  function attivaRicercaConScadenza(nomiProdotti){
+    priorityPantryNames = (nomiProdotti || []).map(normalize).filter(Boolean);
+    priorityPantryLabels = (nomiProdotti || []).filter(Boolean);
+    if(!priorityPantryNames.length){
+      alert('Non ci sono prodotti in scadenza entro 3 giorni.');
+      return;
+    }
+    pantryMode = true;
+    pantryResetBtn.style.display = 'inline-block';
+    updatePantryPanelSub();
+    switchView('recipes');
+  }
+
   function renderDispensaList(){
     aggiornaTopbarAlerts();
     updatePantryPanelSub();
@@ -4500,10 +5168,15 @@
     lowStockBtn.classList.toggle('btn-gold', dispensaLowStockOnly);
     lowStockBtn.classList.toggle('btn-ghost', !dispensaLowStockOnly);
 
+    // "In esaurimento" vale sia nel senso stretto (sotto la soglia "Avvisa sotto" impostata)
+    // sia, a prescindere da quella soglia, quando la quantità registrata è proprio a zero: un
+    // prodotto finito non deve restare silenzioso solo perché non gli è mai stata data una soglia.
     const isLowStock = it => {
       const qty = parseFloat(it.qty);
       const minQty = parseFloat(it.minQty);
-      return !isNaN(qty) && !isNaN(minQty) && qty <= minQty;
+      if(isNaN(qty)) return false;
+      if(qty <= 0) return true;
+      return !isNaN(minQty) && qty <= minQty;
     };
 
     const filtered = dispensaItems.filter(it=>{
@@ -4544,53 +5217,31 @@
       if(it.qty || it.unit) qtyKcalParts.push(`${it.qty ? roundNice(it.qty) : ''} ${escapeHtml(it.unit||'')}`.trim());
       const qtyKcalHtml = qtyKcalParts.length ? `<div class="dispensa-qty">${qtyKcalParts.join(' · ')}</div>` : '';
       const lowStockHtml = isLowStock(it)
-        ? `<div class="dispensa-low-stock">⚠ In esaurimento: ne hai ${roundNice(it.qty)}${it.unit ? ' ' + escapeHtml(it.unit) : ''}${it.minQty !== '' && it.minQty !== undefined ? ` (soglia ${roundNice(it.minQty)}${it.unit ? ' ' + escapeHtml(it.unit) : ''})` : ''}</div>`
-        : '';
-
-      // Valori nutrizionali: sempre per 100 g di prodotto (dato del prodotto,
-      // indipendente da quanto ne hai in dispensa in questo momento).
-      const campiNutrizione = [
-        ['kcal', 'Kcal', ''], ['protein', 'Proteine', 'g'], ['fat', 'Grassi', 'g'],
-        ['carbs', 'Carb.', 'g'], ['fiber', 'Fibre', 'g'], ['sugar', 'Zuccheri', 'g'], ['salt', 'Sale', 'g'],
-      ];
-      const righeNutrizione = campiNutrizione
-        .filter(([campo]) => it[campo] !== '' && it[campo] !== undefined && it[campo] !== null)
-        .map(([campo, etichetta, unita]) => `<div>${etichetta}: <b>${roundNice(it[campo])}</b>${unita}</div>`)
-        .join('');
-      const nutrizioneHtml = righeNutrizione
-        ? `<div class="nutrition-summary" style="margin:6px 0;padding:8px 10px;"><div style="font-size:11px;color:var(--ink-soft);margin-bottom:4px;">Per 100 g di prodotto</div><div class="nutrition-grid">${righeNutrizione}</div></div>`
-        : '';
-
-      const creaInfoHtml = it.creaCodice
-        ? `<button type="button" class="crea-scheda-btn visibile" data-codice="${escapeAttr(it.creaCodice)}" style="margin:2px 0 4px;" title="Tutti i valori nutrizionali CREA per 100 g">ℹ️ Scheda completa (CREA)</button>`
+        ? `<div class="dispensa-low-stock">⚠ In esaurimento</div>`
         : '';
       const offBadgeHtml = it.offNutriscore && NUTRISCORE_COLORI[it.offNutriscore]
-        ? `<span class="cat-tag" style="background:${NUTRISCORE_COLORI[it.offNutriscore]};margin-left:6px;">Nutri-Score ${escapeHtml(it.offNutriscore)}</span>`
-        : '';
-      const offImgHtml = it.offImmagine
-        ? `<img src="${escapeAttr(it.offImmagine)}" alt="" style="width:36px;height:36px;object-fit:contain;border-radius:4px;float:right;margin:0 0 6px 8px;">`
+        ? `<span class="cat-tag" style="background:${NUTRISCORE_COLORI[it.offNutriscore]};">Nutri-Score ${escapeHtml(it.offNutriscore)}</span>`
         : '';
 
+      // Card compatta, in stile quadrato come le card ricetta: foto OFF (se
+      // presente) o un'illustrazione segnaposto nel colore della categoria,
+      // poi solo le info essenziali per riconoscere il prodotto a colpo
+      // d'occhio. Valori nutrizionali, scheda CREA e note restano nel
+      // dettaglio (si apre un click sulla card).
+      const thumbHtml = it.offImmagine
+        ? `<img class="thumb" src="${escapeAttr(it.offImmagine)}" alt="${escapeAttr(it.name)}">`
+        : `<div class="thumb thumb-placeholder" aria-hidden="true">${PANTRY_CATEGORY_ICONS[it.category] || '🍽️'}</div>`;
+
       card.innerHTML = `
-        ${offImgHtml}
+        ${thumbHtml}
         <span class="cat-tag">${escapeHtml(it.category)}</span>${offBadgeHtml}
-        <h3 style="margin:2px 0 4px;font-size:19px;">${escapeHtml(it.name)}</h3>
+        <h3>${escapeHtml(it.name)}</h3>
         ${qtyKcalHtml}
         ${lowStockHtml}
-        ${nutrizioneHtml}
-        ${creaInfoHtml}
         ${expiryHtml}
-        ${it.notes ? `<div class="dispensa-notes">${escapeHtml(it.notes)}</div>` : ''}
       `;
       card.addEventListener('click', ()=> openDispensaEdit(it));
       makeKeyboardClickable(card, it.name);
-      const creaInfoBtn = card.querySelector('.crea-scheda-btn');
-      if (creaInfoBtn) {
-        creaInfoBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          apriSchedaCrea(creaInfoBtn.dataset.codice);
-        });
-      }
       listEl.appendChild(card);
     });
   }
@@ -4680,16 +5331,7 @@
       .filter(it => it.expiry && it.expiry >= today && it.expiry <= soonLimit)
       .map(it => it.name)
       .filter(Boolean);
-    priorityPantryNames = prodottiInScadenza.map(normalize).filter(Boolean);
-    priorityPantryLabels = prodottiInScadenza;
-    if(!priorityPantryNames.length){
-      alert('Non ci sono prodotti in scadenza entro 3 giorni.');
-      return;
-    }
-    pantryMode = true;
-    pantryResetBtn.style.display = 'inline-block';
-    updatePantryPanelSub();
-    switchView('recipes');
+    attivaRicercaConScadenza(prodottiInScadenza);
   });
   document.getElementById('dispensa-nutrition-toggle-btn').addEventListener('click', (e)=>{
     const panel = document.getElementById('dispensa-nutrition-fields');
@@ -4847,10 +5489,29 @@
     return true;
   }
 
+  // Elenca le ricette pianificate una sola volta anche se compaiono più volte (es. la stessa
+  // ricetta a pranzo e cena, o in più giorni): le quantità nella lista sono già sommate da
+  // buildAggregatedShoppingItems, qui serve solo evitare che il nome si ripeta nel sottotitolo,
+  // segnalando invece in rosso quante volte è stata pianificata.
+  function formatRicetteSubtitle(plannedRecipes, periodLabel){
+    const counts = [];
+    const index = new Map();
+    plannedRecipes.forEach(r=>{
+      if(index.has(r.id)){ counts[index.get(r.id)].count++; }
+      else{ index.set(r.id, counts.length); counts.push({ name: r.name, count: 1 }); }
+    });
+    return counts.map(({name, count})=>{
+      const label = escapeHtml(name);
+      return count > 1
+        ? `${label} <span style="color:var(--red);font-weight:600;">(x${count} ${escapeHtml(periodLabel)})</span>`
+        : label;
+    }).join(', ');
+  }
+
   // Popola e apre il modal della lista della spesa con un elenco di voci già calcolato
   // (usata sia dalla lista della settimana, sia da quella di un giorno o di una singola ricetta).
   function openShoppingListOverlay(items, subtitleText){
-    shoppingSubtitle.textContent = subtitleText;
+    shoppingSubtitle.innerHTML = subtitleText;
     let dispensaSyncCount = 0;
     shoppingDispensaSyncNote.style.display = 'none';
     shoppingListItems.innerHTML = '';
@@ -4986,17 +5647,18 @@
 
   document.getElementById('generate-shopping-btn').addEventListener('click', ()=>{
     const allEntries = DAYS.flatMap(day => weekPlan[day] || []);
-    const plannedRecipes = allEntries.map(e=>recipes.find(r=>r.id===e.recipeId)).filter(Boolean);
+    const pairs = allEntries.map(entryRecipePair).filter(Boolean);
+    const plannedRecipes = pairs.map(p => p.recipe);
     if(plannedRecipes.length === 0 && shoppingExtraItems.length === 0){
       alert(allEntries.length === 0
         ? 'Assegna almeno una ricetta a un giorno della settimana.'
         : 'Nessuna ricetta pianificata da cui generare la lista della spesa (i prodotti dalla dispensa non richiedono acquisti).');
       return;
     }
-    const pairs = plannedRecipes.map(r=>({ recipe: r, scale: planServings / (r.servings || 1) }));
     const items = buildAggregatedShoppingItems(pairs);
+    const porzioniUniformi = pairs.length && pairs.every(p => entryServings(p.entry) === entryServings(pairs[0].entry));
     const subtitle = plannedRecipes.length
-      ? `Per ${planServings} persone — ${plannedRecipes.map(r=>r.name).join(', ')}`
+      ? `${porzioniUniformi ? `Per ${entryServings(pairs[0].entry)} persone — ` : ''}${formatRicetteSubtitle(plannedRecipes, 'volte questa settimana')}`
       : 'Ingredienti segnalati mancanti dalla Dispensa';
     openShoppingListOverlay(items, subtitle);
   });
@@ -5006,15 +5668,40 @@
     // "Sottrai dalla lista" è comparso), senza doverle toccare una per una.
     shoppingListItems.querySelectorAll('.shopping-subtract-action').forEach(btn => btn.click());
   });
+  document.getElementById('shopping-reset-btn').addEventListener('click', ()=>{
+    // Svuota le spunte (che restano segnate finché non le togli a mano) e i promemoria "dalla
+    // dispensa" accumulati nel tempo: così si riparte puliti e si può rigenerare la lista per la
+    // giornata o la settimana che serve, senza doppioni o spunte di prodotti già comprati prima.
+    const ok = confirm('Svuotare la lista della spesa? Verranno tolte tutte le spunte e i promemoria "dalla dispensa" accumulati finora (le ricette pianificate restano, puoi rigenerare la lista subito dopo).');
+    if(!ok) return;
+    shoppingExtraItems = [];
+    shoppingCheckedItems = {};
+    saveShoppingExtra();
+    saveShoppingCheckedItems();
+    shoppingOverlay.classList.remove('active');
+  });
 
   document.getElementById('export-shopping-pdf-btn').addEventListener('click', ()=>{
-    const items = Array.from(shoppingListItems.querySelectorAll('li')).map(li=>{
-      const name = li.querySelector('span:not(.amt)')?.textContent || '';
+    // Ricostruisce le sezioni per reparto ("🥦 FRUTTA E VERDURA" ecc.) leggendo l'elenco così
+    // com'è mostrato a video, intestazioni comprese: prima andavano perse perché il nome del
+    // reparto nell'intestazione non è dentro un <span> (solo il pallino colorato lo è), quindi
+    // il selettore usato per le righe normali non lo trovava.
+    const sections = [];
+    let currentLines = null;
+    Array.from(shoppingListItems.children).forEach(li=>{
+      if(li.classList.contains('shopping-reparto-header')){
+        currentLines = [];
+        sections.push({ heading: li.textContent.trim(), lines: currentLines });
+        return;
+      }
+      const spans = li.querySelectorAll('span');
+      const name = spans[0] ? spans[0].textContent : '';
       const amt = li.querySelector('.amt')?.textContent || '';
-      return amt.trim() ? `${name} — ${amt.trim()}` : name;
+      if(!name) return;
+      if(!currentLines){ currentLines = []; sections.push({ heading: null, lines: currentLines }); }
+      currentLines.push(`- ${amt.trim() ? `${name} — ${amt.trim()}` : name}`);
     });
-    if(!items.length){ alert('Genera prima la lista della spesa dalla settimana pianificata.'); return; }
-    const sections = [{ heading: null, lines: items.map(t => `- ${t}`) }];
+    if(!sections.some(s => s.lines.length)){ alert('Genera prima la lista della spesa dalla settimana pianificata.'); return; }
     const pdfStr = buildPdfFromSections('Lista della spesa', sections);
     downloadPdf(pdfStr, `lista-della-spesa-${new Date().toISOString().slice(0,10)}.pdf`);
   });
@@ -5050,7 +5737,7 @@
     migrateWeekPlan();
     planServingsInput.value = planServings;
     updatePantryPanelSub();
-    switchView('recipes');
+    switchView('today');
     aggiornaTopbarAlerts();
     aggiornaControlliMenuStorage();
     mostraSceltaStorageSeNecessario();

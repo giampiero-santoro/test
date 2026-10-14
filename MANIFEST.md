@@ -2,7 +2,7 @@
 
 Elenco di tutti i file che devono essere caricati insieme su GitHub perché il sito funzioni correttamente. Non tiene uno storico delle versioni precedenti — la cronologia delle modifiche è già in [CHANGELOG.md](CHANGELOG.md); questo file mostra solo **la situazione attuale**, e va sovrascritto ogni volta che cambia l'elenco dei file coinvolti.
 
-**Versione corrente: 4.1.5**
+**Versione corrente: 4.3.1**
 
 ## File essenziali (senza uno di questi il sito non parte, o parte con funzioni mancanti)
 
@@ -18,6 +18,12 @@ Elenco di tutti i file che devono essere caricati insieme su GitHub perché il s
 | `data/crea-alimenti-completo.json` | Profilo nutrizionale integrale (~129 proprietà/alimento) — usato dalla scheda "ℹ️" e da "CREA Alimenti" |
 | `data/crea-nutrienti-schema.json` | Etichette italiane e unità di misura per la scheda completa |
 | `data/crea-ricette.json` | Le 56 ricette ufficiali CREA — usato da "CREA Menù" e dall'importazione ricette CREA |
+| `img/logo-clan-destino.png` | Logo mostrato in fondo alla barra laterale (il logo nei PDF esportati è incorporato direttamente in `js/app.js`, non dipende da questo file) |
+| `manifest.json` | Rende il sito installabile come app sullo smartphone ("Aggiungi a Home") — nome, colori e icone usate una volta installato |
+| `img/icon-192.png`, `img/icon-512.png` | Icona dell'app una volta installata (Android/desktop) |
+| `img/icon-maskable-192.png`, `img/icon-maskable-512.png` | Variante dell'icona per gli "adaptive icon" di Android (sfondo pieno, senza angoli arrotondati propri) |
+| `img/apple-touch-icon.png` | Icona mostrata sulla schermata Home di iPhone/iPad |
+| `img/favicon-32.png`, `img/favicon-16.png` | Icona mostrata nella scheda del browser |
 
 ## Facoltativi (il sito funziona anche senza, ma mancano informazioni)
 

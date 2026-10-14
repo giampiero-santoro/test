@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>Il Mio Ricettario</title>
+
+<!-- PWA: manifest + icone per l'installazione su smartphone ("Aggiungi a Home") -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#536B52">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<!-- Safari non legge il manifest per l'icona Home: servono questi meta dedicati -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ricettario">
+
 <script>
   // Applica subito il tema salvato (se diverso da quello originale), prima
   // che il resto della pagina venga disegnato: evita un lampo del tema
@@ -18,7 +30,7 @@
   })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <base target="_blank">
 </head>
@@ -33,8 +45,8 @@
   </div>
 
   <div class="view-nav" id="view-nav">
-    <button class="view-nav-btn" id="nav-today-btn" title="Oggi" aria-label="Oggi"><span class="nav-ico">☀️</span><span class="nav-label">Oggi</span></button>
-    <button class="view-nav-btn active" id="nav-recipes-btn" title="Ricettario" aria-label="Ricettario"><span class="nav-ico">📖</span><span class="nav-label">Ricettario</span></button>
+    <button class="view-nav-btn active" id="nav-today-btn" title="Oggi" aria-label="Oggi" aria-current="page"><span class="nav-ico">☀️</span><span class="nav-label">Oggi</span></button>
+    <button class="view-nav-btn" id="nav-recipes-btn" title="Ricettario" aria-label="Ricettario"><span class="nav-ico">📖</span><span class="nav-label">Ricettario</span></button>
     <button class="view-nav-btn" id="nav-planning-btn" title="Pianificazione" aria-label="Pianificazione"><span class="nav-ico">📅</span><span class="nav-label">Pianificazione</span></button>
     <button class="view-nav-btn" id="nav-dispensa-btn" title="Dispensa" aria-label="Dispensa"><span class="nav-ico">🥫</span><span class="nav-label">Dispensa</span></button>
     <button class="view-nav-btn" id="nav-crea-alimenti-btn" title="Valori Alimenti dal sito CREA" aria-label="Valori Alimenti dal sito CREA"><span class="nav-ico">🌾</span><span class="nav-label">Valori Alimenti dal sito CREA</span></button>
@@ -49,6 +61,10 @@
       <span class="switch-track" aria-hidden="true"></span>
     </span>
   </label>
+  <div class="sidebar-credit">
+    <img src="img/logo-clan-destino.png" alt="Clan Destino" width="34" height="34">
+    <span>Clan Destino<br>Autore: Giampiero Santoro</span>
+  </div>
   <div class="sidebar-footnote">Conservato localmente sul tuo dispositivo<br>nessun server, nessun account</div>
 </aside>
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -82,11 +98,11 @@
     </span>
   </div>
 
-  <div id="today-view" style="display:none;">
+  <div id="today-view">
     <div id="today-content"></div>
   </div>
 
-  <div id="recipes-view">
+  <div id="recipes-view" style="display:none;">
 
   <div class="toolbar">
     <div class="toolbar-group">
@@ -116,7 +132,7 @@
           <button id="import-csv-btn">⬆ Importa CSV</button>
           <input type="file" id="import-csv-file-input" accept=".csv,text/csv" style="display:none;">
           <div class="menu-divider"></div>
-          <button id="export-all-pdf-btn">📖 Esporta tutto il ricettario (PDF)</button>
+          <button id="export-all-pdf-btn">📖 Esporta ricettario in PDF…</button>
         </div>
       </div>
       <button class="btn-ghost" id="select-mode-btn">☑️ Elimina ricette</button>
@@ -201,6 +217,7 @@
     <div class="panel-row" id="method-filter-row" style="margin-bottom:14px;">
       <button class="tag-filter-chip" id="pressure-filter-btn">🍲 Pentola a pressione</button>
       <button class="tag-filter-chip" id="robot-filter-btn">🤖 Robot</button>
+      <button class="tag-filter-chip" id="airfryer-filter-btn">🌀 Friggitrice ad aria</button>
       <button class="tag-filter-chip" id="traditional-filter-btn">🔥 Tradizionale</button>
     </div>
     <div class="filter-section-label">Escludi ingredienti</div>
@@ -727,6 +744,44 @@
   </div>
 </div>
 
+<!-- ============ ESPORTA RICETTARIO IN PDF ============ -->
+<div class="overlay" id="export-pdf-overlay">
+  <div class="modal">
+    <button class="close-x" id="export-pdf-close" aria-label="Chiudi">×</button>
+    <h2>Esporta ricettario in PDF</h2>
+    <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">
+      Scegli le categorie intere o le singole ricette da includere (le archiviate restano escluse). Nel PDF le ricette sono raggruppate per categoria, con una pagina divisoria tra una categoria e l'altra.
+    </div>
+    <div class="field">
+      <input type="text" id="export-pdf-search" placeholder="Cerca per nome…">
+    </div>
+    <button type="button" class="btn-ghost" id="export-pdf-filters-toggle" style="margin-bottom:10px;">🔍 Filtra per cottura, tag o allergeni ▾</button>
+    <div class="panel" id="export-pdf-filters-panel" style="display:none;">
+      <div class="filter-section-label">Metodo di cottura</div>
+      <div class="panel-row" id="export-pdf-method-row" style="margin-bottom:14px;">
+        <button class="tag-filter-chip" id="export-pdf-pressure-btn">🍲 Pentola a pressione</button>
+        <button class="tag-filter-chip" id="export-pdf-robot-btn">🤖 Robot</button>
+        <button class="tag-filter-chip" id="export-pdf-airfryer-btn">🌀 Friggitrice ad aria</button>
+        <button class="tag-filter-chip" id="export-pdf-traditional-btn">🔥 Tradizionale</button>
+      </div>
+      <div class="filter-section-label">Tag dietetici</div>
+      <div class="panel-row" id="export-pdf-tag-row" style="margin-bottom:14px;"></div>
+      <div class="filter-section-label">Escludi ricette con questi allergeni</div>
+      <div class="panel-row" id="export-pdf-allergen-row" style="margin-bottom:10px;"></div>
+      <button type="button" class="btn-ghost btn-small" id="export-pdf-filters-clear-btn">Cancella filtri</button>
+    </div>
+    <div class="modal-actions" style="margin-bottom:4px;">
+      <button type="button" class="btn-ghost btn-small" id="export-pdf-all-btn">Seleziona tutte (visibili)</button>
+      <button type="button" class="btn-ghost btn-small" id="export-pdf-none-btn">Deseleziona tutte</button>
+      <span id="export-pdf-count" style="font-size:13px;color:var(--ink-soft);align-self:center;flex:1;text-align:right;">Nessuna ricetta selezionata</span>
+    </div>
+    <div class="recipe-picker-list" id="export-pdf-list"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-gold" id="export-pdf-confirm-btn">📖 Esporta PDF</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ DETTAGLIO RICETTA CREA (vista "CREA Menù") ============ -->
 <div class="overlay" id="crea-menu-dettaglio-overlay">
   <div class="modal">
@@ -916,6 +971,7 @@
     <ul class="shopping-list-items" id="shopping-list-items"></ul>
     <div class="modal-actions">
       <button class="btn-ghost" id="shopping-subtract-all-btn" title="Sottrae da tutta la lista la quantità già disponibile in Dispensa, dove possibile">🥫 Sottrai tutto</button>
+      <button class="btn-ghost" id="shopping-reset-btn" title="Svuota le spunte e i promemoria 'dalla dispensa' accumulati, per ripartire da zero">🗑 Svuota lista</button>
       <div style="flex:1;"></div>
       <button class="btn-ghost" id="export-shopping-pdf-btn">⬇ Esporta PDF</button>
     </div>

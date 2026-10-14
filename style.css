@@ -143,6 +143,12 @@
     padding-top:16px; color:var(--nav-text); opacity:.55;
     font-size:var(--fs-xs); line-height:1.5; text-align:left;
   }
+  .sidebar-credit{
+    display:flex; align-items:center; gap:10px;
+    padding-top:16px; color:var(--nav-text); opacity:.7;
+    font-size:var(--fs-xs); line-height:1.4; text-align:left;
+  }
+  .sidebar-credit img{ width:34px; height:34px; flex:0 0 34px; border-radius:50%; }
   .app-main{flex:1 1 auto; min-width:0; padding:30px 34px 60px;}
 
   /* ---------- Interruttore tema chiaro/scuro ---------- */
@@ -350,6 +356,9 @@
   .today-meal{color:var(--ink-soft);font-size:var(--fs-sm);}
   .today-empty{color:var(--ink-soft);font-style:italic;font-size:var(--fs-md);margin:0 0 12px;}
   .today-expiry-soon{color:#a5641f;font-weight:600;}
+  .today-expiry-urgent{color:var(--red);font-weight:700;}
+  .today-expiry-more{color:var(--ink-soft);font-style:italic;font-size:var(--fs-sm);border-bottom:0;padding-top:3px;}
+  .today-list .cat-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;box-shadow:0 1px 3px rgba(44,29,13,.3);}
   .today-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
   @media (max-width:760px){.today-grid{grid-template-columns:1fr;}.today-heading h2{font-size:27px;}}
 
@@ -448,7 +457,7 @@
   button:disabled{opacity:.45;cursor:not-allowed; transform:none !important;}
 
   /* ---------- Lista ricette / card ---------- */
-  #recipe-list{display:grid;grid-template-columns:repeat(auto-fill, minmax(235px,1fr));gap:18px;}
+  #recipe-list, #dispensa-list{display:grid;grid-template-columns:repeat(auto-fill, minmax(235px,1fr));gap:18px;}
   .card{
     background:linear-gradient(180deg,var(--parchment-light),var(--parchment));
     border:1px solid var(--line);
@@ -480,7 +489,7 @@
     border-radius:20px;padding:3px 10px;margin-bottom:8px;font-weight:600;
     box-shadow:0 2px 5px rgba(44,29,13,.18);
   }
-  .card .pressure-badge, .card .robot-badge, .card .traditional-badge{
+  .card .pressure-badge, .card .robot-badge, .card .airfryer-badge, .card .traditional-badge{
     display:inline-block;font-size:14px;margin-left:6px;margin-bottom:8px;vertical-align:middle;
   }
   .dispensa-qty{font-size:var(--fs-md);color:var(--ink-soft);}
@@ -491,7 +500,6 @@
   .dispensa-expiry.soon{background:rgba(207,122,44,.15);color:#a5641f;font-weight:600;}
   .dispensa-expiry.expired{background:rgba(156,52,52,.13);color:var(--red);font-weight:600;}
   .dispensa-low-stock{background:rgba(207,122,44,.15);color:#a5641f;font-weight:600;border-radius:5px;padding:5px 8px;margin-top:6px;font-size:var(--fs-sm);}
-  .dispensa-notes{font-size:var(--fs-sm);color:var(--ink-soft);font-style:italic;margin-top:6px;}
   .card .star{
     position:absolute;top:10px;right:10px;font-size:17px;border:none;padding:3px;
     width:26px;height:26px;display:flex;align-items:center;justify-content:center;
@@ -529,6 +537,18 @@
   .recipe-picker-item .name{flex:1;font-family:var(--font-titoli);font-size:17px;color:var(--ink);}
   .recipe-picker-item .meta{font-size:var(--fs-sm);color:var(--ink-soft);white-space:nowrap;}
   .recipe-picker-empty{padding:24px 4px;text-align:center;color:var(--ink-soft);font-style:italic;}
+
+  /* Intestazione di categoria nel picker di esportazione PDF: una riga più marcata
+     sopra le ricette di quella categoria, con la sua checkbox "seleziona tutta
+     la categoria". */
+  .export-pdf-category-header{
+    display:flex;align-items:center;gap:10px;padding:9px 4px;cursor:pointer;
+    background:rgba(140,106,47,0.08);border-radius:4px;margin-top:6px;
+  }
+  .export-pdf-category-header:hover{background:rgba(140,106,47,0.16);}
+  .export-pdf-category-header .cat-name{flex:1;font-family:var(--font-titoli);font-weight:700;font-size:14px;color:var(--ink);}
+  .export-pdf-category-header .cat-count{font-size:var(--fs-sm);color:var(--ink-soft);white-space:nowrap;}
+  .export-pdf-item{padding-left:26px;}
 
   .card .match-badge{
     display:inline-block;font-size:var(--fs-xs);font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:6px;
@@ -593,7 +613,7 @@
   .ingredient-block{margin-bottom:8px;}
   .ingredient-nutrition{
     display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;padding:8px;border:1px dashed var(--line);border-radius:6px;
-    background:rgba(255,255,255,0.45);
+    background:var(--parchment);
   }
   .ingredient-nutrition .mini{display:flex;flex-direction:column;font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);}
   .ingredient-nutrition .mini input{width:64px;padding:5px 6px;font-size:var(--fs-md);}
@@ -683,7 +703,7 @@
   .nutrition-grid b{color:var(--brass);}
   .nutrition-note{font-size:var(--fs-xs);color:var(--ink-soft);font-style:italic;margin-top:8px;}
 
-  .step-block{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,0.45);box-shadow:0 1px 4px rgba(44,29,13,.05);}
+  .step-block{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;background:var(--parchment);box-shadow:0 1px 4px rgba(44,29,13,.05);}
   .step-row-bottom{display:flex;gap:10px;align-items:flex-end;margin-top:8px;flex-wrap:wrap;}
   .step-row-bottom .mini{display:flex;flex-direction:column;font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
   .step-row-bottom .mini input{width:90px;padding:5px 6px;font-size:var(--fs-md);}
@@ -691,6 +711,8 @@
   .robot-toggle-btn.active{background:var(--brass);color:#fff;}
   .pressure-toggle-btn{background:transparent;border:1px solid var(--brass);color:var(--brass);border-radius:14px;padding:6px 12px;font-size:var(--fs-sm);}
   .pressure-toggle-btn.active{background:var(--brass);color:#fff;}
+  .airfryer-toggle-btn{background:transparent;border:1px solid var(--brass);color:var(--brass);border-radius:14px;padding:6px 12px;font-size:var(--fs-sm);}
+  .airfryer-toggle-btn.active{background:var(--brass);color:#fff;}
   .step-settings{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
   .step-settings .mini{display:flex;flex-direction:column;font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
   .step-settings .mini input, .step-settings .mini select{width:72px;padding:5px 6px;font-size:var(--fs-md);}
@@ -843,6 +865,11 @@
   }
   .plan-entry-name{flex:1;cursor:pointer;}
   .plan-entry-name:hover{text-decoration:underline;}
+  .plan-entry-servings{flex:0 0 auto;display:inline-flex;align-items:center;}
+  .plan-entry-servings-input{
+    width:46px;text-align:center;font-size:var(--fs-xs);padding:2px 2px;
+    border:1px solid var(--line);border-radius:8px;background:var(--parchment-light);color:var(--ink);
+  }
   .plan-entry-empty{font-size:var(--fs-md);font-style:italic;color:var(--ink-soft);padding:2px 0;}
   .plan-add-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   .plan-add-row select{flex:1;min-width:140px;}
@@ -850,7 +877,7 @@
   .plan-note-input{
     width:100%;box-sizing:border-box;font-style:italic;font-size:var(--fs-sm);
     padding:5px 8px;margin:6px 0 2px;border:1px dashed var(--line);border-radius:6px;
-    background:rgba(255,253,244,0.5);color:var(--ink-soft);
+    background:var(--parchment);color:var(--ink-soft);
   }
   .plan-note-input:focus{font-style:normal;color:var(--ink);}
   .plan-day-nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
@@ -944,3 +971,120 @@
     .card,.modal,.menu-dropdown,.plan-day-card{animation:none; transition:none;}
     .card{transition:none;}
   }
+
+
+/* ================================================================
+   IL MIO RICETTARIO 4.0 — TEMA CUCINA NATURALE CONTEMPORANEA
+   Sistema grafico applicato sopra gli stili esistenti per preservare
+   la logica e i componenti funzionali della versione 4.3.1.
+   ================================================================ */
+:root{
+  color-scheme:light;
+  --wood-dark:#F0EADF;
+  --wood:#536B52;
+  --wood-deep:#3E553E;
+  --parchment:#F5F1E8;
+  --parchment-light:#FFFCF6;
+  --ink:#292D29;
+  --ink-soft:#74766F;
+  --gold:#536B52;
+  --gold-bright:#71896B;
+  --gold-deep:#40583F;
+  --brass:#536B52;
+  --line:#E4DDD0;
+  --shadow:rgba(56,65,48,.10);
+  --green:#547A4F;
+  --orange:#C77855;
+  --red:#B94B43;
+  --font-titoli:'Lora', Georgia, serif;
+  --font-testo:'DM Sans', Inter, sans-serif;
+  --font-script:'Lora', Georgia, serif;
+  --page-bg:#F5F1E8;
+  --masthead-text:#292D29;
+  --masthead-eyebrow:#536B52;
+  --sub-color:#74766F;
+  --h1-grad-1:#292D29; --h1-grad-2:#292D29; --h1-grad-3:#292D29;
+  --h1-shadow:rgba(0,0,0,0);
+  --nav-bg:transparent;
+  --nav-border:transparent;
+  --nav-text:#4C554A;
+  --nav-hover-bg:#E5EDE1;
+  --nav-active-text:#FFFFFF;
+  --nav-active-shadow:rgba(83,107,82,.18);
+  --shadow-2:rgba(56,65,48,.06);
+  --paper-glow:rgba(199,120,85,0);
+  --paper-line:rgba(83,107,82,0);
+}
+:root[data-tema="scuro"]{
+  color-scheme:dark;
+  --wood-dark:#202A22; --wood:#8BA183; --wood-deep:#151D17;
+  --parchment:#202720; --parchment-light:#293229;
+  --ink:#F1F0E8; --ink-soft:#B5B9AE;
+  --gold:#8BA183; --gold-bright:#A9BE9F; --gold-deep:#71896B; --brass:#A9BE9F;
+  --line:#414B40; --shadow:rgba(0,0,0,.32);
+  --font-titoli:'Lora', Georgia, serif; --font-testo:'DM Sans', Inter, sans-serif; --font-script:'Lora', Georgia, serif;
+  --page-bg:#202720;
+  --masthead-text:#F1F0E8; --masthead-eyebrow:#A9BE9F; --sub-color:#B5B9AE;
+  --h1-grad-1:#F1F0E8; --h1-grad-2:#F1F0E8; --h1-grad-3:#F1F0E8; --h1-shadow:rgba(0,0,0,0);
+  --nav-bg:transparent; --nav-border:transparent; --nav-text:#D1D8CD; --nav-hover-bg:rgba(169,190,159,.12);
+  --nav-active-text:#202720; --nav-active-shadow:rgba(0,0,0,.12);
+  --shadow-2:rgba(0,0,0,.18); --paper-glow:rgba(0,0,0,0); --paper-line:rgba(0,0,0,0);
+}
+html{background:var(--page-bg);}
+body{background:transparent;color:var(--ink);font-family:var(--font-testo);}
+body::after{display:none;}
+.app-shell{gap:0;}
+.app-sidebar{
+  background:var(--wood-dark);
+  border-right:1px solid var(--line);
+  box-shadow:3px 0 18px var(--shadow-2);
+  padding:24px 14px 18px;
+}
+.masthead{align-items:flex-start;flex-wrap:wrap;gap:9px;margin-bottom:24px;color:var(--masthead-text);}
+.masthead-logo{
+  width:38px;height:38px;border-radius:12px;font-size:20px;
+  background:var(--parchment-light);border:1px solid var(--line);box-shadow:none;
+}
+.masthead h1{font-family:var(--font-titoli);font-size:21px;line-height:1.2;margin:2px 0 0;color:var(--ink);letter-spacing:-.035em;}
+.masthead .sub{flex-basis:100%;font-family:var(--font-testo);font-size:12px;line-height:1.4;color:var(--ink-soft);margin:0;}
+.view-nav{gap:5px;margin-top:10px;}
+.view-nav-btn{border-radius:10px;padding:11px 12px;color:var(--nav-text);font-weight:600;}
+.view-nav-btn:hover{background:var(--nav-hover-bg);}
+.view-nav-btn.active{background:var(--wood);color:#fff;box-shadow:none;border-color:transparent;}
+:root[data-tema="scuro"] .view-nav-btn.active{color:#172017;}
+.theme-toggle-label{color:var(--nav-text);}
+.app-main{padding:28px clamp(18px,3vw,42px) 60px;}
+.mobile-topbar{background:var(--wood-dark);border:1px solid var(--line);color:var(--ink);box-shadow:0 3px 12px var(--shadow-2);}
+.mobile-topbar button{color:var(--ink);}
+.book{
+  background:var(--parchment-light);border:1px solid var(--line);border-radius:18px;
+  box-shadow:0 3px 6px var(--shadow-2),0 14px 34px var(--shadow-2);
+  padding:clamp(18px,2.5vw,32px);
+}
+.card,.recipe-card,.plan-day-card{
+  border-radius:14px;
+  border-color:var(--line);
+  box-shadow:0 2px 8px var(--shadow-2);
+}
+.card:hover,.recipe-card:hover{box-shadow:0 7px 20px var(--shadow-2);}
+.panel{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 8%,var(--parchment-light)),var(--parchment-light));
+  border:1px solid var(--line);border-left:4px solid var(--gold);
+  border-radius:13px;box-shadow:none;
+}
+button,.btn,.btn-gold,.view-nav-btn,.plan-day-tab,.tag-filter-chip{transition:background-color .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
+button:not(.view-nav-btn):not(.mobile-topbar button):hover{filter:none;}
+.btn-gold,.plan-day-tab.active,.tag-filter-chip.active{background:var(--gold);border-color:var(--gold);color:#fff;box-shadow:none;}
+:root[data-tema="scuro"] .btn-gold,:root[data-tema="scuro"] .plan-day-tab.active,:root[data-tema="scuro"] .tag-filter-chip.active{color:#172017;}
+input,select,textarea{border-color:var(--line);border-radius:9px;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold-bright);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold-bright) 17%,transparent);outline:none;}
+.topbar-search input{border-radius:12px;}
+::-webkit-scrollbar-thumb{background:var(--gold-bright);border-color:var(--parchment);}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline-color:var(--gold-bright);}
+@media(max-width:760px){
+  body{padding:0;font-size:16px;}
+  .app-main{padding:0 12px 42px;}
+  .app-sidebar{background:var(--wood-dark);}
+  .book{padding:19px 15px;border-radius:15px;}
+  .masthead h1{font-size:21px;}
+}

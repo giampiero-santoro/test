@@ -10,6 +10,8 @@ NOME_PRODOTTO = "Test Automatico Farina Manitoba"
 
 
 async def _crea_ricetta(page):
+    await page.click("#nav-recipes-btn")
+    await page.locator("#recipes-view").wait_for(state="visible")
     await page.click("#new-recipe-btn")
     await page.locator("#edit-overlay").wait_for(state="visible")
     await page.fill("#f-name", NOME_RICETTA)

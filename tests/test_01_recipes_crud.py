@@ -7,6 +7,8 @@ NOME_RICETTA_MOD = "Test Automatico Pasta al Pomodoro (modificata)"
 
 async def run(page):
     await reset_app_state(page)
+    await page.click("#nav-recipes-btn")
+    await page.locator("#recipes-view").wait_for(state="visible")
 
     # --- Creazione ---
     await page.click("#new-recipe-btn")

@@ -7,6 +7,8 @@ NOME_RICETTA = "Test Automatico Lasagne al Forno"
 
 async def run(page):
     await reset_app_state(page)
+    await page.click("#nav-recipes-btn")
+    await page.locator("#recipes-view").wait_for(state="visible")
 
     # --- Creazione ricetta con allergeni e 'si congela bene' ---
     await page.click("#new-recipe-btn")
