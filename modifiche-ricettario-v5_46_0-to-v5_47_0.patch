@@ -1,0 +1,352 @@
+diff -ru '--exclude=guida.html' '--exclude=tests' rr_ORIGINALE_backup/CHANGELOG.md rr/CHANGELOG.md
+--- rr_ORIGINALE_backup/CHANGELOG.md	2026-10-25 14:15:16.117334643 +0000
++++ rr/CHANGELOG.md	2026-10-25 15:07:21.685960237 +0000
+@@ -2,6 +2,15 @@
+ 
+ Tutte le modifiche rilevanti al progetto sono documentate in questo file.
+ 
++## [5.47.0] — Ricezione ricette dal sito «Pentola a pressione» (protocollo pp-ricettario v1)
++
++### Aggiunto
++- **Porta d'ingresso per ricette esterne**: il ricettario legge un pacchetto JSON versionato dal frammento `#pp=…` dell'indirizzo, oppure da un file caricato con «Importa ricetta (file)». Mostra un'anteprima, fa scegliere data, pasto e orario, e solo dopo la conferma aggiunge ricetta, voce di pianificazione e (a scelta) ingredienti alla lista della spesa.
++- **Nessun doppione**: la ricetta è riconosciuta da `externalId` (non viene ricreata), la voce di pianificazione non si ripete per stessa ricetta/giorno/pasto, l'operazione è riconosciuta da `idOperazione`, e gli ingredienti già presenti in lista dalla stessa ricetta non vengono sommati due volte.
++- **Validazione**: solo campi noti, lunghezze e intervalli limitati, URL solo http/https, testo sempre mostrato come testo. Pacchetti non validi mostrano un messaggio e non scrivono nulla.
++- Nuovi campi facoltativi della ricetta: `externalId`, `fonteUrl`, `fonteNome`; nella scheda compare il link «↗ Ricetta originale». Il modulo di modifica li conserva.
++- Test 38 (`tests/test_38_pp_integrazione.py`). Documentazione: `PROTOCOLLO-pp-ricettario.md`.
++
+ ## [5.46.0] — PDF A4 orizzontale scaricato direttamente
+ 
+ ### Modificato
+diff -ru '--exclude=guida.html' '--exclude=tests' rr_ORIGINALE_backup/MANIFEST.md rr/MANIFEST.md
+--- rr_ORIGINALE_backup/MANIFEST.md	2026-10-25 14:15:16.117372613 +0000
++++ rr/MANIFEST.md	2026-10-25 15:07:21.686440055 +0000
+@@ -2,7 +2,7 @@
+ 
+ Elenco di tutti i file che devono essere caricati insieme su GitHub perché il sito funzioni correttamente. Non tiene uno storico delle versioni precedenti — la cronologia delle modifiche è già in [CHANGELOG.md](CHANGELOG.md); questo file mostra solo **la situazione attuale**, e va sovrascritto ogni volta che cambia l'elenco dei file coinvolti.
+ 
+-**Versione corrente: 5.46.0**
++**Versione corrente: 5.47.0**
+ 
+ ## File essenziali (senza uno di questi il sito non parte, o parte con funzioni mancanti)
+ 
+@@ -27,6 +27,7 @@
+ | File | A cosa serve |
+ |---|---|
+ | `README.md` | Presentazione del progetto (per chi visita il repository) |
++| `PROTOCOLLO-pp-ricettario.md` | Formato del pacchetto che il ricettario accetta dal sito «Pentola a pressione» |
+ | `GUIDA.md` | Istruzioni dettagliate per ogni funzione |
+ | `CHANGELOG.md` | Cronologia delle versioni |
+ | `MANIFEST.md` | Questo file |
+Only in rr: PROTOCOLLO-pp-ricettario.md
+diff -ru '--exclude=guida.html' '--exclude=tests' rr_ORIGINALE_backup/index.html rr/index.html
+--- rr_ORIGINALE_backup/index.html	2026-10-25 14:15:16.114277112 +0000
++++ rr/index.html	2026-10-25 14:57:15.242676101 +0000
+@@ -1050,6 +1050,29 @@
+     <div class="modal-actions"><button class="btn-gold" type="button" id="trasf-done">Chiudi</button></div>
+   </div>
+ </div>
++<div class="overlay" id="pp-overlay">
++  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pp-title" style="max-width:520px;">
++    <button class="close-x" id="pp-close" aria-label="Chiudi">×</button>
++    <h2 id="pp-title">Ricetta da Pentola a pressione</h2>
++    <p id="pp-sub" style="color:var(--text-2);margin-top:0;"></p>
++    <div class="field">
++      <label style="display:flex;gap:8px;align-items:center;"><input type="checkbox" id="pp-piano" checked> Aggiungi alla pianificazione</label>
++    </div>
++    <div id="pp-piano-campi" class="schedule-fields">
++      <div class="schedule-field"><label for="pp-data">Data</label><input type="date" id="pp-data"></div>
++      <div class="schedule-field"><label for="pp-pasto">Pasto</label><select id="pp-pasto"></select></div>
++      <div class="schedule-field"><label for="pp-ora">Orario (facoltativo)</label><input type="time" id="pp-ora"></div>
++    </div>
++    <div class="field">
++      <label style="display:flex;gap:8px;align-items:center;"><input type="checkbox" id="pp-spesa" checked> Invia gli ingredienti alla lista della spesa</label>
++      <div id="pp-spesa-nota" style="color:var(--text-2);font-size:13px;margin-top:4px;"></div>
++    </div>
++    <div class="modal-actions">
++      <button class="btn-ghost" type="button" id="pp-annulla">Annulla</button>
++      <button class="btn-gold" type="button" id="pp-conferma">Conferma</button>
++    </div>
++  </div>
++</div>
+ <div class="overlay" id="made-overlay">
+   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="made-title" style="max-width:480px;">
+     <button class="close-x" id="made-close" aria-label="Chiudi">×</button>
+@@ -1230,6 +1253,7 @@
+         <div class="view-notes" id="view-notes-block" style="display:none;">
+           <strong>Note personali —</strong>
+           <span id="view-notes"></span>
++          <div><a id="view-fonte" href="#" target="_blank" rel="noopener noreferrer" style="display:none;"></a></div>
+         </div>
+       </section>
+     </div>
+diff -ru '--exclude=guida.html' '--exclude=tests' rr_ORIGINALE_backup/js/app.js rr/js/app.js
+--- rr_ORIGINALE_backup/js/app.js	2026-10-25 14:15:16.117432974 +0000
++++ rr/js/app.js	2026-10-25 15:00:23.099237136 +0000
+@@ -2949,9 +2949,13 @@
+     const freezable = document.getElementById('f-freezable').checked;
+ 
+     let existingExtra = {favorite:false, lastMade:null, timesMade:0, archived:false};
++    let campiEsterni = {}; // campi del protocollo pp-ricettario: il modulo non li mostra ma non deve perderli
+     if(editingId){
+       const prev = recipes.find(r=>r.id===editingId);
+-      if(prev){ existingExtra = {favorite:prev.favorite, lastMade:prev.lastMade, timesMade:prev.timesMade||null, archived:!!prev.archived}; }
++      if(prev){
++        existingExtra = {favorite:prev.favorite, lastMade:prev.lastMade, timesMade:prev.timesMade||null, archived:!!prev.archived};
++        ['externalId','fonteUrl','fonteNome'].forEach(k=>{ if(prev[k]) campiEsterni[k] = prev[k]; });
++      }
+     }
+ 
+     const nutrizioneUtente = leggiNutrizioneUtenteForm();
+@@ -2963,7 +2967,7 @@
+       cookerType: fCookerType.value,
+       ingredients: finalIngredients, steps, tags, allergens, freezable, notes: fNotes.value.trim(),
+       photo: currentPhotoData, favorite: existingExtra.favorite, lastMade: existingExtra.lastMade, timesMade: existingExtra.timesMade,
+-      nutrizioneUtente, archived: existingExtra.archived
++      nutrizioneUtente, archived: existingExtra.archived, ...campiEsterni
+     };
+ 
+     if(editingId){
+@@ -3481,7 +3485,10 @@
+       btn.addEventListener('click', ()=> startInlineTimer(btn));
+     });
+ 
+-    if(r.notes){ viewNotesBlock.style.display = 'block'; viewNotes.textContent = r.notes; }
++    const fonteEl = document.getElementById('view-fonte');
++    if(r.fonteUrl){ fonteEl.href = r.fonteUrl; fonteEl.textContent = '↗ Ricetta originale' + (r.fonteNome ? ' (' + r.fonteNome + ')' : ''); fonteEl.style.display = ''; }
++    else{ fonteEl.style.display = 'none'; fonteEl.removeAttribute('href'); }
++    if(r.notes || r.fonteUrl){ viewNotesBlock.style.display = 'block'; viewNotes.textContent = r.notes || ''; }
+     else{ viewNotesBlock.style.display = 'none'; }
+   }
+ 
+@@ -4509,6 +4516,7 @@
+     reader.onload = (e)=>{
+       try{
+         const parsed = JSON.parse(e.target.result);
++        if(parsed && parsed.protocollo === 'pp-ricettario'){ ppApriPacchetto(parsed); importRecipeFileInput.value = ''; return; }
+         if(Array.isArray(parsed.recipes)){
+           alert('Questo sembra un file di backup completo, non una singola ricetta. Usa "Importa backup" nel menu "Backup e CSV".');
+           return;
+@@ -8385,6 +8393,206 @@
+     if ($('install-dismiss-btn')) $('install-dismiss-btn').addEventListener('click', () => { ib.style.display = 'none'; set('mc_install_nascosto','1'); });
+   })();
+ 
++
++  // ============ Integrazione con il sito «Pentola a pressione» — protocollo pp-ricettario v1 ============
++  // Il sito esterno apre questo ricettario con  #pp=<JSON in base64url>  (oppure consegna lo stesso JSON
++  // come file, da caricare con «Importa ricetta (file)»). Nulla viene scritto senza conferma: i dati
++  // sono validati e ridotti a una lista di campi noti, poi mostrati in un'anteprima.
++  // Dedup: la ricetta è riconosciuta da externalId; l'operazione da idOperazione.
++  const PP_DONE_KEY = 'mc_ricettario_pp_importati_v1';
++  const PP_MAX_CHARS = 90000;
++  const PP_CATEGORIE = ['Primi','Secondi','Zuppe & Vellutate','Impasti & Pane','Salse & Sughi','Dolci','Infusi & Tisane','Altro'];
++  const PP_ID_RE = /^[A-Za-z0-9_.:-]{3,80}$/;
++  let ppPacchetto = null;
++
++  function ppStr(v, max){ return (typeof v === 'string') ? v.trim().slice(0, max) : ''; }
++  function ppNum(v, min, max){ const n = parseFloat(v); return (isFinite(n) && n >= min && n <= max) ? n : null; }
++  function ppUrl(v){
++    const s = ppStr(v, 500);
++    if(!s) return '';
++    try{ const u = new URL(s); return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : ''; }catch(e){ return ''; }
++  }
++  function ppDecodifica(b64url){
++    if(b64url.length > PP_MAX_CHARS) throw new Error('Il pacchetto è troppo grande.');
++    let s = b64url.replace(/-/g,'+').replace(/_/g,'/');
++    while(s.length % 4) s += '=';
++    const bin = atob(s);
++    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
++    return JSON.parse(new TextDecoder('utf-8').decode(bytes));
++  }
++  // Ritorna { ok:true, dati } con i soli campi ammessi, oppure { ok:false, errore }.
++  function ppValida(obj){
++    if(!obj || typeof obj !== 'object') return { ok:false, errore:'Il contenuto non è un pacchetto riconoscibile.' };
++    if(obj.protocollo !== 'pp-ricettario') return { ok:false, errore:'Il file non è un pacchetto del sito Pentola a pressione.' };
++    if(obj.versione !== 1) return { ok:false, errore:'Versione del protocollo non supportata (' + String(obj.versione).slice(0,10) + '). Aggiorna il ricettario.' };
++    const idOp = ppStr(obj.idOperazione, 80);
++    if(!PP_ID_RE.test(idOp)) return { ok:false, errore:'Il pacchetto non ha un identificativo operazione valido.' };
++    const r = obj.ricetta;
++    if(!r || typeof r !== 'object') return { ok:false, errore:'Il pacchetto non contiene una ricetta.' };
++    const externalId = ppStr(r.externalId, 80);
++    if(!PP_ID_RE.test(externalId)) return { ok:false, errore:'La ricetta non ha un identificativo valido.' };
++    const name = ppStr(r.name, 120);
++    if(!name) return { ok:false, errore:'La ricetta non ha un nome.' };
++    if(!Array.isArray(r.ingredients) || !r.ingredients.length || r.ingredients.length > 80) return { ok:false, errore:'Gli ingredienti mancano o sono troppi.' };
++    const ingredients = [];
++    for(const i of r.ingredients){
++      const n = ppStr(i && i.name, 120);
++      if(!n) continue;
++      ingredients.push({ name: n, qty: ppNum(i.qty, 0, 100000) || 0, unit: ppStr(i.unit, 20) });
++    }
++    if(!ingredients.length) return { ok:false, errore:'Nessun ingrediente valido nel pacchetto.' };
++    const steps = [];
++    (Array.isArray(r.steps) ? r.steps.slice(0, 60) : []).forEach(s=>{
++      const text = ppStr(s && s.text, 2000);
++      if(!text) return;
++      const st = { text };
++      const pr = ppNum(s.pressure, 0, 50); if(pr !== null) st.pressure = pr;
++      if(['bar','psi','kpa'].includes(s.pressureUnit)) st.pressureUnit = s.pressureUnit;
++      if(['Naturale','Rapido','Misto'].includes(s.pressureRelease)) st.pressureRelease = s.pressureRelease;
++      const rm = ppNum(s.pressureReleaseMin, 0, 600); if(rm !== null) st.pressureReleaseMin = rm;
++      const ml = ppNum(s.minLiquid, 0, 10000); if(ml !== null) st.minLiquid = ml;
++      const t = ppNum(s.time, 0, 1440); if(t !== null) st.time = t;
++      steps.push(st);
++    });
++    const ricetta = {
++      externalId, name, ingredients, steps,
++      category: PP_CATEGORIE.includes(r.category) ? r.category : 'Altro',
++      servings: Math.round(ppNum(r.servings, 1, 100) || 4),
++      time: Math.round(ppNum(r.time, 0, 2880) || 0),
++      cookerType: ['Elettrica','A fornello'].includes(r.cookerType) ? r.cookerType : '',
++      notes: ppStr(r.notes, 4000),
++      fonteUrl: ppUrl(r.fonteUrl),
++      fonteNome: ppStr(r.fonteNome, 120),
++      tags: (Array.isArray(r.tags) ? r.tags : []).filter(t => TAG_OPTIONS.includes(t))
++    };
++    const pi = (obj.pianificazione && typeof obj.pianificazione === 'object') ? obj.pianificazione : {};
++    const data = /^\d{4}-\d{2}-\d{2}$/.test(pi.data || '') ? pi.data : '';
++    const ora = /^\d{2}:\d{2}$/.test(pi.ora || '') ? pi.ora : '';
++    return { ok:true, dati: { idOp, ricetta, pian: { data, pasto: ppStr(pi.pasto, 40), ora }, spesa: obj.spesa !== false } };
++  }
++  function ppLeggiDone(){
++    try{ const d = JSON.parse(localStorage.getItem(PP_DONE_KEY) || '{}'); return (d && typeof d === 'object' && !Array.isArray(d)) ? d : {}; }catch(e){ return {}; }
++  }
++  function ppSegnaDone(idOp, info){
++    const d = ppLeggiDone();
++    d[idOp] = Object.assign({ t: Date.now() }, info);
++    const chiavi = Object.keys(d).sort((a,b)=> d[b].t - d[a].t).slice(0, 200);
++    const out = {}; chiavi.forEach(k => out[k] = d[k]);
++    safeStorageSet(PP_DONE_KEY, JSON.stringify(out));
++  }
++  async function ppErrore(msg){
++    await confirmDialog({ title:'Impossibile importare la ricetta', message: msg, confirmText:'Ok', cancelText:'Chiudi' });
++  }
++  async function ppApriPacchetto(obj){
++    const v = ppValida(obj);
++    if(!v.ok){ await ppErrore(v.errore); return; }
++    ppPacchetto = v.dati;
++    const { ricetta, pian, idOp } = ppPacchetto;
++    const gia = ppLeggiDone()[idOp];
++    const esistente = recipes.find(x => x.externalId === ricetta.externalId);
++    const sub = document.getElementById('pp-sub');
++    sub.textContent = `«${ricetta.name}» — ${porzioniLabel(ricetta.servings)}, ${ricetta.ingredients.length} ingredienti` +
++      (esistente ? '. È già nel tuo ricettario: non verrà duplicata.' : '. Verrà aggiunta al tuo ricettario.') +
++      (gia ? ' Questa operazione risulta già eseguita in passato.' : '');
++    const pastoSel = document.getElementById('pp-pasto');
++    const pasti = Array.from(new Set(mealTypes.concat(MEAL_SUGGESTIONS)));
++    pastoSel.innerHTML = pasti.map(m => `<option>${escapeHtml(m)}</option>`).join('');
++    if(pian.pasto && pasti.includes(pian.pasto)) pastoSel.value = pian.pasto;
++    document.getElementById('pp-data').value = pian.data || isoLocal(new Date());
++    document.getElementById('pp-ora').value = pian.ora || MEAL_DEFAULT_TIME[pastoSel.value] || '';
++    document.getElementById('pp-piano').checked = true;
++    document.getElementById('pp-piano-campi').style.display = '';
++    const spesaCb = document.getElementById('pp-spesa');
++    const giaInSpesa = spesaLista.some(x => (x.fonti || []).includes(ricetta.name));
++    spesaCb.checked = ppPacchetto.spesa && !giaInSpesa && !(gia && gia.spesa);
++    document.getElementById('pp-spesa-nota').textContent = (giaInSpesa || (gia && gia.spesa))
++      ? 'Gli ingredienti di questa ricetta risultano già nella lista della spesa: la casella è spenta per non sommarli due volte.' : '';
++    document.getElementById('pp-overlay').classList.add('active');
++  }
++  async function ppEsegui(){
++    if(!ppPacchetto) return;
++    const { ricetta: r, idOp } = ppPacchetto;
++    const volePiano = document.getElementById('pp-piano').checked;
++    const voleSpesa = document.getElementById('pp-spesa').checked;
++    const dataIso = document.getElementById('pp-data').value;
++    const pasto = document.getElementById('pp-pasto').value;
++    const ora = document.getElementById('pp-ora').value;
++    if(volePiano && !/^\d{4}-\d{2}-\d{2}$/.test(dataIso)){ alert('Scegli una data valida per la pianificazione.'); return; }
++    const righe = [];
++    let ricetta = recipes.find(x => x.externalId === r.externalId);
++    if(ricetta){ righe.push('Ricetta già presente: non duplicata.'); }
++    else{
++      ricetta = migrateRecipe({
++        id: cryptoId(), name: r.name, category: r.category, subcategory: '', ricettarioId: DEFAULT_RICETTARIO_ID,
++        servings: r.servings, time: r.time, cookerType: r.cookerType, ingredients: r.ingredients, steps: r.steps,
++        tags: r.tags, allergens: [], freezable: false, notes: r.notes, photo: '', favorite: false, lastMade: null,
++        timesMade: 0, archived: false, externalId: r.externalId, fonteUrl: r.fonteUrl, fonteNome: r.fonteNome
++      });
++      recipes.push(ricetta);
++      if(!saveRecipes()){ recipes.pop(); alert('Salvataggio non riuscito (spazio del browser esaurito?). Nessuna modifica applicata.'); return; }
++      righe.push('Ricetta aggiunta al ricettario.');
++    }
++    let target = '';
++    if(volePiano){
++      const giorno = DAYS[(dateFromIso(dataIso).getDay() + 6) % 7];
++      target = mondayOfIso(dataIso);
++      const prima = planWeekStart;
++      setPlanWeek(target);
++      weekPlan[giorno] = weekPlan[giorno] || [];
++      if(weekPlan[giorno].some(e => e.recipeId === ricetta.id && entryMealType(e) === pasto)){
++        righe.push(`Già pianificata: ${giorno} ${dataBreve(dataIso)}, ${pasto}. Nessun doppione creato.`);
++      }else{
++        weekPlan[giorno].push({ id: cryptoId(), recipeId: ricetta.id, mealType: pasto, time: ora || '' });
++        saveWeek();
++        righe.push(`Pianificata: ${giorno} ${dataBreve(dataIso)}, ${pasto}${ora ? ' alle ' + ora : ''}.`);
++      }
++      if(prima !== target) setPlanWeek(prima);
++    }
++    if(voleSpesa){
++      const { aggiunte, sommate } = spesaAggiungiRighe(spesaRigheDiRicetta(ricetta, ricetta.servings), ricetta.name);
++      righe.push(`Lista della spesa: ${aggiunte} nuovi ingredienti, ${sommate} sommati a righe esistenti.`);
++    }
++    ppSegnaDone(idOp, { piano: volePiano, spesa: voleSpesa });
++    document.getElementById('pp-overlay').classList.remove('active');
++    ppPacchetto = null;
++    renderList(); renderPlanningDays();
++    const apri = await confirmDialog({
++      title: 'Fatto', message: righe.join('\n'),
++      confirmText: volePiano ? 'Apri pianificazione' : 'Apri ricette', cancelText: 'Resta qui'
++    });
++    if(apri){
++      if(volePiano){ setPlanWeek(target); switchView('planning'); renderPlanningDays(); }
++      else switchView('recipes');
++    }
++  }
++  (function setupPp(){
++    const ov = document.getElementById('pp-overlay');
++    const chiudi = ()=>{ ov.classList.remove('active'); ppPacchetto = null; };
++    document.getElementById('pp-close').addEventListener('click', chiudi);
++    document.getElementById('pp-annulla').addEventListener('click', chiudi);
++    ov.addEventListener('click', e=>{ if(e.target === ov) chiudi(); });
++    document.getElementById('pp-conferma').addEventListener('click', ppEsegui);
++    document.getElementById('pp-piano').addEventListener('change', e=>{
++      document.getElementById('pp-piano-campi').style.display = e.target.checked ? '' : 'none';
++    });
++    document.getElementById('pp-pasto').addEventListener('change', e=>{
++      document.getElementById('pp-ora').value = MEAL_DEFAULT_TIME[e.target.value] || '';
++    });
++  })();
++  // Legge e CONSUMA il frammento #pp=… (lo toglie dall'indirizzo, così un ricaricamento non riapre l'anteprima).
++  function ppControllaIngresso(){
++    const m = /^#pp=(.*)$/.exec(location.hash || '');
++    if(!m) return;
++    const payload = m[1];
++    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
++    try{
++      if(!/^[A-Za-z0-9_\-]+={0,2}$/.test(payload)) throw new Error('caratteri non validi');
++      ppApriPacchetto(ppDecodifica(payload));
++    }
++    catch(err){ ppErrore('Il collegamento non contiene un pacchetto leggibile (' + (err && err.message ? err.message : 'errore') + ').'); }
++  }
++  window.addEventListener('hashchange', ppControllaIngresso);
++
+   // ---------- Init ----------
+   (async function avviaApp(){
+     await inizializzaStorageFileAllAvvio();
+@@ -8405,5 +8613,6 @@
+     aggiornaControlliMenuStorage();
+     aggiornaBannerBackup();
+     mostraSceltaStorageSeNecessario();
++    ppControllaIngresso();
+   })();
+ })();
+diff -ru '--exclude=guida.html' '--exclude=tests' rr_ORIGINALE_backup/sw.js rr/sw.js
+--- rr_ORIGINALE_backup/sw.js	2026-10-25 14:15:16.114052266 +0000
++++ rr/sw.js	2026-10-25 14:57:15.248479366 +0000
+@@ -1,5 +1,5 @@
+ /* Il Mio Ricettario - service worker (uso offline). Cambia VERSION ad ogni release. */
+-const VERSION = 'ricettario-5.46.0';
++const VERSION = 'ricettario-5.47.0';
+ const PRECACHE = ['./', 'index.html', 'style.css', 'css/bulma.css', 'js/app.js', 'js/off-integration.js', 'js/nutrition-import.js', 'js/vendor/html5-qrcode.min.js', 'fonts/fonts.css',
+   'manifest.json', 'guida.html', 'img/icon-192.png', 'img/icon-512.png', 'img/apple-touch-icon.png', 'img/favicon-32.png'];
+ 
