@@ -1,5 +1,7 @@
 # Copione — Editor per il teatro
 
+> **Aggiornamento grafico · 1 novembre 2026** — L'interfaccia include ora i temi chiaro e scuro con palette blu petrolio/antracite. Il selettore si trova nell'intestazione e ricorda la scelta sul dispositivo.
+
 Un editor di copioni teatrali che funziona direttamente nel browser, in **un solo file HTML**: niente installazione, niente account, niente server. Scrivi atti, scene, battute e didascalie, gestisci i personaggi, esporti in PDF e in formato Fountain.
 
 Creato da **Giampiero Santoro — Clan Destino**.

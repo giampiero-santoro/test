@@ -1,7 +1,7 @@
 /* Service worker di «Copione»: fa aprire l'editor anche senza connessione.
    Strategia: prima la rete (così trovi sempre l'ultima versione), e se la rete manca
    o è troppo lenta si usa la copia salvata nel dispositivo. */
-const CACHE = 'copione-v1';
+const CACHE = 'copione-studio-v2';
 const CORE = ['./', './index.html'];
 
 self.addEventListener('install', (e) => {

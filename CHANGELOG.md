@@ -1,6 +1,16 @@
 # Elenco delle modifiche
 
-Tutte le novità dell'editor, raggruppate per argomento. L'ultimo aggiornamento è del 17 ottobre 2026.
+Ultimo aggiornamento: 1 novembre 2026.
+
+## Restyling Studio professionale (1 novembre 2026)
+- Nuova identità visiva con palette **blu petrolio, antracite e grigi**, al posto dell'accento bordeaux.
+- Introdotti **tema chiaro e tema scuro**, selezionabili dal pulsante nell'intestazione; la scelta viene memorizzata nel browser.
+- Superfici, pannelli, schede personaggio, menu, barre degli strumenti, pulsanti, modali e campi aggiornati con una gerarchia visiva più uniforme.
+- Il foglio del copione resta chiaro anche nel tema scuro, così il testo teatrale mantiene contrasto e leggibilità simili a una pagina stampata.
+- Aggiunti stati hover/active più coerenti e un indicatore di focus da tastiera ben visibile.
+- Adattato il controllo del tema agli schermi piccoli, mantenendo disponibili le azioni principali.
+- Conservati struttura, funzioni e dati dell'editor: il restyling è realizzato con CSS aggiuntivo e un piccolo controller indipendente.
+- Aggiornata la cache del Service Worker per forzare il recupero della nuova interfaccia dopo la pubblicazione.
 
 ## Aspetto e uso
 - **Un solo tema, chiaro**: carta bianca, accento bordeaux, copione in carattere con le grazie. Rimossi gli altri stili e il tema scuro.
