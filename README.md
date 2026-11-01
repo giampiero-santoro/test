@@ -1,66 +1,177 @@
-# 📖 Il Mio Ricettario
+# Copione — Editor per il teatro
 
-Un ricettario personale, digitale e privato, per organizzare le tue ricette da qualsiasi fonte. Nessun account, nessun server, nessun abbonamento: tutto resta sul tuo dispositivo.
+Un editor di copioni teatrali che funziona direttamente nel browser, in **un solo file HTML**: niente installazione, niente account, niente server. Scrivi atti, scene, battute e didascalie, gestisci i personaggi, esporti in PDF e in formato Fountain.
 
-## ✨ Caratteristiche
+Creato da **Giampiero Santoro — Clan Destino**.
 
-- **Passaggi con impostazioni robot facoltative**: scrivi ogni passaggio in modo normale; se usi un robot da cucina puoi aggiungere velocità, temperatura, tempo e modalità (Normale/Reverse/Turbo/Vapore) solo dove ti serve
-- **Passaggi con impostazioni pentola a pressione facoltative**: pressione (con l'unità che preferisci: Bar, PSI o kPa), tipo di rilascio, durata del rilascio con timer dedicato e liquido minimo richiesto; le ricette che le usano si riconoscono da un'etichetta 🍲 automatica
-- **Valori nutrizionali della ricetta facoltativi** (Kcal, proteine, grassi, carboidrati, fibre, zuccheri, sale), inseriti manualmente e sempre riferiti a una porzione. Non vengono calcolati sommando i valori degli ingredienti, perché la cottura può alterare peso e composizione del piatto.
-- **Ingredienti duplicati**: se lo stesso ingrediente finisce per comparire due volte in una ricetta (stesso nome e unità), il ricettario te lo segnala al salvataggio e propone di unire le righe sommando le quantità
-- **Importa ricette da testo**: incolla il testo o il sorgente di una pagina web e il ricettario prova a riconoscere automaticamente nome, ingredienti e passaggi (usa i dati strutturati della pagina quando disponibili), pronti da correggere prima di salvare
-- **Porzioni scalabili**: apri una ricetta e ricalcola automaticamente le quantità con un semplice +/−
-- **Categorie colorate**: Primi, Secondi, Zuppe & Vellutate, Impasti & Pane, Salse & Sughi, Dolci, Infusi & Tisane, Altro
-- **Tag dietetici**: Vegetariano, Vegano, Senza glutine, Senza lattosio, Piccante — assegnabili e filtrabili
-- **Ricerca, filtri e ordinamento**: per nome, ingrediente, categoria, tag dietetici, metodo di preparazione (pentola a pressione, robot, tradizionale) ed escludendo ingredienti che non vuoi usare; ordina per nome, data di aggiunta, ultima preparata o più preparate
-- **"Cosa posso cucinare?"**: usa automaticamente i prodotti che hai in Dispensa (più eventuali altri ingredienti che scrivi a mano) e mostra subito quali ricette puoi fare
-- **Duplica ricetta**: crea una copia di una ricetta già pronta in modifica, comoda per varianti senza riscrivere tutto da capo
-- **Ricette preferite**: stellina per le ricette del cuore, con filtro dedicato
-- **Cronologia di preparazione**: data dell'ultima volta e contatore di quante volte l'hai preparata
-- **Foto per ricetta**, ridimensionata e compressa automaticamente per occupare meno spazio
-- **Modalità cucina guidata**: schermo intero, un passaggio alla volta, con timer integrato
-- **Pianificazione settimanale in una vista dedicata**: più ricette (o prodotti dalla dispensa) per giorno, con giorni che partono vuoti e pasti aggiunti a piacere dal menu «Aggiungi pasto» (colazione, spuntino, pranzo, merenda, cena, aperitivo… quanti ne servono) con orario facoltativo per ciascuna
-- **Dashboard "Oggi"**: all'apertura riassume i pasti pianificati, i prodotti da consumare entro tre giorni e la lista della spesa, con scorciatoie alle sezioni corrispondenti
-- **Conferma consumo pasto**: segna un pasto pianificato come consumato e prova ad aggiornare automaticamente le quantità in Dispensa, cercando un prodotto con nome identico o, se manca, uno con nome simile ma solo quando è candidato un unico prodotto, e scalando la quantità solo dove l'unità di misura coincide; un "↺" accanto permette di annullare, ripristinando in Dispensa quanto era stato tolto
-- **Lista della spesa scalabile**: genera la lista per l'intera settimana pianificata, per un singolo giorno o per una singola ricetta, con le quantità adattate al numero di persone (o alle porzioni) che indichi e sommate quando lo stesso ingrediente compare più volte; per la settimana segnala anche gli ingredienti di una ricetta appena pianificata che non risultano in Dispensa, con conferma prima di aggiungerli come promemoria alla lista; spuntare un ingrediente lo aggiunge (o ne aumenta la quantità) anche in Dispensa
-- **Controllo incrociato con la Dispensa**: se un ingrediente della lista della spesa è già segnato in Dispensa (anche con un nome simile, es. "Farina" e "Farina 00", quando il prodotto candidato è uno solo) un avviso lo mostra e, quando l'unità di misura coincide o è convertibile automaticamente (g/kg, ml/cl/l), un tocco su "Sottrai dalla lista" — o su "Sottrai tutto" per l'intera lista in una volta — toglie la quantità già disponibile da quella da acquistare (o segnala che non serve comprarne altro, se basta già quella in Dispensa); un "Annulla" permette di tornare indietro
-- **Esportazione PDF**: una singola ricetta, la lista della spesa (settimana, giorno o singola ricetta) oppure l'intera settimana pianificata insieme alla lista della spesa
-- **Backup**: esporta tutto (ricette, pianificazione, fasce pasto) in un file JSON e reimportalo quando vuoi; le voci nuove si aggiungono sempre, per quelle già presenti (stesso identificativo) puoi scegliere se sostituirle con la versione importata o lasciarle come sono
-- **Importa/esporta CSV**: scarica le tue ricette in un file `.csv` apribile in Excel/Fogli Google, oppure importa ricette da un file CSV con lo stesso formato — anche qui, per i nomi già presenti puoi scegliere se sostituirli
-- **Dispensa**: una sezione separata per tenere traccia di tutto quello che hai in casa e può servire per una ricetta — non solo freschi (frutta, verdura, uova, salumi, latticini), ma anche surgelati, pasta e cereali, legumi, farine, conserve, spezie, oli, bevande, snack e altro — con quantità, soglia minima, valori nutrizionali e data di scadenza facoltativi; le scadenze vicine o passate e le quantità in esaurimento sono evidenziate, puoi cercare le ricette che usano prima ciò che scade entro tre giorni e ogni prodotto si può pianificare direttamente come pasto nella settimana
-- **Salvataggio locale**: tutti i dati restano nel browser tramite `localStorage`, nessuna connessione richiesta; se lo spazio disponibile dovesse esaurirsi, un avviso te lo segnala invece di fallire in silenzio
-- **Avviso modifiche non salvate**: se chiudi una ricetta o un prodotto Dispensa che stavi modificando (anche chiudendo la scheda del browser) senza aver salvato, un avviso te lo ricorda prima di buttare via il lavoro fatto
+**▶ Provalo online:** https://giampiero-santoro.github.io/copione-teatrale/
 
-## 🚀 Come si usa
+> 📖 Per l'uso passo per passo vedi la [**Guida all'uso**](GUIDA.md). Le novità sono nell'[elenco delle modifiche](CHANGELOG.md).
 
-1. Pubblica la cartella su un normale spazio web (per esempio GitHub Pages) e apri il sito dal suo indirizzo. Per una prova locale usa un piccolo server web: `python3 -m http.server`.
-2. Premi **"+ Nuova ricetta"** per scriverne una tua, oppure **"📋 Importa ricetta ▾"** per incollarla da un'altra fonte, oppure importarla da file
-3. Clicca su una ricetta per vederla in dettaglio, scalare le porzioni e seguire i passaggi
-4. Se vuoi, per ogni ricetta puoi inserire a mano i valori nutrizionali per porzione.
-5. Usa il pannello **"Cosa posso cucinare?"** per trovare ricette in base a quello che hai già in Dispensa (più eventuali altri ingredienti che scrivi a mano), ed **"Escludi ingredienti"** per filtrare quello che non vuoi usare
-6. Passa alla vista **"📅 Pianificazione"** per organizzare la settimana pasto per pasto e generare la lista della spesa
-7. Passa alla vista **"🥫 Dispensa"** per tenere traccia di cosa hai in frigo e in cucina
-9. Prima di cambiare browser o dispositivo, usa **"Esporta backup"** per salvare un file JSON con tutti i tuoi dati
+## Com'è fatto
 
-Nessuna installazione richiesta: nessun build, nessuna dipendenza da installare — `index.html` con lo stile in `style.css` e gli script in `js/`. Consulta [GUIDA.md](GUIDA.md) per le istruzioni dettagliate su ogni funzione, [MANIFEST.md](MANIFEST.md) per l'elenco di tutti i file da tenere allineati quando aggiorni il sito, e [CHANGELOG.md](CHANGELOG.md) per la cronologia delle versioni.
+![L'editor su computer: struttura a sinistra, foglio al centro, personaggi a destra](docs/02-editor.png)
 
-## 🛠️ Tecnologie
+| La pagina iniziale con la libreria | La modalità studio |
+|---|---|
+| ![Pagina iniziale con la libreria dei copioni a scaffali](docs/01-pagina-iniziale.png) | ![Modalità studio: le battute di un personaggio sono nascoste e si rivelano con un tocco](docs/03-modalita-studio.png) |
 
-- HTML, CSS, JavaScript vanilla (nessuna libreria esterna)
-- `localStorage` per la persistenza dei dati
-- Font DM Sans e Lora inclusi nell'app (SIL Open Font License), nessuna chiamata a Google
-- Dati prodotti: [Open Food Facts](https://world.openfoodfacts.org) (ODbL / CC BY-SA), consultato solo quando usi la scansione o la ricerca prodotti in Dispensa
+<p>
+  <img src="docs/04-telefono-editor.png" alt="L'editor su telefono" width="260">
+  &nbsp;&nbsp;
+  <img src="docs/05-telefono-pagina-iniziale.png" alt="La pagina iniziale su telefono" width="260">
+</p>
 
-## 📌 Note
-
-- I dati delle tue ricette, dispensa e pianificazione sono salvati solo nel browser in cui apri il file. Se cambi browser o dispositivo, non si sincronizzano automaticamente: usa la funzione di esportazione/importazione backup per trasferirli.
-- Il riconoscimento automatico nell'importazione da testo è un aiuto, non una garanzia: controlla sempre i campi prima di salvare.
-- Il formato CSV è pensato per uno scambio semplice (una riga per ricetta): per un backup completo con pianificazione e fasce pasto usa il backup JSON.
-
-## 📄 Licenza e dati
-
-I dettagli su fonti, licenze e privacy sono nella pagina «Note legali e crediti» dell'app (menu «Come funziona»).
+*Gli esempi usano testi di fantasia e titoli di opere di pubblico dominio.*
 
 ---
 
-*Progetto personale, nato come ricettario per un robot da cucina e diventato un ricettario generale per organizzare ricette da qualsiasi fonte.*
+## Cosa puoi fare
+
+**Scrivere**
+- Struttura in **atti e scene**, con luogo e momento di ogni scena.
+- Tre tipi di blocco: **battuta**, **didascalia**, **voce fuori scena**, più note tra parentesi.
+- **Personaggi** con scheda (età, ruolo, descrizione, relazioni, foto, colore) e filtro per vedere solo le loro battute.
+- Dettagli di scena: stato (bozza / da rivedere / definitiva), descrizione, scenografia, personaggi in scena, **note di regia private**.
+- Annulla/ripristina, cerca e sostituisci su tutto il copione, ricerca rapida (`Ctrl+K`).
+
+**Organizzare**
+- **Libreria** dei copioni nella pagina iniziale, a scaffali, con logo, ricerca, ordinamento e data dell'ultima modifica.
+- Struttura con **atti comprimibili** e indicatore dello stato di ogni scena.
+- **Versioni**: salva istantanee del copione e confrontale con quello attuale.
+- Salvataggio automatico nel browser e, dove supportato, **collegamento a un file** sul tuo computer.
+- **Backup dell'intera libreria** in un solo file (con le versioni), ripristino senza duplicati, **promemoria settimanale** e avviso se il copione è aperto in due schede.
+
+**Importare ed esportare**
+- Importa: testo incollato, file `.fountain`, progetti `.json`.
+- Esporta: **PDF** (A4 o Letter, margini regolabili, copertina con logo opzionale), anteprima PDF anche **in tempo reale**, **copione per personaggio** (le sue battute con le battute-imbeccata), copia di lettura HTML, `.fountain`, `.txt`, progetto `.json`.
+
+**Analizzare**
+- Statistiche avanzate (tempo di lettura per atto, bilanciamento delle battute).
+- Controllo qualità prima di stampare.
+- Piano di scena: chi c'è in ogni scena.
+- Vista d'insieme con anteprima di tutte le scene.
+
+**Lavorare comodi**
+- Un unico aspetto **chiaro e moderno**: carta bianca, accento bordeaux e copione in carattere con le grazie.
+- Layout a tre pannelli su schermi larghi (menu in alto, struttura a sinistra, personaggi e dettagli a destra), con pannelli nascondibili.
+- Versione ottimizzata per **smartphone**, con barra di navigazione in basso.
+- **Installabile come app** sulla schermata Home di telefono e computer, con l'icona Clan Destino.
+- **Accessibile**: uso completo da tastiera, contorno di focus visibile, etichette per i lettori di schermo, contrasti elevati e bersagli di tocco ampi.
+- **Modalità prova/lettura** per leggere il copione senza gli strumenti di modifica.
+- **Modalità studio**: nasconde le battute di un personaggio, con suggerimento a iniziali e rivelazione a tocco, per imparare la parte a memoria.
+
+---
+
+## Come si usa
+
+### Online
+Apri il link qui sopra. Non serve altro.
+
+### In locale
+1. Scarica `index.html` (pulsante *Raw* → *Salva con nome*, oppure clona il repository).
+2. Aprilo con un doppio clic nel browser.
+
+### Pubblicarlo con GitHub Pages
+1. Carica `index.html` nella radice del repository (o in una cartella).
+2. Vai su **Settings → Pages**.
+3. In *Build and deployment* scegli **Deploy from a branch**, seleziona il branch `main` e la cartella `/ (root)`.
+4. Dopo un minuto il sito è disponibile su `https://<utente>.github.io/<repository>/`.
+
+Per aggiornare l'editor basta sostituire `index.html` e fare commit.
+
+---
+
+## I tuoi dati
+
+- **Tutto resta sul tuo dispositivo.** Il copione non viene inviato a nessun server.
+- Il salvataggio automatico usa la memoria del browser (`localStorage`). Svuotare la cache o i dati del sito, o cambiare browser/dispositivo, significa perdere i copioni salvati in questo modo.
+- **Per sicurezza salva sempre anche un file:** *File → Scegli dove salvare* (browser basati su Chromium) oppure *Pubblicazione → Salva progetto (.json)*.
+- La libreria è **per browser**: telefono e computer hanno librerie diverse. Per spostare un copione usa l'esportazione `.json` e poi *Importa copione*.
+
+## Compatibilità
+
+| Funzione | Chrome / Edge | Safari / Firefox | Telefono |
+|---|---|---|---|
+| Scrittura, esportazioni, importazioni | ✅ | ✅ | ✅ |
+| Collegare un file sul computer (salvataggio diretto) | ✅ | ❌ (si usa *Salva progetto .json*) | ❌ |
+| Layout a tre pannelli | ✅ (da ~1000 px di larghezza) | ✅ | layout dedicato |
+
+## Funziona anche senza internet
+
+L'editor è **autosufficiente**: le librerie per i PDF e i QR code e i caratteri sono incorporati in `index.html` (circa 1,1 MB). Dopo averlo scaricato lo puoi aprire con un doppio clic, **anche senza connessione**, e creare PDF, importare ed esportare come sempre.
+
+Per usarlo offline anche dal sito pubblicato (e come app installata) aggiungi al repository il file **`sw.js`**: al primo accesso il browser salva una copia dell'editor, e le volte successive si apre anche senza rete. Con la rete trova sempre l'ultima versione; se la rete manca o è lenta (più di 4 secondi) usa la copia salvata. Se `sw.js` non c'è, l'editor funziona lo stesso, ma per aprirsi dal sito serve la connessione.
+
+## Scorciatoie da tastiera
+
+| Tasti | Azione |
+|---|---|
+| `Ctrl/Cmd + S` | Salva subito |
+| `Ctrl/Cmd + Invio` | Aggiunge una nuova battuta nella scena |
+| `Ctrl/Cmd + Z` | Annulla |
+| `Ctrl/Cmd + Maiusc + Z` oppure `Ctrl/Cmd + Y` | Ripristina |
+| `Ctrl/Cmd + K` | Ricerca rapida (scene, personaggi, battute) |
+| `Esc` | Chiude la finestra aperta |
+
+## Formati
+
+| Formato | Importa | Esporta | Contenuto |
+|---|---|---|---|
+| **Progetto `.json`** | ✅ | ✅ | Tutto: testo, schede personaggio, note di regia, impostazioni |
+| **Fountain `.fountain`** | ✅ | ✅ | Titolo, autore, atti (`#`), scene (`##`), didascalie, battute. *Non* contiene schede personaggio né note di regia |
+| **Testo `.txt`** | ✅ (incolla) | ✅ | Solo testo. Importando: righe in MAIUSCOLO = personaggi, righe tra (parentesi) = didascalie |
+| **PDF** | — | ✅ | Copione completo o per personaggio |
+| **HTML di lettura** | — | ✅ | Copia di sola lettura |
+
+## Struttura del repository
+
+```
+├── index.html      # l'intero editor (HTML + CSS + JavaScript, librerie e caratteri inclusi)
+├── sw.js           # facoltativo: permette di aprire il sito anche offline
+├── LICENSE         # testo della licenza CC BY-NC-SA 4.0
+├── THIRD_PARTY_LICENSES.md  # licenze dei componenti di terzi incorporati
+├── README.md       # questo file
+├── GUIDA.md        # guida all'uso
+├── CHANGELOG.md    # elenco delle modifiche
+└── docs/           # screenshot usati nel README
+```
+
+L'editor è volutamente un unico file: per modificarlo basta un editor di testo e per distribuirlo basta copiarlo.
+
+## Contribuire
+
+Segnalazioni e idee sono benvenute: apri una *Issue* descrivendo cosa hai fatto, cosa ti aspettavi e cosa è successo (indica anche browser e dispositivo).
+
+## Licenza
+
+**© 2026 Giampiero Santoro — Clan Destino** · [Creative Commons Attribuzione – Non commerciale – Condividi allo stesso modo 4.0 Internazionale (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.it). Il testo completo è nel file [`LICENSE`](LICENSE).
+
+| Puoi | Devi | Non puoi |
+|---|---|---|
+| usare, copiare e modificare l'editor, anche condividendo la tua versione, **senza scopi commerciali** | **mantenere visibili il mio nome e il logo**, indicare le modifiche, usare **la stessa licenza** e citare il link alla licenza | venderlo, offrirlo in servizi a pagamento o includerlo in prodotti commerciali; far credere che la tua versione sia approvata da me |
+
+**Come mantenere nome e logo.** È la «richiesta di attribuzione» prevista dalla licenza (art. 3): lascia invariati, nell'editor e nelle sue copie, il nome «Giampiero Santoro — Clan Destino» e il logo Clan Destino (intestazione, pagina iniziale, finestra *Informazioni e licenza*, copertina dei PDF) e l'avviso in testa a `index.html`. Il nome e il logo restano **marchi della compagnia**: la licenza non li concede per altri usi.
+
+**I tuoi copioni sono tuoi.** I testi che scrivi e i file che crei con l'editor (PDF, `.fountain`, `.json`) non sono coperti dalla licenza: appartengono a te.
+
+**Uso non commerciale: come lo intendo.** *(nota dell'autore, non fa parte del testo della licenza)*
+- È consentito usarlo per scrivere, provare e mettere in scena i propri copioni, **anche se gli spettacoli hanno un biglietto o un cachet**, e usarlo in corsi, laboratori, scuole e associazioni.
+- Non è consentito vendere l'editor o sue copie e modifiche, offrirlo come servizio a pagamento (abbonamenti, hosting a pagamento), o farne parte di un prodotto o servizio commerciale.
+
+**Uso commerciale e sostegno.** Chi vuole usarlo per scopi commerciali può chiedermi un accordo o una **licenza separata** (anche a pagamento): scrivimi tramite una *Issue* o il mio profilo GitHub. Il sostegno economico (donazioni, sponsorizzazioni) è benvenuto e non cambia la licenza.
+
+**Contributi.** Se mandi modifiche (*pull request*) accetti che siano rilasciate con la stessa licenza e che l'autore possa concedere anche licenze separate sul progetto.
+
+## Crediti
+
+Autore: **Giampiero Santoro — Clan Destino**.
+
+L'editor incorpora componenti di terzi, che **mantengono le proprie licenze** (testi completi in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md)):
+
+| Componente | Uso | Licenza |
+|---|---|---|
+| [jsPDF](https://github.com/parallax/jsPDF) 2.5.1 | creazione dei PDF | MIT |
+| [qrcodejs](https://github.com/davidshimjs/qrcodejs) 1.0.0 | QR code nel PDF | MIT |
+| Inter, Playfair Display, Courier Prime, Noto Serif (da [Fontsource](https://fontsource.org)) | caratteri, incorporati nel file | SIL Open Font License 1.1 |
+| Icone lineari | interfaccia | disegnate a mano nello stile di [Lucide](https://lucide.dev) / [Feather](https://feathericons.com) (ISC / MIT) |
